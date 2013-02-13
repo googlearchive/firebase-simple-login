@@ -20,6 +20,8 @@
     </div>
   </div>
 
+  <a href="https://github.com/firebase/firebase-simple-login/"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
   <div class="container_12">
 
     <div class="grid_12">
@@ -103,10 +105,10 @@ var chatRef = new Firebase('https://SampleChat.firebaseIO.com');
 var authClient = new FirebaseAuthClient(chatRef, function(error, user) {
   if (error) {
     // an error occurred while attempting login
-    console.log(error);
+    alert(error);
   } else if (user) {
     // user authenticated with Firebase
-    console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
+    alert('User ID: ' + user.id + ', Provider: ' + user.provider);
   } else {
     // user is logged out
   }
@@ -162,11 +164,25 @@ authClient.login('&lt;provider&gt;');</code></pre>
   <script type="text/javascript" src="https://cdn.firebase.com/v0/firebase-auth-client.js"></script>
   <script type="text/javascript" src="https://login.persona.org/include.js"></script>
   <script type="text/javascript">
+    var href = document.location.href;
+    if (href.indexOf('localhost') < 0 && href.indexOf('127.0.0.1') < 0 && href.indexOf('github.com') < 0) {
+      alert('Sorry! This demo is configured to allow authentication only from http://localhost or http://*.github.com.');
+    }
+  
     // FirebaseAuthClient demo instantiation
     var firebaseRef = new Firebase("https://demos.firebaseio.com");
     var authClient = new FirebaseAuthClient(firebaseRef, function(error, user) {
-      if (user) {
+      if (error) {
+        // an error occurred while attempting login
+        alert(error);
+      } else if (user) {
+        // user authenticated with Firebase
+        alert('User ID: ' + user.id + ', Provider: ' + user.provider);
+        
+        // Log out so we can log in again with a different provider.
         authClient.logout();
+      } else {
+        // user is logged out
       }
     });
     function login(provider) {
