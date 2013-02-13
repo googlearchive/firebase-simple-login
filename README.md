@@ -1,3 +1,5 @@
+### [Firebase Simple Login Demo](http://firebase.github.com/firebase-simple-login/)!
+
 Firebase Simple Login
 =====================
 Firebase Simple Login allows you to easily enable authentication in your
