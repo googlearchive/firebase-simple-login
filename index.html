@@ -165,8 +165,8 @@ authClient.login('&lt;provider&gt;');</code></pre>
   <script type="text/javascript" src="https://login.persona.org/include.js"></script>
   <script type="text/javascript">
     var href = document.location.href;
-    if (href.indexOf('localhost') < 0 && href.indexOf('127.0.0.1') < 0 && href.indexOf('github.com') < 0) {
-      alert('Sorry! This demo is configured to allow authentication only from http://localhost or http://*.github.com.');
+    if (href.indexOf('localhost') < 0 && href.indexOf('127.0.0.1') < 0 && href.indexOf('github.com') < 0 && href.indexOf('github.io') < 0) {
+      alert('Sorry! This demo is configured to allow authentication only from http://localhost, http://*.github.com, or http://*.github.io.');
     }
   
     // FirebaseAuthClient demo instantiation
