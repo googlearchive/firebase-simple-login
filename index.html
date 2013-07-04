@@ -100,9 +100,9 @@
         <fieldset>
           <legend class="bold">Code Sample</legend>
           <div class="content">
-            <pre><code class="prettyprint">// instatiate the FirebaseAuthClient and monitor the user's auth state
+            <pre><code class="prettyprint">// instatiate the FirebaseSimpleLogin and monitor the user's auth state
 var chatRef = new Firebase('https://SampleChat.firebaseIO.com');
-var authClient = new FirebaseAuthClient(chatRef, function(error, user) {
+var auth = new FirebaseSimpleLogin(chatRef, function(error, user) {
   if (error) {
     // an error occurred while attempting login
     alert(error);
@@ -115,7 +115,7 @@ var authClient = new FirebaseAuthClient(chatRef, function(error, user) {
 });
 
 // attempt to log the user in with your preferred authentication provider
-authClient.login('&lt;provider&gt;');</code></pre>
+auth.login('&lt;provider&gt;');</code></pre>
           </div>
         </fieldset>
       </div>
@@ -161,7 +161,7 @@ authClient.login('&lt;provider&gt;');</code></pre>
   </div>
 
   <script type="text/javascript" src="https://cdn.firebase.com/v0/firebase.js"></script>
-  <script type="text/javascript" src="https://cdn.firebase.com/v0/firebase-auth-client.js"></script>
+  <script type="text/javascript" src="https://cdn.firebase.com/v0/firebase-simple-login.js"></script>
   <script type="text/javascript" src="https://login.persona.org/include.js"></script>
   <script type="text/javascript">
     var href = document.location.href;
@@ -169,9 +169,9 @@ authClient.login('&lt;provider&gt;');</code></pre>
       alert('Sorry! This demo is configured to allow authentication only from http://localhost, http://*.github.com, or http://*.github.io.');
     }
   
-    // FirebaseAuthClient demo instantiation
+    // FirebaseSimpleLogin demo instantiation
     var firebaseRef = new Firebase("https://demos.firebaseio.com");
-    var authClient = new FirebaseAuthClient(firebaseRef, function(error, user) {
+    var auth = new FirebaseSimpleLogin(firebaseRef, function(error, user) {
       if (error) {
         // an error occurred while attempting login
         alert(error);
@@ -180,13 +180,13 @@ authClient.login('&lt;provider&gt;');</code></pre>
         alert('User ID: ' + user.id + ', Provider: ' + user.provider);
         
         // Log out so we can log in again with a different provider.
-        authClient.logout();
+        auth.logout();
       } else {
         // user is logged out
       }
     });
     function login(provider) {
-      authClient.login(provider);
+      auth.login(provider);
     }
 
     // Google Analyics
