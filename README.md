@@ -1,4 +1,4 @@
-### [Firebase Simple Login Demo](http://firebase.github.com/firebase-simple-login/)!
+### [Firebase Simple Login Demo](http://firebase.github.io/firebase-simple-login/)!
 
 Firebase Simple Login
 =====================
