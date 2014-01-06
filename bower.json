@@ -1,0 +1,26 @@
+{
+  "name": "firebase-simple-login",
+  "version": "1.0.1",
+  "homepage": "https://firebase.com",
+  "authors": [
+    "Firebase <operations@firebase.com>"
+  ],
+  "description": "Firebase Simple Login Web Client",
+  "main": "firebase-simple-login.js",
+  "keywords": [
+    "Firebase",
+    "synchronization",
+    "real-time",
+    "websocket",
+    "authentication"
+  ],
+  "license": "MIT",
+  "private": false,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
