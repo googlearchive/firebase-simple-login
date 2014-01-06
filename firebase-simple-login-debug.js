@@ -2090,6 +2090,9 @@ FirebaseSimpleLogin.prototype.launchAuthWindow = function(provider, options, cal
   if(options["scope"]) {
     url += "&scope=" + options["scope"]
   }
+  if(options["debug"]) {
+    url += "&debug=" + options["debug"]
+  }
   var window_features = {"menubar":0, "location":0, "resizable":0, "scrollbars":1, "status":0, "dialog":1, "width":700, "height":375};
   if(options["height"]) {
     window_features["height"] = options["height"];
