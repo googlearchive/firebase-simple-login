@@ -2356,7 +2356,7 @@ FirebaseSimpleLogin.prototype.loginWithPersona = function(options) {
   if(!navigator["id"]) {
     throw new Error("FirebaseSimpleLogin.login(persona): Unable to find Persona include.js");
   }
-  fb.simplelogin.persona.login(function(assertion) {
+  fb.simplelogin.providers.Persona.login(function(assertion) {
     if(assertion === null) {
       callback(fb.simplelogin.Errors.get("UNKNOWN_ERROR"))
     }else {
