@@ -2201,7 +2201,7 @@ FirebaseSimpleLogin = function(ref, callback, context) {
     throw new Error("new FirebaseSimpleLogin(): First argument must be a valid Firebase reference (i.e. new Firebase(<firebaseURL>)).");
   }
   if(window.location.protocol === "file:" && !this.isMobilePhoneGap() && console && console.log) {
-    var message = "FirebaseSimpleLogin(): Due to browser security restrictions, " + "loading applications via `file://*` URLs will prevent popup-based authentication " + "providers from working properly. When testing locally, you'll need to run a " + "barebones webserver on your machine rather than loading your test files via " + "`file://*`. The easiest way to run a barebones server on your local machine is to " + "`cd` to the root directory of your code and run `python -m SimpleHTTPServer`, " + 
+    var message = "FirebaseSimpleLogin(): Due to browser security restrictions, " + "loading applications via `file://*` URLs will prevent popup-based authentication " + "providers from working properly. When testing locally, you'll need to run a " + "barebones webserver on your machine rather than loading your test files via " + "`file://*`. The easiest way to run a barebones server on your local machine is to " + "`cd` to the root directory of your code and run `python -m SimpleHTTPServer`, " +
     "which will allow you to access your content via `http://127.0.0.1:8000/*`.";
     console.log(message)
   }
@@ -2356,7 +2356,7 @@ FirebaseSimpleLogin.prototype.loginWithPersona = function(options) {
   if(!navigator["id"]) {
     throw new Error("FirebaseSimpleLogin.login(persona): Unable to find Persona include.js");
   }
-  fb.simplelogin.persona.login(function(assertion) {
+  fb.simplelogin.providers.Persona.login(function(assertion) {
     if(assertion === null) {
       callback(fb.simplelogin.Errors.get("UNKNOWN_ERROR"))
     }else {
@@ -2500,4 +2500,3 @@ FirebaseSimpleLogin.prototype.sendPasswordResetEmail = function(email, cb) {
     return cb && cb(error, !!user)
   })
 };
-
