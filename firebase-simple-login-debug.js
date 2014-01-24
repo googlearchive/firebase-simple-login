@@ -991,8 +991,6 @@ fb.simplelogin.transports.WinChan = function() {
     }}
   }
 }();
-goog.provide("fb.constants");
-var NODE_CLIENT = false;
 goog.provide("fb.util.validation");
 fb.util.validation.validateArgCount = function(fnName, minCount, maxCount, argCount) {
   var argError;
@@ -2163,7 +2161,6 @@ sjcl.misc.cachedPbkdf2 = function(a, b) {
   return{key:d[c].slice(0), salt:c.slice(0)}
 };
 goog.provide("FirebaseSimpleLogin");
-goog.require("fb.constants");
 goog.require("fb.util.json");
 goog.require("fb.util.validation");
 goog.require("fb.util.sjcl");
@@ -2181,7 +2178,7 @@ FirebaseSimpleLogin = function(ref, callback, context) {
   var self = this, dataURL = ref.toString(), namespace = null;
   var callbackNamespace = "_FirebaseSimpleLogin";
   window[callbackNamespace] = window[callbackNamespace] || [];
-  window[callbackNamespace].push({"callback":callback, "context":context});
+  window[callbackNamespace].push({"callback":callback, "context":context, "args":null});
   fb.util.validation.validateArgCount("new FirebaseSimpleLogin", 1, 3, arguments.length);
   fb.util.validation.validateCallback("new FirebaseSimpleLogin", 2, callback, false);
   if(typeof ref === "string") {
@@ -2209,19 +2206,24 @@ FirebaseSimpleLogin = function(ref, callback, context) {
   this.mNamespace = namespace;
   this.mApiHost = fb.simplelogin.Constants.apiHost;
   this.sessionLengthDays = null;
+  this.user = null;
   this.mLoginStateChange = function() {
     var cbs = window[callbackNamespace] || [];
     var args = Array.prototype.slice.apply(arguments);
+    this.user = args[1];
     for(var ix = 0;ix < cbs.length;ix++) {
       var cb = cbs[ix]["callback"];
       var ctx = cbs[ix]["context"];
-      (function(cb, ctx) {
-        if(typeof cb === "function") {
-          setTimeout(function() {
-            cb.apply(ctx, args)
-          }, 0)
-        }
-      })(cb, ctx)
+      if(args != cbs[ix]["args"]) {
+        window[callbackNamespace][ix]["args"] = args;
+        (function(cb, ctx) {
+          if(typeof cb === "function") {
+            setTimeout(function() {
+              cb.apply(ctx, args)
+            }, 0)
+          }
+        })(cb, ctx)
+      }
     }
   };
   this.resumeSession()
@@ -2242,7 +2244,7 @@ FirebaseSimpleLogin.prototype.attemptAuth = function(token, user, saveSession) {
   this.mRef["auth"](token, function(error, dummy) {
     if(!error) {
       if(saveSession) {
-        fb.simplelogin.SessionStore.sessionSet({token:token, user:user, sessionKey:user["sessionKey"]})
+        fb.simplelogin.SessionStore.sessionSet({token:token, user:user, sessionKey:user["sessionKey"]}, self.sessionLengthDays)
       }
       if(typeof dummy == "function") {
         dummy()
@@ -2256,7 +2258,9 @@ FirebaseSimpleLogin.prototype.attemptAuth = function(token, user, saveSession) {
     }
   }, function(error) {
     fb.simplelogin.SessionStore.sessionClear();
-    self.mLoginStateChange(null, null)
+    if(self.user) {
+      self.mLoginStateChange(null, null)
+    }
   })
 };
 FirebaseSimpleLogin.prototype.login = function() {
@@ -2377,7 +2381,9 @@ FirebaseSimpleLogin.prototype.logout = function() {
   fb.util.validation.validateArgCount(methodId, 0, 0, arguments.length);
   fb.simplelogin.SessionStore.sessionClear();
   this.mRef["unauth"]();
-  this.mLoginStateChange(null, null)
+  if(this.user) {
+    this.mLoginStateChange(null, null)
+  }
 };
 FirebaseSimpleLogin.prototype.isMobilePhoneGap = function() {
   return(window["cordova"] || window["PhoneGap"] || window["phonegap"]) && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent)
