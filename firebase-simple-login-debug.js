@@ -2176,9 +2176,11 @@ goog.require("fb.simplelogin.transports.TriggerIo");
 goog.require("fb.simplelogin.transports.WinChan");
 FirebaseSimpleLogin = function(ref, callback, context) {
   var self = this, dataURL = ref.toString(), namespace = null;
-  var callbackNamespace = "_FirebaseSimpleLogin";
-  window[callbackNamespace] = window[callbackNamespace] || [];
-  window[callbackNamespace].push({"callback":callback, "context":context, "args":null});
+  var globalNamespace = "_FirebaseSimpleLogin";
+  window[globalNamespace] = window[globalNamespace] || {};
+  window[globalNamespace]["user"] = window[globalNamespace]["user"] || null;
+  window[globalNamespace]["callbacks"] = window[globalNamespace]["callbacks"] || [];
+  window[globalNamespace]["callbacks"].push({"callback":callback, "context":context});
   fb.util.validation.validateArgCount("new FirebaseSimpleLogin", 1, 3, arguments.length);
   fb.util.validation.validateCallback("new FirebaseSimpleLogin", 2, callback, false);
   if(typeof ref === "string") {
@@ -2206,23 +2208,34 @@ FirebaseSimpleLogin = function(ref, callback, context) {
   this.mNamespace = namespace;
   this.mApiHost = fb.simplelogin.Constants.apiHost;
   this.sessionLengthDays = null;
-  this.user = null;
   this.mLoginStateChange = function() {
-    var cbs = window[callbackNamespace] || [];
+    var callbacks = window[globalNamespace]["callbacks"] || [];
     var args = Array.prototype.slice.apply(arguments);
-    this.user = args[1];
-    for(var ix = 0;ix < cbs.length;ix++) {
-      var cb = cbs[ix]["callback"];
-      var ctx = cbs[ix]["context"];
-      if(args != cbs[ix]["args"]) {
-        window[callbackNamespace][ix]["args"] = args;
-        (function(cb, ctx) {
-          if(typeof cb === "function") {
-            setTimeout(function() {
-              cb.apply(ctx, args)
-            }, 0)
-          }
-        })(cb, ctx)
+    var invokeCallbacks = !!args[0];
+    if(!invokeCallbacks) {
+      var oldAuthToken, newAuthToken;
+      if(window[globalNamespace]["user"] && window[globalNamespace]["user"].firebaseAuthToken) {
+        oldAuthToken = window[globalNamespace]["user"].firebaseAuthToken
+      }
+      if(args[1] && args[1].firebaseAuthToken) {
+        newAuthToken = args[1].firebaseAuthToken
+      }
+      invokeCallbacks = oldAuthToken !== newAuthToken
+    }
+    window[globalNamespace]["user"] = args[1] || null;
+    if(invokeCallbacks) {
+      for(var ix = 0;ix < callbacks.length;ix++) {
+        var callback = callbacks[ix]["callback"];
+        var context = callbacks[ix]["context"];
+        if(args != callbacks[ix]["args"]) {
+          (function(callback, context) {
+            if(typeof callback === "function") {
+              setTimeout(function() {
+                callback.apply(context, args)
+              }, 0)
+            }
+          })(callback, context)
+        }
       }
     }
   };
@@ -2258,9 +2271,7 @@ FirebaseSimpleLogin.prototype.attemptAuth = function(token, user, saveSession) {
     }
   }, function(error) {
     fb.simplelogin.SessionStore.sessionClear();
-    if(self.user) {
-      self.mLoginStateChange(null, null)
-    }
+    self.mLoginStateChange(null, null)
   })
 };
 FirebaseSimpleLogin.prototype.login = function() {
@@ -2381,9 +2392,7 @@ FirebaseSimpleLogin.prototype.logout = function() {
   fb.util.validation.validateArgCount(methodId, 0, 0, arguments.length);
   fb.simplelogin.SessionStore.sessionClear();
   this.mRef["unauth"]();
-  if(this.user) {
-    this.mLoginStateChange(null, null)
-  }
+  this.mLoginStateChange(null, null)
 };
 FirebaseSimpleLogin.prototype.isMobilePhoneGap = function() {
   return(window["cordova"] || window["PhoneGap"] || window["phonegap"]) && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent)
@@ -2392,6 +2401,7 @@ FirebaseSimpleLogin.prototype.isMobileTriggerIo = function() {
   return window["forge"] && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent)
 };
 FirebaseSimpleLogin.prototype.loginViaToken = function(provider, options, cb) {
+  options = options || {};
   var self = this, url = self.mApiHost + "/auth/" + provider + "/token?firebase=" + self.mNamespace;
   fb.simplelogin.transports.JSONP(url, options, function(err, res) {
     if(err || !res["token"] || !res["user"]) {
@@ -2404,6 +2414,7 @@ FirebaseSimpleLogin.prototype.loginViaToken = function(provider, options, cb) {
   })
 };
 FirebaseSimpleLogin.prototype.loginViaOAuth = function(provider, options, cb) {
+  options = options || {};
   var self = this;
   var url = this.mApiHost + "/auth/" + provider + "?firebase=" + this.mNamespace;
   if(options["scope"]) {
