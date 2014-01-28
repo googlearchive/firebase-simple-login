@@ -2178,9 +2178,8 @@ FirebaseSimpleLogin = function(ref, callback, context) {
   var self = this, dataURL = ref.toString(), namespace = null;
   var globalNamespace = "_FirebaseSimpleLogin";
   window[globalNamespace] = window[globalNamespace] || {};
-  window[globalNamespace]["user"] = window[globalNamespace]["user"] || null;
   window[globalNamespace]["callbacks"] = window[globalNamespace]["callbacks"] || [];
-  window[globalNamespace]["callbacks"].push({"callback":callback, "context":context});
+  window[globalNamespace]["callbacks"].push({"cb":callback, "ctx":context});
   fb.util.validation.validateArgCount("new FirebaseSimpleLogin", 1, 3, arguments.length);
   fb.util.validation.validateCallback("new FirebaseSimpleLogin", 2, callback, false);
   if(typeof ref === "string") {
@@ -2211,31 +2210,28 @@ FirebaseSimpleLogin = function(ref, callback, context) {
   this.mLoginStateChange = function() {
     var callbacks = window[globalNamespace]["callbacks"] || [];
     var args = Array.prototype.slice.apply(arguments);
-    var invokeCallbacks = !!args[0];
-    if(!invokeCallbacks) {
-      var oldAuthToken, newAuthToken;
-      if(window[globalNamespace]["user"] && window[globalNamespace]["user"].firebaseAuthToken) {
-        oldAuthToken = window[globalNamespace]["user"].firebaseAuthToken
-      }
-      if(args[1] && args[1].firebaseAuthToken) {
-        newAuthToken = args[1].firebaseAuthToken
-      }
-      invokeCallbacks = oldAuthToken !== newAuthToken
-    }
-    window[globalNamespace]["user"] = args[1] || null;
-    if(invokeCallbacks) {
-      for(var ix = 0;ix < callbacks.length;ix++) {
-        var callback = callbacks[ix]["callback"];
-        var context = callbacks[ix]["context"];
-        if(args != callbacks[ix]["args"]) {
-          (function(callback, context) {
-            if(typeof callback === "function") {
-              setTimeout(function() {
-                callback.apply(context, args)
-              }, 0)
-            }
-          })(callback, context)
+    for(var ix = 0;ix < callbacks.length;ix++) {
+      var cb = callbacks[ix];
+      var invokeCallback = !!args[0] || typeof cb.user === "undefined";
+      if(!invokeCallback) {
+        var oldAuthToken, newAuthToken;
+        if(cb.user && cb.user.firebaseAuthToken) {
+          oldAuthToken = cb.user.firebaseAuthToken
         }
+        if(args[1] && args[1].firebaseAuthToken) {
+          newAuthToken = args[1].firebaseAuthToken
+        }
+        invokeCallback = (oldAuthToken || newAuthToken) && oldAuthToken !== newAuthToken
+      }
+      window[globalNamespace]["callbacks"][ix]["user"] = args[1] || null;
+      if(invokeCallback) {
+        (function(cb, ctx) {
+          if(typeof cb === "function") {
+            setTimeout(function() {
+              cb.apply(ctx, args)
+            }, 0)
+          }
+        })(cb.cb, cb.ctx)
       }
     }
   };
