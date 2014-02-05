@@ -6868,7 +6868,7 @@ fb.simplelogin.SessionStore_.prototype.set = function(session, opt_sessionLength
     var payload = sjcl.encrypt(sessionEncryptionKey, fb.simplelogin.util.json.stringify(session));
     localStorage.setItem(sessionPersistentStorageKey, fb.simplelogin.util.json.stringify(payload));
     var maxAgeSeconds = opt_sessionLengthDays ? opt_sessionLengthDays * 86400 : -1;
-    goog.net.cookies.set(encryptionStorageKey, sessionEncryptionKey, maxAgeSeconds, cookieStoragePath, null, true)
+    goog.net.cookies.set(encryptionStorageKey, sessionEncryptionKey, maxAgeSeconds, cookieStoragePath, null, false)
   }catch(e) {
   }
 };
