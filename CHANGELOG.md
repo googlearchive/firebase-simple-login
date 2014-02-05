@@ -1,8 +1,7 @@
 Change Log
 ===========
 
-Version 1.2.4 *(2014-02-05)*
-----------------------------
+### Version 1.2.4 *(2014-02-05)*
   * Adds support for Windows Metro applications via WebAuthenticationBroker
 
 Version 1.2.3 *(2014-01-27)*
