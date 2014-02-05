@@ -6864,7 +6864,7 @@ fb.simplelogin.SessionStore_.prototype.set = function(session, opt_sessionLength
     return
   }
   try {
-    var sessionEncryptionKey = session["sessionEncryptionKey"];
+    var sessionEncryptionKey = session["sessionKey"];
     var payload = sjcl.encrypt(sessionEncryptionKey, fb.simplelogin.util.json.stringify(session));
     localStorage.setItem(sessionPersistentStorageKey, fb.simplelogin.util.json.stringify(payload));
     var maxAgeSeconds = opt_sessionLengthDays ? opt_sessionLengthDays * 86400 : -1;
