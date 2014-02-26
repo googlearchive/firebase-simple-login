@@ -694,7 +694,6 @@ fb.simplelogin.transports.CordovaInAppBrowser_.prototype.open = function(url, op
       }
       windowRef.close();
       try {
-        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(urlObj["hash"]);
         var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj["hash"]));
         var temporaryResult = {};
         for(var key in urlHashEncoded) {
@@ -728,7 +727,7 @@ goog.provide("fb.simplelogin.Errors");
 var messagePrefix = "FirebaseSimpleLogin: ";
 var errors = {"UNKNOWN_ERROR":"An unknown error occurred.", "INVALID_EMAIL":"Invalid email specified.", "INVALID_PASSWORD":"Invalid password specified.", "USER_DENIED":"User cancelled the authentication request.", "TRIGGER_IO_TABS":'The "forge.tabs" module required when using Firebase Simple Login and                         Trigger.io. Without this module included and enabled, login attempts to                         OAuth authentication providers will not be able to complete.'};
 fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
-  var code = errorCode || "UNKNOWN_ERROR", message = errorMessage || errors[code], args = arguments;
+  var code = errorCode || "UNKNOWN_ERROR", message = errorMessage || errors[code], data = {}, args = arguments;
   if(args.length === 2) {
     code = args[0];
     message = args[1]
@@ -736,7 +735,8 @@ fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
     if(args.length === 1) {
       if(typeof args[0] === "object" && args[0].code && args[0].message) {
         code = args[0].code;
-        message = args[0].message
+        message = args[0].message;
+        data = args[0].data
       }else {
         if(typeof args[0] === "string") {
           code = args[0];
@@ -747,6 +747,9 @@ fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
   }
   var error = new Error(messagePrefix + message);
   error.code = code;
+  if(data) {
+    error.data = data
+  }
   return error
 };
 fb.simplelogin.Errors.get = function(code) {
@@ -1059,7 +1062,6 @@ fb.simplelogin.transports.TriggerIoTab_.prototype.open = function(url, options, 
       try {
         var urlObj = fb.simplelogin.util.misc.parseUrl(data["url"]);
         var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj["hash"]));
-        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(urlObj["hash"]);
         var temporaryResult = {};
         for(var key in urlHashEncoded) {
           temporaryResult[key] = fb.simplelogin.util.json.eval(urlHashEncoded[key])
@@ -1910,6 +1912,18 @@ fb.simplelogin.util.env.isMobileTriggerIoTab = function() {
 };
 fb.simplelogin.util.env.isWindowsMetro = function() {
   return!!window["Windows"] && /^ms-appx:/.test(location.href)
+};
+fb.simplelogin.util.env.isChromeiOS = function() {
+  return!!navigator.userAgent.match(/CriOS/)
+};
+fb.simplelogin.util.env.isWindowsPhone = function() {
+  return!!navigator.userAgent.match(/Windows Phone/)
+};
+fb.simplelogin.util.env.isStandaloneiOS = function() {
+  return!!window.navigator.standalone
+};
+fb.simplelogin.util.env.isPhantomJS = function() {
+  return!!navigator.userAgent.match(/PhantomJS/)
 };
 goog.provide("goog.debug.errorHandlerWeakDep");
 goog.debug.errorHandlerWeakDep = {protectEntryPoint:function(fn, opt_tracers) {
@@ -6717,14 +6731,16 @@ goog.provide("fb.simplelogin.providers.Persona_");
 goog.require("fb.simplelogin.util.validation");
 fb.simplelogin.providers.Persona_ = function() {
 };
-fb.simplelogin.providers.Persona_.prototype.login = function(data, onComplete) {
+fb.simplelogin.providers.Persona_.prototype.login = function(options, onComplete) {
   navigator["id"]["watch"]({"onlogin":function(assertion) {
     onComplete(assertion)
   }, "onlogout":function() {
   }});
-  navigator["id"]["request"]({"oncancel":function() {
+  options = options || {};
+  options["oncancel"] = function() {
     onComplete(null)
-  }})
+  };
+  navigator["id"]["request"](options)
 };
 fb.simplelogin.providers.Persona = new fb.simplelogin.providers.Persona_;
 goog.provide("goog.net.Cookies");
@@ -6895,7 +6911,7 @@ fb.simplelogin.SessionStore_.prototype.clear = function() {
   goog.net.cookies.remove(encryptionStorageKey, cookieStoragePath, null)
 };
 fb.simplelogin.SessionStore = new fb.simplelogin.SessionStore_;
-goog.provide("FirebaseSimpleLogin");
+goog.provide("fb.simplelogin.client");
 goog.require("fb.simplelogin.util.env");
 goog.require("fb.simplelogin.util.json");
 goog.require("fb.simplelogin.util.validation");
@@ -6910,17 +6926,12 @@ goog.require("fb.simplelogin.transports.CordovaInAppBrowser");
 goog.require("fb.simplelogin.transports.TriggerIoTab");
 goog.require("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
-FirebaseSimpleLogin = function(ref, callback, context) {
+fb.simplelogin.client = function(ref, callback, context, apiHost) {
   var self = this, dataURL = ref.toString(), namespace = null;
   var globalNamespace = "_FirebaseSimpleLogin";
   window[globalNamespace] = window[globalNamespace] || {};
   window[globalNamespace]["callbacks"] = window[globalNamespace]["callbacks"] || [];
   window[globalNamespace]["callbacks"].push({"cb":callback, "ctx":context});
-  fb.simplelogin.util.validation.validateArgCount("new FirebaseSimpleLogin", 1, 3, arguments.length);
-  fb.simplelogin.util.validation.validateCallback("new FirebaseSimpleLogin", 2, callback, false);
-  if(typeof ref === "string") {
-    throw new Error("new FirebaseSimpleLogin(): Oops, it looks like you passed a string instead of a Firebase reference (i.e. new Firebase(<firebaseURL>)).");
-  }
   if(goog.isString(dataURL)) {
     var colonInd = dataURL.indexOf("//");
     if(colonInd >= 0) {
@@ -6934,10 +6945,13 @@ FirebaseSimpleLogin = function(ref, callback, context) {
   if(!goog.isString(namespace)) {
     throw new Error("new FirebaseSimpleLogin(): First argument must be a valid Firebase reference (i.e. new Firebase(<firebaseURL>)).");
   }
-  if(window.location.protocol === "file:" && !fb.simplelogin.util.env.isMobileCordovaInAppBrowser() && console && console.log) {
+  if(window.location.protocol === "file:" && !fb.simplelogin.util.env.isPhantomJS() && !fb.simplelogin.util.env.isMobileCordovaInAppBrowser() && console && console.log) {
     var message = "FirebaseSimpleLogin(): Due to browser security restrictions, " + "loading applications via `file://*` URLs will prevent popup-based authentication " + "providers from working properly. When testing locally, you'll need to run a " + "barebones webserver on your machine rather than loading your test files via " + "`file://*`. The easiest way to run a barebones server on your local machine is to " + "`cd` to the root directory of your code and run `python -m SimpleHTTPServer`, " + 
     "which will allow you to access your content via `http://127.0.0.1:8000/*`.";
     console.log(message)
+  }
+  if(apiHost) {
+    fb.simplelogin.Vars.setApiHost(apiHost)
   }
   this.mRef = ref;
   this.mNamespace = namespace;
@@ -6972,18 +6986,52 @@ FirebaseSimpleLogin = function(ref, callback, context) {
   };
   this.resumeSession()
 };
-FirebaseSimpleLogin.prototype.setApiHost = function(apiHost) {
+fb.simplelogin.client.prototype.setApiHost = function(apiHost) {
   fb.simplelogin.Vars.setApiHost(apiHost)
 };
-FirebaseSimpleLogin.prototype.resumeSession = function() {
-  var session = fb.simplelogin.SessionStore.get();
-  if(session && session.token && session.user) {
-    this.attemptAuth(session.token, session.user, false)
+fb.simplelogin.client.prototype.resumeSession = function() {
+  var self = this;
+  var session, token, error;
+  try {
+    var urlObj = fb.simplelogin.util.misc.parseUrl(window.location.href);
+    var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj["hash"]));
+    var temporaryResult = {};
+    if(urlHashEncoded["fbsl_token"]) {
+      window["location"]["hash"] = "";
+      token = fb.simplelogin.util.json.eval(urlHashEncoded["fbsl_token"])
+    }else {
+      if(urlHashEncoded["fbsl_error"]) {
+        window["location"]["hash"] = "";
+        error = fb.simplelogin.util.json.eval(urlHashEncoded["fbsl_error"])
+      }
+    }
+  }catch(e) {
+  }
+  if(error) {
+    return self.mLoginStateChange(error)
+  }
+  if(token) {
+    var transport = fb.simplelogin.transports.JSONP;
+    if(fb.simplelogin.transports.XHR.isAvailable()) {
+      transport = fb.simplelogin.transports.XHR
+    }
+    transport.open(fb.simplelogin.Vars.getApiHost() + "/session", {"token":token}, function(error, session) {
+      if(session && session.token && session.user) {
+        self.attemptAuth(session.token, session.user, true)
+      }else {
+        self.mLoginStateChange(null, null)
+      }
+    })
   }else {
-    this.mLoginStateChange(null, null)
+    session = fb.simplelogin.SessionStore.get();
+    if(session && session.token && session.user) {
+      self.attemptAuth(session.token, session.user, false)
+    }else {
+      self.mLoginStateChange(null, null)
+    }
   }
 };
-FirebaseSimpleLogin.prototype.attemptAuth = function(token, user, saveSession) {
+fb.simplelogin.client.prototype.attemptAuth = function(token, user, saveSession) {
   var self = this;
   this.mRef["auth"](token, function(error, dummy) {
     if(!error) {
@@ -7005,7 +7053,7 @@ FirebaseSimpleLogin.prototype.attemptAuth = function(token, user, saveSession) {
     self.mLoginStateChange(null, null)
   })
 };
-FirebaseSimpleLogin.prototype.login = function() {
+fb.simplelogin.client.prototype.login = function() {
   fb.simplelogin.util.validation.validateString(methodId, 1, arguments[0], false);
   var self = this, options = arguments[1] || {}, provider = arguments[0].toLowerCase(), methodId = "FirebaseSimpleLogin.login(" + provider + ")";
   if(provider === "password") {
@@ -7016,7 +7064,7 @@ FirebaseSimpleLogin.prototype.login = function() {
       return this.mLoginStateChange(fb.simplelogin.Errors.get("INVALID_PASSWORD"))
     }
   }else {
-    if(provider === "facebook" || provider === "github" || provider === "persona" || provider === "twitter" || provider === "anonymous") {
+    if(provider === "facebook" || provider === "github" || provider === "google" || provider === "persona" || provider === "twitter" || provider === "anonymous") {
       fb.simplelogin.util.validation.validateArgCount(methodId, 1, 2, arguments.length)
     }
   }
@@ -7028,6 +7076,8 @@ FirebaseSimpleLogin.prototype.login = function() {
       return this.loginWithFacebookToken(options);
     case "github":
       return this.loginWithGithub(options);
+    case "google-token":
+      return this.loginWithGoogleToken(options);
     case "password":
       return this.loginWithPassword(options);
     case "persona":
@@ -7041,6 +7091,13 @@ FirebaseSimpleLogin.prototype.login = function() {
         return this.loginWithFacebook(options)
       }
     ;
+    case "google":
+      if(options["access_token"]) {
+        return this.loginWithGoogleToken(options)
+      }else {
+        return this.loginWithGoogle(options)
+      }
+    ;
     case "twitter":
       if(options["oauth_token"] && options["oauth_token_secret"]) {
         return this.loginWithTwitterToken(options)
@@ -7052,7 +7109,7 @@ FirebaseSimpleLogin.prototype.login = function() {
       throw new Error("FirebaseSimpleLogin.login() failed: unrecognized authentication provider");
   }
 };
-FirebaseSimpleLogin.prototype.loginAnonymously = function(options) {
+fb.simplelogin.client.prototype.loginAnonymously = function(options) {
   var self = this;
   var provider = "anonymous";
   options.firebase = this.mNamespace;
@@ -7066,7 +7123,7 @@ FirebaseSimpleLogin.prototype.loginAnonymously = function(options) {
     }
   })
 };
-FirebaseSimpleLogin.prototype.loginWithPassword = function(options) {
+fb.simplelogin.client.prototype.loginWithPassword = function(options) {
   var self = this;
   options.firebase = this.mNamespace;
   fb.simplelogin.providers.Password.login(options, function(error, response) {
@@ -7079,30 +7136,40 @@ FirebaseSimpleLogin.prototype.loginWithPassword = function(options) {
     }
   })
 };
-FirebaseSimpleLogin.prototype.loginWithGithub = function(options) {
+fb.simplelogin.client.prototype.loginWithGithub = function(options) {
   options["height"] = 850;
   options["width"] = 950;
   this.loginViaOAuth("github", options)
 };
-FirebaseSimpleLogin.prototype.loginWithFacebook = function(options) {
+fb.simplelogin.client.prototype.loginWithGoogle = function(options) {
+  options["height"] = 650;
+  options["width"] = 575;
+  this.loginViaOAuth("google", options)
+};
+fb.simplelogin.client.prototype.loginWithFacebook = function(options) {
+  options["height"] = 400;
+  options["width"] = 535;
   this.loginViaOAuth("facebook", options)
 };
-FirebaseSimpleLogin.prototype.loginWithTwitter = function(options) {
+fb.simplelogin.client.prototype.loginWithTwitter = function(options) {
   this.loginViaOAuth("twitter", options)
 };
-FirebaseSimpleLogin.prototype.loginWithFacebookToken = function(options) {
+fb.simplelogin.client.prototype.loginWithFacebookToken = function(options) {
   this.loginViaToken("facebook", options)
 };
-FirebaseSimpleLogin.prototype.loginWithTwitterToken = function(options) {
+fb.simplelogin.client.prototype.loginWithGoogleToken = function(options) {
+  this.loginViaToken("google", options)
+};
+fb.simplelogin.client.prototype.loginWithTwitterToken = function(options) {
   this.loginViaToken("twitter", options)
 };
-FirebaseSimpleLogin.prototype.loginWithPersona = function(options) {
+fb.simplelogin.client.prototype.loginWithPersona = function(options) {
   var provider = "persona";
   var self = this;
   if(!navigator["id"]) {
     throw new Error("FirebaseSimpleLogin.login(persona): Unable to find Persona include.js");
   }
-  fb.simplelogin.providers.Persona.login({}, function(assertion) {
+  fb.simplelogin.providers.Persona.login(options, function(assertion) {
     if(assertion === null) {
       callback(fb.simplelogin.Errors.get("UNKNOWN_ERROR"))
     }else {
@@ -7118,14 +7185,12 @@ FirebaseSimpleLogin.prototype.loginWithPersona = function(options) {
     }
   })
 };
-FirebaseSimpleLogin.prototype.logout = function() {
-  var methodId = "FirebaseSimpleLogin.logout";
-  fb.simplelogin.util.validation.validateArgCount(methodId, 0, 0, arguments.length);
+fb.simplelogin.client.prototype.logout = function() {
   fb.simplelogin.SessionStore.clear();
   this.mRef["unauth"]();
   this.mLoginStateChange(null, null)
 };
-FirebaseSimpleLogin.prototype.loginViaToken = function(provider, options, cb) {
+fb.simplelogin.client.prototype.loginViaToken = function(provider, options, cb) {
   options = options || {};
   var self = this, url = fb.simplelogin.Vars.getApiHost() + "/auth/" + provider + "/token?firebase=" + self.mNamespace;
   fb.simplelogin.transports.JSONP.open(url, options, function(err, res) {
@@ -7138,7 +7203,7 @@ FirebaseSimpleLogin.prototype.loginViaToken = function(provider, options, cb) {
     }
   })
 };
-FirebaseSimpleLogin.prototype.loginViaOAuth = function(provider, options, cb) {
+fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) {
   options = options || {};
   var self = this;
   var url = fb.simplelogin.Vars.getApiHost() + "/auth/" + provider + "?firebase=" + this.mNamespace;
@@ -7193,6 +7258,10 @@ FirebaseSimpleLogin.prototype.loginViaOAuth = function(provider, options, cb) {
       }
     }
   }
+  if(options.preferRedirect || fb.simplelogin.util.env.isChromeiOS() || fb.simplelogin.util.env.isWindowsPhone() || fb.simplelogin.util.env.isStandaloneiOS()) {
+    url += "&fb_redirect_uri=" + encodeURIComponent(window.location.href.split("#")[0]);
+    return window.location = url
+  }
   fb.simplelogin.transports[transport].open(url, options, function(error, res) {
     if(res && res.token && res.user) {
       self.attemptAuth(res.token, res.user, true)
@@ -7209,47 +7278,94 @@ FirebaseSimpleLogin.prototype.loginViaOAuth = function(provider, options, cb) {
     }
   })
 };
-FirebaseSimpleLogin.prototype.manageFirebaseUsers = function(method, data, cb) {
+fb.simplelogin.client.prototype.manageFirebaseUsers = function(method, data, cb) {
   data["firebase"] = this.mNamespace;
-  fb.simplelogin.providers.Password[method](data, function(error, user) {
+  fb.simplelogin.providers.Password[method](data, function(error, result) {
     if(error) {
       return cb && cb(fb.simplelogin.Errors.format(error), null)
     }else {
-      return cb && cb(null, user)
+      return cb && cb(null, result)
     }
   })
 };
-FirebaseSimpleLogin.prototype.createUser = function(email, password, cb) {
-  var method = "FirebaseSimpleLogin.createUser";
-  fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
-  fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
+fb.simplelogin.client.prototype.createUser = function(email, password, cb) {
   this.manageFirebaseUsers("createUser", {"email":email, "password":password}, cb)
 };
-FirebaseSimpleLogin.prototype.changePassword = function(email, oldPassword, newPassword, cb) {
-  var method = "FirebaseSimpleLogin.changePassword";
-  fb.simplelogin.util.validation.validateArgCount(method, 4, 4, arguments.length);
-  fb.simplelogin.util.validation.validateCallback(method, 4, cb, false);
-  this.manageFirebaseUsers("changePassword", {"email":email, "oldPassword":oldPassword, "newPassword":newPassword}, function(error, user) {
-    return cb && cb(error, !!user)
+fb.simplelogin.client.prototype.changePassword = function(email, oldPassword, newPassword, cb) {
+  this.manageFirebaseUsers("changePassword", {"email":email, "oldPassword":oldPassword, "newPassword":newPassword}, function(error) {
+    return cb && cb(error)
   })
 };
-FirebaseSimpleLogin.prototype.removeUser = function(email, password, cb) {
-  var method = "FirebaseSimpleLogin.removeUser";
-  fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
-  fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
-  this.manageFirebaseUsers("removeUser", {"email":email, "password":password}, function(error, user) {
-    return cb && cb(error, !!user)
+fb.simplelogin.client.prototype.removeUser = function(email, password, cb) {
+  this.manageFirebaseUsers("removeUser", {"email":email, "password":password}, function(error) {
+    return cb && cb(error)
   })
 };
-FirebaseSimpleLogin.prototype.sendPasswordResetEmail = function(email, cb) {
-  var method = "FirebaseSimpleLogin.sendPasswordResetEmail";
-  fb.simplelogin.util.validation.validateArgCount(method, 2, 2, arguments.length);
+fb.simplelogin.client.prototype.sendPasswordResetEmail = function(email, cb) {
+  this.manageFirebaseUsers("sendPasswordResetEmail", {"email":email}, function(error) {
+    return cb && cb(error)
+  })
+};
+fb.simplelogin.client.onOpen = function(cb) {
+  fb.simplelogin.transports.WinChan.onOpen(cb)
+};
+goog.provide("FirebaseSimpleLogin");
+goog.require("fb.simplelogin.client");
+goog.require("fb.simplelogin.util.env");
+goog.require("fb.simplelogin.util.json");
+goog.require("fb.simplelogin.util.validation");
+goog.require("fb.simplelogin.util.sjcl");
+goog.require("fb.simplelogin.Vars");
+goog.require("fb.simplelogin.Errors");
+goog.require("fb.simplelogin.SessionStore");
+goog.require("fb.simplelogin.providers.Persona");
+goog.require("fb.simplelogin.providers.Password");
+goog.require("fb.simplelogin.transports.JSONP");
+goog.require("fb.simplelogin.transports.CordovaInAppBrowser");
+goog.require("fb.simplelogin.transports.TriggerIoTab");
+goog.require("fb.simplelogin.transports.WinChan");
+goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
+FirebaseSimpleLogin = function(ref, cb, context, apiHost) {
+  var method = "new FirebaseSimpleLogin";
+  fb.simplelogin.util.validation.validateArgCount(method, 1, 4, arguments.length);
   fb.simplelogin.util.validation.validateCallback(method, 2, cb, false);
-  this.manageFirebaseUsers("sendPasswordResetEmail", {"email":email}, function(error, user) {
-    return cb && cb(error, !!user)
-  })
+  if(goog.isString(ref)) {
+    throw new Error("new FirebaseSimpleLogin(): Oops, it looks like you passed a string instead of a Firebase reference (i.e. new Firebase(<firebaseURL>)).");
+  }
+  var client_ = new fb.simplelogin.client(ref, cb, context, apiHost);
+  return{setApiHost:function(apiHost) {
+    var method = "FirebaseSimpleLogin.setApiHost";
+    fb.simplelogin.util.validation.validateArgCount(method, 1, 1, arguments.length);
+    client_.setApiHost(apiHost)
+  }, login:function() {
+    client_.login.apply(client_, arguments)
+  }, logout:function() {
+    var methodId = "FirebaseSimpleLogin.logout";
+    fb.simplelogin.util.validation.validateArgCount(methodId, 0, 0, arguments.length);
+    client_.logout()
+  }, createUser:function(email, password, cb) {
+    var method = "FirebaseSimpleLogin.createUser";
+    fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
+    fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
+    client_.createUser(email, password, cb)
+  }, changePassword:function(email, oldPassword, newPassword, cb) {
+    var method = "FirebaseSimpleLogin.changePassword";
+    fb.simplelogin.util.validation.validateArgCount(method, 4, 4, arguments.length);
+    fb.simplelogin.util.validation.validateCallback(method, 4, cb, false);
+    client_.changePassword(email, oldPassword, newPassword, cb)
+  }, removeUser:function(email, password, cb) {
+    var method = "FirebaseSimpleLogin.removeUser";
+    fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
+    fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
+    client_.removeUser(email, password, cb)
+  }, sendPasswordResetEmail:function(email, cb) {
+    var method = "FirebaseSimpleLogin.sendPasswordResetEmail";
+    fb.simplelogin.util.validation.validateArgCount(method, 2, 2, arguments.length);
+    fb.simplelogin.util.validation.validateCallback(method, 2, cb, false);
+    client_.sendPasswordResetEmail(email, cb)
+  }}
 };
 FirebaseSimpleLogin.onOpen = function(cb) {
-  fb.simplelogin.transports.WinChan.onOpen(cb)
+  fb.simplelogin.client.onOpen(cb)
 };
 
