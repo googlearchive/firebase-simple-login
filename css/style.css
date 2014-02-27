@@ -144,27 +144,31 @@ p.larger {
 .example .icon {
   background: url('../img/icons.png');
   background-position: 0 0;
-  background-size: 250px 50px;
+  background-size: 291px 50px;
 }
 
 .example.facebook .icon {
-  background-position: 0px 0px;
+  background-position: 0px -2px;
 }
 
 .example.github .icon {
-  background-position: -83px 0px;
+  background-position: -83px -2px;
 }
 
 .example.persona .icon {
-  background-position: -125px 0px;
+  background-position: -125px -2px;
 }
 
 .example.twitter .icon {
-  background-position: -41px 0px;
+  background-position: -41px -2px;
 }
 
 .example.password .icon {
-  background-position: -166px 0px;
+  background-position: -166px -2px;
+}
+
+.example.google .icon {
+  background-position: -249px -2px;
 }
 
 .bigicon {
