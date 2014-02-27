@@ -1904,6 +1904,18 @@ fb.simplelogin.util.env.hasLocalStorage = function(str) {
   }
   return false
 };
+fb.simplelogin.util.env.hasSessionStorage = function(str) {
+  try {
+    if(sessionStorage) {
+      sessionStorage.setItem("firebase-sentinel", "test");
+      var result = sessionStorage.getItem("firebase-sentinel");
+      sessionStorage.removeItem("firebase-sentinel");
+      return result === "test"
+    }
+  }catch(e) {
+  }
+  return false
+};
 fb.simplelogin.util.env.isMobileCordovaInAppBrowser = function() {
   return(window["cordova"] || window["CordovaInAppBrowser"] || window["phonegap"]) && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent)
 };
@@ -1915,6 +1927,12 @@ fb.simplelogin.util.env.isWindowsMetro = function() {
 };
 fb.simplelogin.util.env.isChromeiOS = function() {
   return!!navigator.userAgent.match(/CriOS/)
+};
+fb.simplelogin.util.env.isTwitteriOS = function() {
+  return!!navigator.userAgent.match(/Twitter for iPhone/)
+};
+fb.simplelogin.util.env.isFacebookiOS = function() {
+  return!!navigator.userAgent.match(/FBAN\/FBIOS/)
 };
 fb.simplelogin.util.env.isWindowsPhone = function() {
   return!!navigator.userAgent.match(/Windows Phone/)
@@ -6991,35 +7009,28 @@ fb.simplelogin.client.prototype.setApiHost = function(apiHost) {
 };
 fb.simplelogin.client.prototype.resumeSession = function() {
   var self = this;
-  var session, token, error;
+  var session, requestId, error;
   try {
-    var urlObj = fb.simplelogin.util.misc.parseUrl(window.location.href);
-    var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj["hash"]));
-    var temporaryResult = {};
-    if(urlHashEncoded["fbsl_token"]) {
-      window["location"]["hash"] = "";
-      token = fb.simplelogin.util.json.eval(urlHashEncoded["fbsl_token"])
-    }else {
-      if(urlHashEncoded["fbsl_error"]) {
-        window["location"]["hash"] = "";
-        error = fb.simplelogin.util.json.eval(urlHashEncoded["fbsl_error"])
-      }
-    }
+    requestId = sessionStorage.getItem("firebaserequestId");
+    sessionStorage.removeItem("firebaserequestId")
   }catch(e) {
   }
-  if(error) {
-    return self.mLoginStateChange(error)
-  }
-  if(token) {
+  if(requestId) {
     var transport = fb.simplelogin.transports.JSONP;
     if(fb.simplelogin.transports.XHR.isAvailable()) {
       transport = fb.simplelogin.transports.XHR
     }
-    transport.open(fb.simplelogin.Vars.getApiHost() + "/session", {"token":token}, function(error, session) {
-      if(session && session.token && session.user) {
-        self.attemptAuth(session.token, session.user, true)
+    transport.open(fb.simplelogin.Vars.getApiHost() + "/auth/session", {"requestId":requestId, "firebase":self.mNamespace}, function(error, response) {
+      if(response && response.token && response.user) {
+        self.attemptAuth(response.token, response.user, true)
       }else {
-        self.mLoginStateChange(null, null)
+        if(error) {
+          fb.simplelogin.SessionStore.clear();
+          self.mLoginStateChange(error)
+        }else {
+          fb.simplelogin.SessionStore.clear();
+          self.mLoginStateChange(null, null)
+        }
       }
     })
   }else {
@@ -7258,8 +7269,13 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
       }
     }
   }
-  if(options.preferRedirect || fb.simplelogin.util.env.isChromeiOS() || fb.simplelogin.util.env.isWindowsPhone() || fb.simplelogin.util.env.isStandaloneiOS()) {
-    url += "&fb_redirect_uri=" + encodeURIComponent(window.location.href.split("#")[0]);
+  if(options.preferRedirect || fb.simplelogin.util.env.isChromeiOS() || fb.simplelogin.util.env.isWindowsPhone() || fb.simplelogin.util.env.isStandaloneiOS() || fb.simplelogin.util.env.isTwitteriOS() || fb.simplelogin.util.env.isFacebookiOS()) {
+    var requestId = goog.string.getRandomString() + goog.string.getRandomString();
+    try {
+      sessionStorage.setItem("firebaserequestId", requestId)
+    }catch(e) {
+    }
+    url += "&requestId=" + requestId + "&fb_redirect_uri=" + encodeURIComponent(window.location.href);
     return window.location = url
   }
   fb.simplelogin.transports[transport].open(url, options, function(error, res) {
