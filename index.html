@@ -115,7 +115,7 @@ var auth = new FirebaseSimpleLogin(chatRef, function(error, user) {
     alert(error);
   } else if (user) {
     // user authenticated with Firebase
-    alert('User ID: ' + user.id + ', Provider: ' + user.provider);
+    alert('user object: ' + JSON.stringify(user));
   } else {
     // user is logged out
   }
@@ -184,8 +184,15 @@ auth.login('&lt;provider&gt;');</code></pre>
         alert(error);
       } else if (user) {
         // user authenticated with Firebase
-        alert('User ID: ' + user.id + ', Provider: ' + user.provider);
-        
+        if (window.console) {
+           console.log('user object:', user);
+        }
+        if (window.JSON) {
+          alert('user object: ' + JSON.stringify(user, null, 2));
+        } else {
+          alert('User ID: ' + user.id + ', Provider: ' + user.provider);
+        }
+
         // Log out so we can log in again with a different provider.
         auth.logout();
       } else {
