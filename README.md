@@ -8,6 +8,7 @@ authentication via the following methods:
 
   * Email / Password
   * Facebook
+  * Google
   * GitHub
   * Persona
   * Twitter
