@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/firebase/firebase-simple-login-js.png?branch=master)](https://travis-ci.org/firebase/firebase-simple-login-js)
 
-# Firebase Simple Login Web Client
+# Firebase Simple Login - Web Client
 
 Firebase Simple Login is a simple, easy-to-use authentication service built on
 top of [Firebase Custom Login](https://www.firebase.com/docs/security/custom-login.html),
