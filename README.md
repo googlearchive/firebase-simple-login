@@ -70,11 +70,11 @@ addition to following the steps below.
 ### Install Dependencies
 
 ```bash
-$ git submodule update --init        # update the Google Closure library submodule
-$ npm install -g grunt-cli           # install global NPM build dependencies
-$ npm install -g phantomjs casperjs  # install global NPM test dependencies
-$ npm install                        # install local NPM build / test dependencies
-$ bower install                      # install local Bower test dependencies
+$ git submodule update --init              # update the Google Closure library submodule
+$ npm install -g grunt-cli                 # install global NPM build dependencies
+$ npm install -g phantomjs bower casperjs  # install global NPM test dependencies
+$ npm install                              # install local NPM build / test dependencies
+$ bower install                            # install local Bower test dependencies
 ```
 
 ### Compile
