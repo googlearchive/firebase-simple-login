@@ -1,0 +1,59 @@
+/**
+ * Include all global test dependencies here!
+ * This file will be executed to define globals before any tests are run.
+ */
+
+var qs = {};
+if ('location' in this) {
+  var search = (this.location.search.substr(1) || '').split('&');
+  for (var i = 0; i < search.length; ++i) {
+    var parts = search[i].split('=');
+    qs[parts[0]] = parts[1] || true;  // support for foo=
+  }
+}
+
+FIREBASE_API_KEY = 1234;
+TEST_REPO = qs.repo || 'demos';
+TEST_HOST = qs.host || 'firebaseio.com';
+TEST_PORT = qs.port || 443;
+TEST_SERVER = TEST_HOST + ':' + TEST_PORT;
+TEST_NAMESPACE = 'https://' + TEST_REPO + '.' + TEST_SERVER;
+TEST_TIMEOUT = 5000;
+
+TEST_AUTH_HOST = 'auth.firebase.com';
+TEST_AUTH_PORT = 443;
+TEST_AUTH_SERVER = 'https://' + TEST_AUTH_HOST + ':' + TEST_AUTH_PORT;
+
+/**
+ * Valid Facebook OAuth 2.0 Credentials
+ *
+ * Obtaining a long-lived (60-day) access token
+ *
+ * 1) Visit https://developers.facebook.com/tools/access_token/
+ * 2) Grab a user token for the Firebase Auth. Test app
+ * 3) Replace <YOUR-USER-ACCESS-TOKEN> in the URL below with your user token
+ *     https://graph.facebook.com/oauth/access_token?&fb_exchange_token=<YOUR-USER-ACCESS-TOKEN>&client_id=<CLIENT-ID>&client_secret=<CLIENT-SECRET>&grant_type=fb_exchange_token
+ * 4) Retrieve the long-lived token either by visiting that URL in your browser or retriving via cURL
+ * 5) Debug your new token at https://developers.facebook.com/tools/debug/accesstoken to ensure it will live for 60 days
+ *
+ * See https://developers.facebook.com/roadmap/offline-access-removal/ for further details.
+ */
+TEST_FACEBOOK_ACCESS_TOKEN = null;
+
+/**
+ * Valid Twitter OAuth 1.0a Credentials
+ *
+ * Obtaining a set of access token
+ *
+ * 1) Get access to the Firebase Auth. Test app
+ * 2) Visit https://dev.twitter.com/apps/<APP-ID>
+ * 3) Scroll to the bottom of the page and copy the access tokens below
+ */
+TEST_TWITTER_USER_ID = null;
+TEST_TWITTER_OAUTH_TOKEN = null;
+TEST_TWITTER_OAUTH_TOKEN_SECRET = null;
+
+/**
+ * Valid Google OAuth 2.0 Credentials
+ */
+TEST_GOOGLE_ACCESS_TOKEN = null;

@@ -1,0 +1,21 @@
+# building
+deps.js
+
+# Mac OS-X
+.DS_Store
+
+# Temporary Files
+*~
+*.tmp
+*.*swp
+*.*swo
+
+# Node / NPM
+npm-debug.log
+node_modules
+
+# Bower
+bower_components
+
+# Python
+*.pyc

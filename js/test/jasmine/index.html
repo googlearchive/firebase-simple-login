@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
+    <title>Firebase Simple Login Tests</title>
+
+    <!-- test includes... -->
+    <link rel='stylesheet' type='text/css' href='/bower_components/jasmine/lib/jasmine-core/jasmine.css'>
+    <script src='/bower_components/jasmine/lib/jasmine-core/jasmine.js'></script>
+    <script src='/bower_components/jasmine/lib/jasmine-core/jasmine-html.js'></script>
+    <script src='/bower_components/jquery/dist/jquery.min.js'></script>
+    <script src='/bower_components/firebase/firebase.js'></script>
+
+    <!-- include spec files here... -->
+    <script src='init.spec.js'></script>
+    <script src='webtests.spec.js'></script>
+
+    <!-- include source files here... -->
+    <script src='/firebase-simple-login.js'></script>
+    <script src='//login.persona.org/include.js'></script>
+
+    <script type='text/javascript'>
+      (function() {
+        var jasmineEnv = jasmine.getEnv();
+        jasmineEnv.updateInterval = 1000;
+
+        var htmlReporter = new jasmine.HtmlReporter();
+        jasmineEnv.addReporter(htmlReporter);
+
+        jasmineEnv.specFilter = function(spec) {
+          return htmlReporter.specFilter(spec);
+        };
+
+        var currentWindowOnload = window.onload;
+
+        window.onload = function() {
+          if (currentWindowOnload) {
+            currentWindowOnload();
+          }
+          execJasmine();
+        };
+
+        function execJasmine() {
+          jasmineEnv.execute();
+        }
+      })();
+
+      function login(provider, options) {
+        var ctx = new Firebase.Context();
+        var ref = new Firebase(TEST_NAMESPACE, ctx);
+        var $el = $('#authResponse');
+        var simpleLogin = new FirebaseSimpleLogin(ref, function(error, user) {
+          var content = '';
+          content = '<b>error:</b> ' +  JSON.stringify(error, null, 4) + '<br/>';
+          content += '<b>user:</b> ' + JSON.stringify(user, null, 4) + '<br/>';
+          $el.html(content);
+        });
+        simpleLogin.setApiHost(TEST_AUTH_SERVER);
+        simpleLogin.logout();
+        $el.html('waiting...')
+        simpleLogin.login(provider, options);
+      }
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
