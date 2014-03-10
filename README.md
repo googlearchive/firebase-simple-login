@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/firebase/firebase-simple-login.png?branch=master)](https://travis-ci.org/firebase/firebase-simple-login)
+[![Build Status](https://travis-ci.org/firebase/firebase-simple-login.png?branch=master)](https://travis-ci.org/firebase/firebase-simple-login) [![Dependency Status](https://gemnasium.com/firebase/firebase-simple-login.png)](https://gemnasium.com/firebase/firebase-simple-login)
 
 # Firebase Simple Login - Web Client
 
