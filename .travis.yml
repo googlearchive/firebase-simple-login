@@ -3,7 +3,7 @@ node_js:
   - "0.8"
 before_install:
   - git submodule update --init
-  - npm install -g grunt-cli phantomjs casperjs
+  - npm install -g grunt-cli bower phantomjs casperjs
   - npm install
   - bower install
 before_script:

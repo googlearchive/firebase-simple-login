@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/firebase/firebase-simple-login-js.png?branch=master)](https://travis-ci.org/firebase/firebase-simple-login-js)
+[![Build Status](https://travis-ci.org/firebase/firebase-simple-login.png?branch=master)](https://travis-ci.org/firebase/firebase-simple-login)
 
 # Firebase Simple Login - Web Client
 
