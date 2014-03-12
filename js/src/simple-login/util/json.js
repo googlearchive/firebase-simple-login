@@ -6,7 +6,7 @@ goog.require('goog.json');
  * @param {string} str A string containing JSON.
  * @return {*} The javascript object representing the specified JSON.
  */
-fb.simplelogin.util.json.eval = function(str) {
+fb.simplelogin.util.json.parse = function(str) {
   if (typeof JSON !== 'undefined' && goog.isDef(JSON.parse)) {
     return JSON.parse(str);
   } else {

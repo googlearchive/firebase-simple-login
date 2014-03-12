@@ -51,7 +51,7 @@ fb.simplelogin.transports.CordovaInAppBrowser_.prototype.open = function(url, op
         var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj['hash']));
         var temporaryResult = {};
         for (var key in urlHashEncoded) {
-          temporaryResult[key] = fb.simplelogin.util.json.eval(urlHashEncoded[key]);
+          temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
         }
         result = temporaryResult;
       } catch (e) {}

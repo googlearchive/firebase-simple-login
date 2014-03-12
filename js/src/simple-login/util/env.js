@@ -97,3 +97,16 @@ fb.simplelogin.util.env.isStandaloneiOS = function() {
 fb.simplelogin.util.env.isPhantomJS = function() {
   return !!navigator.userAgent.match(/PhantomJS/);
 };
+
+/**
+ * @return {boolean} isFennec (Mobile Firefox)
+ * See https://github.com/mozilla/winchan/blob/ac4b142c34daa84bbcb5d8663fad19ce6394cb18/winchan.js#L39
+ */
+fb.simplelogin.util.env.isFennec = function() {
+  try {
+    var userAgent = navigator['userAgent'];
+    return (userAgent.indexOf('Fennec/') != -1) ||
+           (userAgent.indexOf('Firefox/') != -1 && userAgent.indexOf('Android') != -1);
+  } catch(e) {}
+  return false;
+};

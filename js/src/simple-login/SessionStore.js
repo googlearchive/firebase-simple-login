@@ -1,6 +1,7 @@
 goog.provide('fb.simplelogin.SessionStore');
 goog.provide('fb.simplelogin.SessionStore_');
 goog.require('fb.simplelogin.util.env');
+goog.require('fb.simplelogin.util.sjcl');
 goog.require('goog.net.cookies');
 
 /**

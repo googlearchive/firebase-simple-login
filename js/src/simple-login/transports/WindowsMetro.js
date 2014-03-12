@@ -29,7 +29,7 @@ fb.simplelogin.transports.WindowsMetroAuthBroker_.prototype.open = function(url,
     authenticateAsync = WebAuthenticationBroker['authenticateAsync'];
   } catch (err) {
     return onComplete({ code: 'WINDOWS_METRO', message: '"Windows.Security.Authentication.Web.WebAuthenticationBroker" required when using Firebase Simple Login in Windows Metro context' });
-  }  
+  }
 
   callbackInvoked = false;
   var callbackHandler = function() {
@@ -52,7 +52,7 @@ fb.simplelogin.transports.WindowsMetroAuthBroker_.prototype.open = function(url,
           var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj['hash']));
           var temporaryResult = {};
           for (var key in urlHashEncoded) {
-            temporaryResult[key] = fb.simplelogin.util.json.eval(urlHashEncoded[key]);
+            temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
           }
           result = temporaryResult;
         } catch (e) {}

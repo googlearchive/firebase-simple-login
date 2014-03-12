@@ -5,7 +5,6 @@ goog.require('fb.simplelogin.Vars');
 goog.require('fb.simplelogin.util.json');
 goog.require('goog.net.XhrIo');
 goog.require('goog.events');
-goog.require('goog.json');
 
 /**
  * Create a new JSON connection with the given URL, options, and callback.
@@ -26,7 +25,7 @@ fb.simplelogin.transports.XHR_ = function() {
 fb.simplelogin.transports.XHR_.prototype.open = function(url, options, onComplete) {
   var self = this;
   var request = new goog.net.XhrIo();
-   
+
   goog.events.listen(request, 'complete', function() {
     if (request.isSuccess()){
       var data = request.getResponseJson();
@@ -50,7 +49,7 @@ fb.simplelogin.transports.XHR_.prototype.open = function(url, options, onComplet
 
 /**
  * Returns true if this XMLHttpRequest is supported.
- * @return {boolean} 
+ * @return {boolean}
  */
 fb.simplelogin.transports.XHR_.prototype.isAvailable = function() {
   return window['XMLHttpRequest'] && typeof window['XMLHttpRequest'] === 'function';
