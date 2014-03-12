@@ -13,16 +13,10 @@ if ('location' in this) {
 }
 
 FIREBASE_API_KEY = 1234;
-TEST_REPO = qs.repo || 'demos';
-TEST_HOST = qs.host || 'firebaseio.com';
-TEST_PORT = qs.port || 443;
-TEST_SERVER = TEST_HOST + ':' + TEST_PORT;
-TEST_NAMESPACE = 'https://' + TEST_REPO + '.' + TEST_SERVER;
-TEST_TIMEOUT = 5000;
 
-TEST_AUTH_HOST = 'auth.firebase.com';
-TEST_AUTH_PORT = 443;
-TEST_AUTH_SERVER = 'https://' + TEST_AUTH_HOST + ':' + TEST_AUTH_PORT;
+TEST_NAMESPACE = qs.namespace || 'https://demos.firebaseio.com';
+TEST_AUTH_SERVER = qs.apiHost || 'https://auth.firebase.com';
+TEST_TIMEOUT = 5000;
 
 /**
  * Valid Facebook OAuth 2.0 Credentials
