@@ -9,7 +9,7 @@
   "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.3",
-    "grunt-closure-tools": "~0.9.2",
+    "grunt-closure-tools": "~0.9.6",
     "grunt-concurrent": "~0.5.0",
     "grunt-exec": "~0.4.3",
     "load-grunt-tasks": "~0.4.0",
