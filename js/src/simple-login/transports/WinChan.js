@@ -173,11 +173,9 @@ fb.simplelogin.transports.WinChan_.prototype.open = function(url, opts, cb) {
   addListener(window, 'unload', cleanup);
 
   function onMessage(e) {
-    console.log(e.origin + " " + origin);
     if (e.origin !== origin) { return; }
     try {
       var d = fb.simplelogin.util.json.parse(e.data);
-      console.log(d);
       if (d.a === 'ready') messageTarget.postMessage(req, origin);
       else if (d.a === 'error') {
         cleanup();
@@ -215,7 +213,6 @@ fb.simplelogin.transports.WinChan_.prototype.open = function(url, opts, cb) {
  * @export
  */
 fb.simplelogin.transports.WinChan_.prototype.onOpen = function(cb) {
-  console.log('onOpen');
   var o = "*";
   var msgTarget = isInternetExplorer ? findRelay() : window.opener;
   if (!msgTarget) throw "can't find relay frame";

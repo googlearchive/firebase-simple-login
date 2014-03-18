@@ -19,6 +19,20 @@
     <script src='//login.persona.org/include.js'></script>
     <script src='../../src/firebase-simple-login-local.js'></script>
 
+    <style>
+      #status {
+        font-family: Arial;
+        padding: 5px 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        margin-bottom: 5px;
+      }
+      #login-response {
+        font-size: 11px;
+        white-space: pre-wrap;
+      }
+    </style>
+
     <script type='text/javascript'>
 
       // Parse any options in the querystring.
@@ -56,6 +70,23 @@
         }
       })();
 
+
+      var $el, ref, auth;
+      $(function() {
+        $el = $('#login-response');
+        ref = new Firebase(TEST_NAMESPACE);
+        auth = new FirebaseSimpleLogin(ref, function(error, user) {
+          var content = '<b>error:</b> ' + JSON.stringify(error, null, 2) + '<br/>';
+          content += '<b>user: </b> ' + JSON.stringify(user, null, 2) + '<br/>';
+          $el.html(content);
+        }, /* context */ null, /* apiHost */ TEST_AUTH_SERVER);
+      });
+      function login(provider, options) {
+        auth.logout();
+        $el.html('waiting...')
+        auth.login(provider, options);
+      }
+
       /**
        * Switch between the compiled + minified, compiled + unminified, and uncompiled versions of
        * the Simple Login library based upon querystring. By default, pull in uncompiled.
@@ -85,5 +116,17 @@
     </script>
   </head>
   <body>
+    <div id='status'>
+      <b>User State:</b>
+      <pre id='login-response' class='prettyprint'></pre>
+    </div>
+    <div>
+      <a href='#' onclick='login("anonymous")'>Anonymous</a>
+      <a href='#' onclick='login("facebook")'>Facebook</a>
+      <a href='#' onclick='login("github")'>GitHub</a>
+      <a href='#' onclick='login("google")'>Google</a>
+      <a href='#' onclick='login("persona")'>Persona</a>
+      <a href='#' onclick='login("twitter")'>Twitter</a>
+    </div>
   </body>
 </html>
