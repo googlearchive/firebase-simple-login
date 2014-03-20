@@ -17,6 +17,13 @@ goog.require("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
 
 /**
+ * Simple Login Web client version
+ * @const
+ * @type {string}
+ */
+var CLIENT_VERSION = '1.3.1';
+
+/**
  * @constructor
  */
 fb.simplelogin.client = function(ref, callback, context, apiHost) {
@@ -232,6 +239,7 @@ fb.simplelogin.client.prototype.loginAnonymously = function(options) {
   var provider = 'anonymous';
 
   options.firebase = this.mNamespace;
+  options.v = CLIENT_VERSION;
   fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + '/auth/anonymous', options, function(error, response) {
     if (error || !response['token']) {
       self.mLoginStateChange(fb.simplelogin.Errors.format(error), null);
@@ -250,6 +258,7 @@ fb.simplelogin.client.prototype.loginAnonymously = function(options) {
 fb.simplelogin.client.prototype.loginWithPassword = function(options) {
   var self = this;
   options.firebase = this.mNamespace;
+  options.v = CLIENT_VERSION;
   fb.simplelogin.providers.Password.login(options, function(error, response) {
     if (error || !response['token']) {
       self.mLoginStateChange(fb.simplelogin.Errors.format(error));
@@ -332,7 +341,8 @@ fb.simplelogin.client.prototype.loginWithPersona = function(options) {
     } else {
       fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + '/auth/persona/token', {
         'firebase'  : self.mNamespace,
-        'assertion' : assertion
+        'assertion' : assertion,
+        'v'         : CLIENT_VERSION
       }, function(err, res) {
         if (err || !res['token'] || !res['user']) {
           self.mLoginStateChange(fb.simplelogin.Errors.format(err), null);
@@ -360,6 +370,7 @@ fb.simplelogin.client.prototype.logout = function() {
  */
 fb.simplelogin.client.prototype.loginViaToken = function(provider, options, cb) {
   options = options || {};
+  options.v = CLIENT_VERSION;
 
   var self = this,
       url = fb.simplelogin.Vars.getApiHost() + '/auth/' + provider + '/token?firebase=' + self.mNamespace;
@@ -386,6 +397,7 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
   var url = fb.simplelogin.Vars.getApiHost() + '/auth/' + provider + '?firebase=' + this.mNamespace;
   if (options['scope']) url += '&scope=' + options['scope'];
   if (options['debug']) url += '&debug=' + options['debug'];
+  url += '&v=' + encodeURIComponent(CLIENT_VERSION);
 
   var window_features = {
     'menubar'    : 0,
