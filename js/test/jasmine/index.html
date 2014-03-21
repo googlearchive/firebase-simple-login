@@ -17,7 +17,7 @@
 
     <!-- include source files here... -->
     <script src='//login.persona.org/include.js'></script>
-    <script src='../../src/firebase-simple-login-local.js'></script>
+    <script src='../../../../firebase-simple-login.js'></script>
 
     <style>
       #status {
@@ -79,6 +79,9 @@
           var content = '<b>error:</b> ' + JSON.stringify(error, null, 2) + '<br/>';
           content += '<b>user: </b> ' + JSON.stringify(user, null, 2) + '<br/>';
           $el.html(content);
+          if (user && console && console.log) {
+            console.log(user);
+          }
         }, /* context */ null, /* apiHost */ TEST_AUTH_SERVER);
       });
       function login(provider, options) {

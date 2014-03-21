@@ -115,9 +115,11 @@ fb.simplelogin.transports.XHR_.prototype.formatQueryString = function(data) {
  * @private
  */
 fb.simplelogin.transports.XHR_.prototype.formatError_ = function(error) {
-  var errorObj = new Error(error.message || '');
-  errorObj.code = error.code || 'UNKNOWN_ERROR';
-  return errorObj;
+  if (error) {
+    return fb.simplelogin.Errors.format(error);
+  } else {
+    return fb.simplelogin.Errors.get('UNKNOWN_ERROR'); 
+  }
 };
 
 /**

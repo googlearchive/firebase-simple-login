@@ -16,6 +16,8 @@ goog.require("fb.simplelogin.transports.TriggerIoTab");
 goog.require("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
 
+goog.require('goog.string');
+
 /**
  * Simple Login Web client version
  * @const
