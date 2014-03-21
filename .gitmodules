@@ -1,3 +1,9 @@
 [submodule "lib/closure/library"]
 	path = lib/closure/library
 	url = https://code.google.com/p/closure-library
+[submodule "firebase-simple-login-objc"]
+	path = firebase-simple-login-objc
+	url = git@github.com:firebase/firebase-simple-login-objc
+[submodule "firebase-simple-login-java"]
+	path = firebase-simple-login-java
+	url = git@github.com:firebase/firebase-simple-login-java
