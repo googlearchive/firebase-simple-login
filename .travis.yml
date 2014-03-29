@@ -1,8 +1,10 @@
 language: node_js
+git:
+  submodules: false
 node_js:
   - "0.10"
 before_install:
-  - git submodule update --init
+  - git submodule update --init lib/
   - npm install -g grunt-cli bower phantomjs casperjs
   - npm install
   - bower install
