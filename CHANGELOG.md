@@ -1,3 +1,10 @@
+v1.3.1
+-------------
+Release Date: 2014-03-29
+
+  * Add support for `isTemporaryPassword` flag when logging in using the email / password provider ([#17](https://github.com/firebase/firebase-simple-login/issues/17))
+  * Reduce filesize by using a custom XHR integration ([#13](https://github.com/firebase/firebase-simple-login/issues/13))
+
 v1.3.0
 -------------
 Release Date: 2014-02-28
