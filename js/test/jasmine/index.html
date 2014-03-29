@@ -16,10 +16,35 @@
     <script src='webtests.spec.js'></script>
 
     <!-- include source files here... -->
-    <script src='/firebase-simple-login.js'></script>
     <script src='//login.persona.org/include.js'></script>
+    <script src='../../../../firebase-simple-login.js'></script>
+
+    <style>
+      #status {
+        font-family: Arial;
+        padding: 5px 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        margin-bottom: 5px;
+      }
+      #login-response {
+        font-size: 11px;
+        white-space: pre-wrap;
+      }
+    </style>
 
     <script type='text/javascript'>
+
+      // Parse any options in the querystring.
+      var qs = {};
+      if ('location' in this) {
+        var search = (this.location.search.substr(1) || '').split('&');
+        for (var i = 0; i < search.length; ++i) {
+          var parts = search[i].split('=');
+          qs[parts[0]] = parts[1] || true;
+        }
+      }
+
       (function() {
         var jasmineEnv = jasmine.getEnv();
         jasmineEnv.updateInterval = 1000;
@@ -45,23 +70,66 @@
         }
       })();
 
-      function login(provider, options) {
-        var ctx = new Firebase.Context();
-        var ref = new Firebase(TEST_NAMESPACE, ctx);
-        var $el = $('#authResponse');
-        var simpleLogin = new FirebaseSimpleLogin(ref, function(error, user) {
-          var content = '';
-          content = '<b>error:</b> ' +  JSON.stringify(error, null, 4) + '<br/>';
-          content += '<b>user:</b> ' + JSON.stringify(user, null, 4) + '<br/>';
+
+      var $el, ref, auth;
+      $(function() {
+        $el = $('#login-response');
+        ref = new Firebase(TEST_NAMESPACE);
+        auth = new FirebaseSimpleLogin(ref, function(error, user) {
+          var content = '<b>error:</b> ' + JSON.stringify(error, null, 2) + '<br/>';
+          content += '<b>user: </b> ' + JSON.stringify(user, null, 2) + '<br/>';
           $el.html(content);
-        });
-        simpleLogin.setApiHost(TEST_AUTH_SERVER);
-        simpleLogin.logout();
+          if (user && console && console.log) {
+            console.log(user);
+          }
+        }, /* context */ null, /* apiHost */ TEST_AUTH_SERVER);
+      });
+      function login(provider, options) {
+        auth.logout();
         $el.html('waiting...')
-        simpleLogin.login(provider, options);
+        auth.login(provider, options);
       }
+
+      /**
+       * Switch between the compiled + minified, compiled + unminified, and uncompiled versions of
+       * the Simple Login library based upon querystring. By default, pull in uncompiled.
+      (function() {
+        // Default local include following the Google Closure dependency chain.
+        var sourcePath;
+
+        qs.sourceVersion = qs.sourceVersion || 'dev';
+        if (qs.sourceVersion === 'prod') {
+          sourcePath = '/firebase-simple-login.js'
+        } else if (qs.sourceVersion === 'debug') {
+          sourcePath = '/firebase-simple-login-debug.js'
+        } else {
+          sourcePath = '../../src/firebase-simple-login-local.js';
+        }
+
+        var head= document.getElementsByTagName('head')[0];
+        js = document.createElement('script');
+        js.onreadystatechange= function () {
+          if (this.readyState == 'complete') initializeJasmine();
+        }
+        js.onload = initializeJasmine;
+        js.src = sourcePath;
+        head.appendChild(js);
+      }());
+      */
     </script>
   </head>
   <body>
+    <div id='status'>
+      <b>User State:</b>
+      <pre id='login-response' class='prettyprint'></pre>
+    </div>
+    <div>
+      <a href='#' onclick='login("anonymous")'>Anonymous</a>
+      <a href='#' onclick='login("facebook")'>Facebook</a>
+      <a href='#' onclick='login("github")'>GitHub</a>
+      <a href='#' onclick='login("google")'>Google</a>
+      <a href='#' onclick='login("persona")'>Persona</a>
+      <a href='#' onclick='login("twitter")'>Twitter</a>
+    </div>
   </body>
 </html>

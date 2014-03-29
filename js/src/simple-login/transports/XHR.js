@@ -3,18 +3,13 @@ goog.provide('fb.simplelogin.transports.XHR_');
 goog.require('fb.simplelogin.transports.Transport');
 goog.require('fb.simplelogin.Vars');
 goog.require('fb.simplelogin.util.json');
-goog.require('goog.net.XhrIo');
-goog.require('goog.events');
-goog.require('goog.json');
 
 /**
  * Create a new JSON connection with the given URL, options, and callback.
  * @constructor
  * @implements {fb.simplelogin.Transport}
  */
-fb.simplelogin.transports.XHR_ = function() {
-  window[CALLBACK_NAMESPACE] = window[CALLBACK_NAMESPACE] || {};
-};
+fb.simplelogin.transports.XHR_ = function() {};
 
 /**
  * Opens a new connection using the specified URL and options.
@@ -23,46 +18,108 @@ fb.simplelogin.transports.XHR_ = function() {
  * @param {Object} options
  * @param {function(Object, Object)} onComplete Callback when messages arrive
  */
-fb.simplelogin.transports.XHR_.prototype.open = function(url, options, onComplete) {
+fb.simplelogin.transports.XHR_.prototype.open = function(url, data, onComplete) {
   var self = this;
-  var request = new goog.net.XhrIo();
-   
-  goog.events.listen(request, 'complete', function() {
-    if (request.isSuccess()){
-      var data = request.getResponseJson();
-      var error = data['error'] || null;
-      delete data['error'];
-      onComplete && onComplete(error, data);
-    } else {
-      onComplete && onComplete(self.formatError_({ code: 'SERVER_ERROR', message: 'An unknown server error occurred.' }));
-    }
-  });
+  var options = {
+    contentType : 'application/json'
+  };
 
-  url += '?';
-  for (var key in options) {
-    url += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(options[key]);
+  var xhr = new XMLHttpRequest(),
+      method = (options.method || 'GET').toUpperCase(),
+      contentType = options.contentType || 'application/x-www-form-urlencoded',
+      callbackInvoked = false,
+      key;
+
+  var callbackHandler = function() {
+    if (!callbackInvoked && xhr.readyState === 4) {
+      callbackInvoked = true;
+
+      var data, error;
+      try {
+        data = fb.simplelogin.util.json.parse(xhr.responseText);
+        error = data['error'] || null;
+        delete data['error'];
+      } catch(e) {}
+
+      if (!data || error) {
+        return onComplete && onComplete(self.formatError_(error));
+      } else {
+        return onComplete && onComplete(error, data);
+      }
+    }
+  };
+
+  xhr.onreadystatechange = callbackHandler;
+
+  if (data) {
+    if (method === 'GET') {
+      if (url.indexOf('?') === -1) {
+        url += '?';
+      }
+      url += this.formatQueryString(data);
+      data = null;
+    } else {
+      if (contentType === 'application/json') {
+        data = fb.simplelogin.util.json.stringify(data);
+      }
+      if (contentType === 'application/x-www-form-urlencoded') {
+        data = this.formatQueryString(data);
+      }
+    }
   }
 
-  request.send(url, 'GET', null, {
-    'content-type' : 'application/json'
-  });
+  xhr.open(method, url, true);
+  var headers = {
+    'X-Requested-With' : 'XMLHttpRequest',
+    'Accept'           : 'application/json;text/plain',
+    'Content-Type'     : contentType
+  };
+
+  options.headers = options.headers || {};
+  for (key in options.headers) {
+    headers[key] = options.headers[key];
+  }
+
+  for (key in headers) {
+    xhr.setRequestHeader(key, headers[key]);
+  }
+
+  xhr.send(data);
 };
 
 /**
  * Returns true if this XMLHttpRequest is supported.
- * @return {boolean} 
+ * @return {boolean}
  */
 fb.simplelogin.transports.XHR_.prototype.isAvailable = function() {
   return window['XMLHttpRequest'] && typeof window['XMLHttpRequest'] === 'function';
 };
 
 /**
+ * Returns the querystring-formatted Object (i.e. 'a=b&c=d')
+ * @param {Object} data
+ * @return {String}
+ */
+fb.simplelogin.transports.XHR_.prototype.formatQueryString = function(data) {
+  if (!data) return '';
+
+  var tokens = [];
+  for (var key in data) {
+    tokens.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+  }
+
+  return tokens.join('&');
+};
+
+/**
  * @private
  */
 fb.simplelogin.transports.XHR_.prototype.formatError_ = function(error) {
-  var errorObj = new Error(error.message || '');
-  errorObj.code = error.code || 'UNKNOWN_ERROR';
-  return errorObj;
+  if (error) {
+    return fb.simplelogin.Errors.format(error);
+  } else {
+    return fb.simplelogin.Errors.get('UNKNOWN_ERROR'); 
+  }
 };
 
 /**

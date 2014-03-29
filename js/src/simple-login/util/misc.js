@@ -40,3 +40,21 @@ fb.simplelogin.util.misc.parseQuerystring = function(str) {
 
   return obj;
 };
+
+/**
+ * Retrieves the subdomain from a URL.
+ *
+ * @param {String} url A valid URL
+ * @return {String} The Firebase name
+ */
+fb.simplelogin.util.misc.parseSubdomain = function(url) {
+  var subdomain = '';
+  try {
+    var obj = fb.simplelogin.util.misc.parseUrl(url);
+    var tokens = obj.host.split('.');
+    if (tokens.length > 2) {
+      subdomain = tokens.slice(0, -2).join('.');
+    }
+  } catch(e) {}
+  return subdomain;
+};

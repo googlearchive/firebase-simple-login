@@ -26,6 +26,6 @@ for (var i = scripts.length - 1; i >= 0; i--) {
 if (basePath === null)
   throw "Couldn't determine location of firebase-simple-login-local.js.  WHAT DID YOU DO!?!?!";
 
-document.write('<script type="text/javascript" src="' + basePath + '../../build/closure/library/closure/goog/base.js"></script>');
+document.write('<script type="text/javascript" src="' + basePath + '../../lib/closure/library/closure/goog/base.js"></script>');
 document.write('<script type="text/javascript" src="' + basePath + '../deps.js"></script>');
 document.write('<script type="text/javascript" src="' + basePath + 'firebase-simple-login-require.js"></script>');

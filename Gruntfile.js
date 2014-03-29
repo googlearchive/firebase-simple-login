@@ -29,7 +29,8 @@ module.exports = function(grunt) {
         builder            : 'lib/closure/library/closure/bin/build/closurebuilder.py',
         compilerFile       : 'lib/closure/compiler.jar',
         compile            : true,
-        compilerOpts       : {}
+        compilerOpts       : {},
+        jvmOpts            : ['-Xmx256M']
       },
       'js-simple-login': {
         src     : src,
