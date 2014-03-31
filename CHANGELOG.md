@@ -1,3 +1,9 @@
+v1.3.2
+-------------
+Release Date: 2014-03-30
+
+  * Fixes issue with session persistence ([#22](https://github.com/firebase/firebase-simple-login/issues/22))
+
 v1.3.1
 -------------
 Release Date: 2014-03-29
