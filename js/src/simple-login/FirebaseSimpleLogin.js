@@ -79,3 +79,7 @@ FirebaseSimpleLogin = function(ref, cb, context, apiHost) {
 FirebaseSimpleLogin.onOpen = function(cb) {
   fb.simplelogin.client.onOpen(cb);
 };
+
+FirebaseSimpleLogin.VERSION = function() {
+  return fb.simplelogin.client.VERSION();
+};

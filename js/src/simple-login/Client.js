@@ -23,7 +23,7 @@ goog.require('goog.string');
  * @const
  * @type {string}
  */
-var CLIENT_VERSION = '1.3.1';
+var CLIENT_VERSION = '1.3.3';
 
 /**
  * @constructor
@@ -552,4 +552,11 @@ fb.simplelogin.client.prototype.sendPasswordResetEmail = function(email, cb) {
  */
 fb.simplelogin.client.onOpen = function(cb) {
   fb.simplelogin.transports.WinChan.onOpen(cb);
+};
+
+/**
+ * @export
+ */
+fb.simplelogin.client.VERSION = function() {
+  return CLIENT_VERSION;
 };
