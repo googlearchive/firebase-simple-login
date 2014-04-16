@@ -429,7 +429,6 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
   var self = this;
   var url = fb.simplelogin.Vars.getApiHost() + '/auth/' + provider + '?firebase=' + self.mNamespace;
   if (options['scope']) url += '&scope=' + options['scope'];
-  if (options['debug']) url += '&debug=' + options['debug'];
   url += '&v=' + encodeURIComponent(CLIENT_VERSION);
 
   var window_features = {
