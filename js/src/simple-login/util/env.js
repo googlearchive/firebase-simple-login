@@ -99,6 +99,25 @@ fb.simplelogin.util.env.isPhantomJS = function() {
 };
 
 /**
+ * @return {boolean} isIE < 10
+ */
+fb.simplelogin.util.env.isIeLT10 = function() {
+  var re, match, rv = -1; // Return value assumes failure.
+  var ua = navigator['userAgent'];
+  if (navigator['appName'] === 'Microsoft Internet Explorer') {
+    re = /MSIE ([0-9]{1,}[\.0-9]{0,})/;
+    match = ua.match(re);
+    if (match && match.length > 1) {
+      rv = parseFloat(match[1]);
+    }
+    if (rv < 10) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
  * @return {boolean} isFennec (Mobile Firefox)
  * See https://github.com/mozilla/winchan/blob/ac4b142c34daa84bbcb5d8663fad19ce6394cb18/winchan.js#L39
  */
