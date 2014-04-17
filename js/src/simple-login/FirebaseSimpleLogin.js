@@ -80,6 +80,4 @@ FirebaseSimpleLogin.onOpen = function(cb) {
   fb.simplelogin.client.onOpen(cb);
 };
 
-FirebaseSimpleLogin.VERSION = function() {
-  return fb.simplelogin.client.VERSION();
-};
+FirebaseSimpleLogin.VERSION = fb.simplelogin.client.VERSION();

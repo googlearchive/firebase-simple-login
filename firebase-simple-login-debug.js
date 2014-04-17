@@ -1709,6 +1709,21 @@ fb.simplelogin.util.env.isStandaloneiOS = function() {
 fb.simplelogin.util.env.isPhantomJS = function() {
   return!!navigator.userAgent.match(/PhantomJS/);
 };
+fb.simplelogin.util.env.isIeLT10 = function() {
+  var re, match, rv = -1;
+  var ua = navigator["userAgent"];
+  if (navigator["appName"] === "Microsoft Internet Explorer") {
+    re = /MSIE ([0-9]{1,}[\.0-9]{0,})/;
+    match = ua.match(re);
+    if (match && match.length > 1) {
+      rv = parseFloat(match[1]);
+    }
+    if (rv < 10) {
+      return true;
+    }
+  }
+  return false;
+};
 fb.simplelogin.util.env.isFennec = function() {
   try {
     var userAgent = navigator["userAgent"];
@@ -1774,7 +1789,7 @@ fb.simplelogin.transports.XHR_.prototype.open = function(url, data, onComplete) 
   xhr.send(data);
 };
 fb.simplelogin.transports.XHR_.prototype.isAvailable = function() {
-  return window["XMLHttpRequest"] && typeof window["XMLHttpRequest"] === "function";
+  return window["XMLHttpRequest"] && (typeof window["XMLHttpRequest"] === "function" && !fb.simplelogin.util.env.isIeLT10());
 };
 fb.simplelogin.transports.XHR_.prototype.formatQueryString = function(data) {
   if (!data) {
@@ -3844,9 +3859,6 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
   if (options["scope"]) {
     url += "&scope=" + options["scope"];
   }
-  if (options["debug"]) {
-    url += "&debug=" + options["debug"];
-  }
   url += "&v=" + encodeURIComponent(CLIENT_VERSION);
   var window_features = {"menubar":0, "location":0, "resizable":0, "scrollbars":1, "status":0, "dialog":1, "width":700, "height":375};
   if (options["height"]) {
@@ -4016,7 +4028,5 @@ FirebaseSimpleLogin = function(ref, cb, context, apiHost) {
 FirebaseSimpleLogin.onOpen = function(cb) {
   fb.simplelogin.client.onOpen(cb);
 };
-FirebaseSimpleLogin.VERSION = function() {
-  return fb.simplelogin.client.VERSION();
-};
+FirebaseSimpleLogin.VERSION = fb.simplelogin.client.VERSION();
 
