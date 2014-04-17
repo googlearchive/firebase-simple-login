@@ -25,7 +25,7 @@ for complete documentation and API reference.
 ## Configuration
 
 Firebase Simple Login supports email & password, Facebook, Google,
-GitHub, Persona, Twitter, and anonymous authentication methods. Before adding to
+GitHub, Twitter, and anonymous authentication methods. Before adding to
 your application, you'll need to first enable these auth. providers in your app.
 
 To get started, visit the Simple Login tab in Firebase Forge, at

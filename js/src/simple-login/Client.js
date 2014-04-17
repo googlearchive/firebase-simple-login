@@ -7,7 +7,6 @@ goog.require("fb.simplelogin.Vars");
 goog.require("fb.simplelogin.Errors");
 goog.require("fb.simplelogin.SessionStore");
 
-goog.require("fb.simplelogin.providers.Persona");
 goog.require("fb.simplelogin.providers.Password");
 
 goog.require("fb.simplelogin.transports.JSONP");
@@ -211,7 +210,6 @@ fb.simplelogin.client.prototype.login = function() {
     case 'github'         : return this.loginWithGithub(options);
     case 'google-token'   : return this.loginWithGoogleToken(options);
     case 'password'       : return this.loginWithPassword(options);
-    case 'persona'        : return this.loginWithPersona(options);
     case 'twitter-token'  : return this.loginWithTwitterToken(options);
     case 'facebook'       :
       if (options['access_token']) {
@@ -325,37 +323,6 @@ fb.simplelogin.client.prototype.loginWithGoogleToken = function(options) {
  */
 fb.simplelogin.client.prototype.loginWithTwitterToken = function(options) {
   this.loginViaToken('twitter', options);
-};
-
-/**
- * @private
- */
-fb.simplelogin.client.prototype.loginWithPersona = function(options) {
-  var self = this;
-
-  if (!navigator['id']) {
-    throw new Error('FirebaseSimpleLogin.login(persona): Unable to find Persona include.js');
-  }
-
-  fb.simplelogin.providers.Persona.login(options, function(assertion) {
-    if (assertion === null) {
-      callback(fb.simplelogin.Errors.get('UNKNOWN_ERROR'));
-    } else {
-      fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + '/auth/persona/token', {
-        'firebase'  : self.mNamespace,
-        'assertion' : assertion,
-        'v'         : CLIENT_VERSION
-      }, function(err, res) {
-        if (err || !res['token'] || !res['user']) {
-          self.mLoginStateChange(fb.simplelogin.Errors.format(err), null);
-        } else {
-          var token = res['token'];
-          var user = res['user'];
-          self.attemptAuth(token, user, /* saveSession */ true);
-        }
-      });
-    }
-  });
 };
 
 /**
