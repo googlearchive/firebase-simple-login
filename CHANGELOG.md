@@ -1,3 +1,11 @@
+v1.4.0
+-------------
+Release Date: 2014-04-17
+
+  * Fixes issue with cross-domain XHR in IE9
+  * Return Promises/A+ standards-compliant promises from all asynchronous login / user management methods
+  * Expose `FirebaseSimpleLogin.VERSION` attribute in the client for programmatic detection
+
 v1.3.2
 -------------
 Release Date: 2014-03-30
