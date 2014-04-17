@@ -64,7 +64,7 @@ auth.login('<provider>'); // 'password', 'facebook', 'github', 'google', etc.
 ## Testing / Compiling From Source
 
 Interested in manually debugging from source, or submitting a pull request?
-Don't forget to read the [Contribution Guidelines](../CONTRIBUTING.md) in
+Don't forget to read the [Contribution Guidelines](./CONTRIBUTING.md) in
 addition to following the steps below.
 
 ### Install Dependencies
