@@ -166,9 +166,97 @@ describe("Email / Password Tests", function() {
     }, "account removal", TEST_TIMEOUT);
   });
 
+  it("Create Account and Login - with Promises", function() {
+    var ctx = new Firebase.Context();
+    var ref = new Firebase(TEST_NAMESPACE, ctx);
+
+    var done = false, error = null, user = null;
+    var authClient = new FirebaseSimpleLogin(ref, function(resError, resUser) {
+      done = true;
+    });
+    authClient.setApiHost(TEST_AUTH_SERVER);
+    authClient.logout();
+
+    waitsFor(function() {
+      return done;
+    }, "initialize client and ensure user logged out", TEST_TIMEOUT);
+
+    runs(function() {
+      done = false;
+      authClient.createUser("person@firebase.com", "pw", function(error, userId) {
+        expect(error).toBe(null);
+        authClient.createUser("person@firebase.com", "pw", function(error, userId) {
+          expect(error.code).toBe("EMAIL_TAKEN");
+          done = true;
+        });
+      });
+    });
+
+    waitsFor(function() {
+      return done;
+    }, "attempt creating duplicate account", TEST_TIMEOUT);
+
+    runs(function() {
+      done = false;
+      authClient.login("password", { email: "person@firebase.com", password: "blah" })
+        .then(function(resUser) {
+          user = resUser;
+          error = null;
+          done = true;
+        }, function(resError) {
+          user = null;
+          error = resError;
+          done = true;
+        });
+    });
+
+    waitsFor(function() {
+      return done;
+    }, "attempt login with incorrect password", TEST_TIMEOUT);
+
+    runs(function() {
+      expect(error.code).toBe("INVALID_PASSWORD");
+    });
+
+    runs(function() {
+      done = false;
+      authClient.login("password", { email: "PeRsOn@firebase.com", password: "pw" })
+        .then(function(resUser) {
+          user = resUser;
+          error = null;
+          done = true;
+        }, function(resError) {
+          user = null;
+          error = resError;
+          done = true;
+        });
+    });
+
+    waitsFor(function() {
+      return done;
+    }, "attempt login with correct password and different case", TEST_TIMEOUT);
+
+    runs(function() {
+      expect(error).toBe(null);
+    });
+
+    runs(function() {
+      done = false;
+      authClient.removeUser("person@firebase.com", "pw", function(error) {
+        expect(error).toBe(null);
+        done = true;
+      });
+    });
+
+    waitsFor(function() {
+      return done;
+    }, "account removal", TEST_TIMEOUT);
+  });
+
   it("Set Password", function() {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
+    var uid = "person+" + (2<<29 * Math.random()) + "@firebase.com";
 
     var done = false, error = null, user = null;
     var authClient = new FirebaseSimpleLogin(ref, function(resError, resUser) {
@@ -183,8 +271,8 @@ describe("Email / Password Tests", function() {
 
     runs(function() {
       done = false;
-      authClient.createUser("person@firebase.com", "pw", function(error, user) {
-        authClient.changePassword("person@firebase.com", "pw", "blah", function(error) {
+      authClient.createUser(uid, "pw", function(error, user) {
+        authClient.changePassword(uid, "pw", "blah", function(error) {
           expect(error).toBe(null);
           done = true;
         });
@@ -197,7 +285,7 @@ describe("Email / Password Tests", function() {
 
     runs(function() {
       done = false;
-      authClient.login("password", { email: "person@firebase.com", password: "blah" });
+      authClient.login("password", { email: uid, password: "blah" });
     });
 
     waitsFor(function() {
@@ -206,7 +294,7 @@ describe("Email / Password Tests", function() {
 
     runs(function() {
       done = false;
-      authClient.login("password", { email: "person@firebase.com", password: "invalidpassword" });
+      authClient.login("password", { email: uid, password: "invalidpassword" });
     });
 
     waitsFor(function() {
@@ -215,7 +303,7 @@ describe("Email / Password Tests", function() {
 
     runs(function() {
       done = false;
-      authClient.removeUser("person@firebase.com", "blah", function(error) {
+      authClient.removeUser(uid, "blah", function(error) {
         expect(error).toBe(null);
         done = true;
       });
@@ -318,8 +406,50 @@ describe("Anonymous Login Tests", function() {
       expect(user.uid).toBe(user.provider + ":" + user.id);
       expect(user.displayName).toBeDefined();
     });
-
   });
+
+  it("Anonymous Auth. Test - with Promises", function() {
+    var ctx = new Firebase.Context();
+    var ref = new Firebase(TEST_NAMESPACE, ctx);
+
+    var done = false, error = null, user = null;
+    var authClient = new FirebaseSimpleLogin(ref, function(resError, resUser) {
+      done = true;
+    });
+    authClient.setApiHost(TEST_AUTH_SERVER);
+    authClient.logout();
+
+    waitsFor(function() {
+      return done;
+    }, "initialize client and ensure user logged out", TEST_TIMEOUT);
+
+    runs(function() {
+      done = false;
+      authClient.login("anonymous")
+        .then(function(resUser) {
+          user = resUser;
+          error = null;
+          done = true;
+        }, function(resError) {
+          user = null;
+          error = resError;
+          done = true;
+        });
+    });
+
+    waitsFor(function() {
+      return done;
+    }, "attempt authentication with Anonymous", TEST_TIMEOUT);
+
+    runs(function() {
+      expect(error).toBe(null);
+      expect(user.provider).toBe("anonymous");
+      expect(typeof user.id).toBe("string");
+      expect(user.uid).toBe(user.provider + ":" + user.id);
+      expect(user.displayName).toBeDefined();
+    });
+  });
+
 });
 
 describe("OAuth Provider+Token Tests", function() {

@@ -1,6 +1,7 @@
 goog.provide('fb.simplelogin.client');
 goog.require('fb.simplelogin.util.env');
 goog.require('fb.simplelogin.util.json');
+goog.require('fb.simplelogin.util.RSVP');
 goog.require('fb.simplelogin.util.validation');
 
 goog.require("fb.simplelogin.Vars");
@@ -23,7 +24,7 @@ goog.require('goog.string');
  * @const
  * @type {string}
  */
-var CLIENT_VERSION = '1.3.1';
+var CLIENT_VERSION = '1.4.0';
 
 /**
  * @constructor
@@ -156,7 +157,7 @@ fb.simplelogin.client.prototype.resumeSession = function() {
 /**
  * @private
  */
-fb.simplelogin.client.prototype.attemptAuth = function(token, user, saveSession) {
+fb.simplelogin.client.prototype.attemptAuth = function(token, user, saveSession, resolveCb, rejectCb) {
   var self = this;
   this.mRef['auth'](token, function(error, dummy) {
     if (!error) {
@@ -178,15 +179,24 @@ fb.simplelogin.client.prototype.attemptAuth = function(token, user, saveSession)
       user['firebaseAuthToken'] = token;
 
       self.mLoginStateChange(null, user);
+      if (resolveCb) {
+        resolveCb(user);
+      }
     } else {
       // Firebase.auth() failed, usually due to an expired token. Hit logged-out case.
       fb.simplelogin.SessionStore.clear();
       self.mLoginStateChange(null, null);
+      if (rejectCb) {
+        rejectCb();
+      }
     }
   }, function(error) {
     // Firebase authentication expired or was cancelled. Hit logged-out case.
     fb.simplelogin.SessionStore.clear();
     self.mLoginStateChange(null, null);
+    if (rejectCb) {
+      rejectCb();
+    }
   });
 };
 
@@ -237,21 +247,26 @@ fb.simplelogin.client.prototype.login = function() {
  * @private
  */
 fb.simplelogin.client.prototype.loginAnonymously = function(options) {
-  var self = this;
-  var provider = 'anonymous';
+  var self = this,
+      provider = 'anonymous';
 
-  options.firebase = this.mNamespace;
-  options.v = CLIENT_VERSION;
-  fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + '/auth/anonymous', options, function(error, response) {
-    if (error || !response['token']) {
-      self.mLoginStateChange(fb.simplelogin.Errors.format(error), null);
-    }
-    else {
-      var token = response['token'];
-      var user = response['user'];
-      self.attemptAuth(token, user, /* saveSession */ true);
-    }
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    options.firebase = self.mNamespace;
+    options.v = CLIENT_VERSION;
+    fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + '/auth/anonymous', options, function(error, response) {
+      if (error || !response['token']) {
+        var errorObj = fb.simplelogin.Errors.format(error);
+        self.mLoginStateChange(errorObj, null);
+        reject(errorObj);
+      }
+      else {
+        var token = response['token'];
+        var user = response['user'];
+        self.attemptAuth(token, user, /* saveSession */ true, resolve, reject);
+      }
+    });
   });
+  return promise;
 };
 
 /**
@@ -259,17 +274,23 @@ fb.simplelogin.client.prototype.loginAnonymously = function(options) {
  */
 fb.simplelogin.client.prototype.loginWithPassword = function(options) {
   var self = this;
-  options.firebase = this.mNamespace;
-  options.v = CLIENT_VERSION;
-  fb.simplelogin.providers.Password.login(options, function(error, response) {
-    if (error || !response['token']) {
-      self.mLoginStateChange(fb.simplelogin.Errors.format(error));
-    } else {
-      var token = response['token'];
-      var user = response['user'];
-      self.attemptAuth(token, user, /* saveSession */ true);
-    }
+
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    options.firebase = self.mNamespace;
+    options.v = CLIENT_VERSION;
+    fb.simplelogin.providers.Password.login(options, function(error, response) {
+      if (error || !response['token']) {
+        var errorObj = fb.simplelogin.Errors.format(error);
+        self.mLoginStateChange(errorObj, null);
+        reject(errorObj);
+      } else {
+        var token = response['token'];
+        var user = response['user'];
+        self.attemptAuth(token, user, /* saveSession */ true, resolve, reject);
+      }
+    });
   });
+  return promise;
 };
 
 /**
@@ -278,7 +299,7 @@ fb.simplelogin.client.prototype.loginWithPassword = function(options) {
 fb.simplelogin.client.prototype.loginWithGithub = function(options) {
   options['height'] = 850;
   options['width'] = 950;
-  this.loginViaOAuth('github', options);
+  return this.loginViaOAuth('github', options);
 };
 
 /**
@@ -287,7 +308,7 @@ fb.simplelogin.client.prototype.loginWithGithub = function(options) {
 fb.simplelogin.client.prototype.loginWithGoogle = function(options) {
   options['height'] = 650;
   options['width'] = 575;
-  this.loginViaOAuth('google', options);
+  return this.loginViaOAuth('google', options);
 };
 
 /**
@@ -296,35 +317,35 @@ fb.simplelogin.client.prototype.loginWithGoogle = function(options) {
 fb.simplelogin.client.prototype.loginWithFacebook = function(options) {
   options['height'] = 400;
   options['width'] = 535;
-  this.loginViaOAuth('facebook', options);
+  return this.loginViaOAuth('facebook', options);
 };
 
 /**
  * @private
  */
 fb.simplelogin.client.prototype.loginWithTwitter = function(options) {
-  this.loginViaOAuth('twitter', options);
+  return this.loginViaOAuth('twitter', options);
 };
 
 /**
  * @private
  */
 fb.simplelogin.client.prototype.loginWithFacebookToken = function(options) {
-  this.loginViaToken('facebook', options);
+  return this.loginViaToken('facebook', options);
 };
 
 /**
  * @private
  */
 fb.simplelogin.client.prototype.loginWithGoogleToken = function(options) {
-  this.loginViaToken('google', options);
+  return this.loginViaToken('google', options);
 };
 
 /**
  * @private
  */
 fb.simplelogin.client.prototype.loginWithTwitterToken = function(options) {
-  this.loginViaToken('twitter', options);
+  return this.loginViaToken('twitter', options);
 };
 
 /**
@@ -337,25 +358,30 @@ fb.simplelogin.client.prototype.loginWithPersona = function(options) {
     throw new Error('FirebaseSimpleLogin.login(persona): Unable to find Persona include.js');
   }
 
-  fb.simplelogin.providers.Persona.login(options, function(assertion) {
-    if (assertion === null) {
-      callback(fb.simplelogin.Errors.get('UNKNOWN_ERROR'));
-    } else {
-      fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + '/auth/persona/token', {
-        'firebase'  : self.mNamespace,
-        'assertion' : assertion,
-        'v'         : CLIENT_VERSION
-      }, function(err, res) {
-        if (err || !res['token'] || !res['user']) {
-          self.mLoginStateChange(fb.simplelogin.Errors.format(err), null);
-        } else {
-          var token = res['token'];
-          var user = res['user'];
-          self.attemptAuth(token, user, /* saveSession */ true);
-        }
-      });
-    }
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    fb.simplelogin.providers.Persona.login(options, function(assertion) {
+      if (assertion === null) {
+        callback(fb.simplelogin.Errors.get('UNKNOWN_ERROR'));
+      } else {
+        fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + '/auth/persona/token', {
+          'firebase'  : self.mNamespace,
+          'assertion' : assertion,
+          'v'         : CLIENT_VERSION
+        }, function(err, res) {
+          if (err || !res['token'] || !res['user']) {
+            var errorObj = fb.simplelogin.Errors.format(err);
+            self.mLoginStateChange(errorObj, null);
+            reject(errorObj);
+          } else {
+            var token = res['token'];
+            var user = res['user'];
+            self.attemptAuth(token, user, /* saveSession */ true, resolve, reject);
+          }
+        });
+      }
+    });
   });
+  return promise;
 };
 
 /**
@@ -377,16 +403,21 @@ fb.simplelogin.client.prototype.loginViaToken = function(provider, options, cb) 
   var self = this,
       url = fb.simplelogin.Vars.getApiHost() + '/auth/' + provider + '/token?firebase=' + self.mNamespace;
 
-  fb.simplelogin.transports.JSONP.open(url, options,
-    function(err, res) {
-      if (err || !res['token'] || !res['user']) {
-        self.mLoginStateChange(fb.simplelogin.Errors.format(err), null);
-      } else {
-        var token = res['token'];
-        var user = res['user'];
-        self.attemptAuth(token, user, /* saveSession */ true);
-      }
-    });
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    fb.simplelogin.transports.JSONP.open(url, options,
+      function(err, res) {
+        if (err || !res['token'] || !res['user']) {
+          var errorObj = fb.simplelogin.Errors.format(err);
+          self.mLoginStateChange(errorObj);
+          reject(errorObj);
+        } else {
+          var token = res['token'];
+          var user = res['user'];
+          self.attemptAuth(token, user, /* saveSession */ true, resolve, reject);
+        }
+      });
+  });
+  return promise;
 };
 
 /**
@@ -396,9 +427,8 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
   options = options || {};
 
   var self = this;
-  var url = fb.simplelogin.Vars.getApiHost() + '/auth/' + provider + '?firebase=' + this.mNamespace;
+  var url = fb.simplelogin.Vars.getApiHost() + '/auth/' + provider + '?firebase=' + self.mNamespace;
   if (options['scope']) url += '&scope=' + options['scope'];
-  if (options['debug']) url += '&debug=' + options['debug'];
   url += '&v=' + encodeURIComponent(CLIENT_VERSION);
 
   var window_features = {
@@ -472,19 +502,24 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
     return;
   }
 
-  transport.open(url, options, function(error, res) {
-    if (res && res.token && res.user) {
-      self.attemptAuth(res.token, res.user, /* saveSession */ true);
-    } else {
-      var errObj = error || { code: 'UNKNOWN_ERROR', message: 'An unknown error occurred.' };
-      if (error === 'unknown closed window') {
-        errObj = { code: 'USER_DENIED', message: 'User cancelled the authentication request.' };
-      } else if (res && res.error) {
-        errObj = res.error;
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    transport.open(url, options, function(error, res) {
+      if (res && res.token && res.user) {
+        self.attemptAuth(res.token, res.user, /* saveSession */ true, resolve, reject);
+      } else {
+        var errObj = error || { code: 'UNKNOWN_ERROR', message: 'An unknown error occurred.' };
+        if (error === 'unknown closed window') {
+          errObj = { code: 'USER_DENIED', message: 'User cancelled the authentication request.' };
+        } else if (res && res.error) {
+          errObj = res.error;
+        }
+        var errorObj = fb.simplelogin.Errors.format(errObj);
+        self.mLoginStateChange(errorObj);
+        reject(errorObj);
       }
-      self.mLoginStateChange(fb.simplelogin.Errors.format(errObj), null);
-    }
+    });
   });
+  return promise;
 };
 
 /**
@@ -492,20 +527,27 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
  */
 fb.simplelogin.client.prototype.manageFirebaseUsers = function(method, data, cb) {
   data['firebase'] = this.mNamespace;
-  fb.simplelogin.providers.Password[method](data, function(error, result) {
-    if (error) {
-      return cb && cb(fb.simplelogin.Errors.format(error), null);
-    } else {
-      return cb && cb(null, result);
-    }
+
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    fb.simplelogin.providers.Password[method](data, function(error, result) {
+      if (error) {
+        var errorObj = fb.simplelogin.Errors.format(error);
+        reject(errorObj);
+        return cb && cb(errorObj, null);
+      } else {
+        resolve(result);
+        return cb && cb(null, result);
+      }
+    });
   });
+  return promise;
 };
 
 /**
  * @export
  */
 fb.simplelogin.client.prototype.createUser = function(email, password, cb) {
-  this.manageFirebaseUsers('createUser', {
+  return this.manageFirebaseUsers('createUser', {
     'email'    : email,
     'password' : password
   }, cb);
@@ -515,7 +557,7 @@ fb.simplelogin.client.prototype.createUser = function(email, password, cb) {
  * @export
  */
 fb.simplelogin.client.prototype.changePassword = function(email, oldPassword, newPassword, cb) {
-  this.manageFirebaseUsers('changePassword', {
+  return this.manageFirebaseUsers('changePassword', {
     'email'       : email,
     'oldPassword' : oldPassword,
     'newPassword' : newPassword
@@ -528,7 +570,7 @@ fb.simplelogin.client.prototype.changePassword = function(email, oldPassword, ne
  * @export
  */
 fb.simplelogin.client.prototype.removeUser = function(email, password, cb) {
-  this.manageFirebaseUsers('removeUser', {
+  return this.manageFirebaseUsers('removeUser', {
     'email'    : email,
     'password' : password
   }, function(error) {
@@ -540,7 +582,7 @@ fb.simplelogin.client.prototype.removeUser = function(email, password, cb) {
  * @export
  */
 fb.simplelogin.client.prototype.sendPasswordResetEmail = function(email, cb) {
-  this.manageFirebaseUsers('sendPasswordResetEmail', {
+  return this.manageFirebaseUsers('sendPasswordResetEmail', {
     'email'    : email
   }, function(error) {
     return cb && cb(error);
@@ -552,4 +594,11 @@ fb.simplelogin.client.prototype.sendPasswordResetEmail = function(email, cb) {
  */
 fb.simplelogin.client.onOpen = function(cb) {
   fb.simplelogin.transports.WinChan.onOpen(cb);
+};
+
+/**
+ * @export
+ */
+fb.simplelogin.client.VERSION = function() {
+  return CLIENT_VERSION;
 };

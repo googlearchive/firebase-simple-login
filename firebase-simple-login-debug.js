@@ -1118,6 +1118,1476 @@ fb.simplelogin.transports.TriggerIoTab_.prototype.open = function(url, options, 
   });
 };
 fb.simplelogin.transports.TriggerIoTab = new fb.simplelogin.transports.TriggerIoTab_;
+goog.provide("fb.simplelogin.util.RSVP");
+var b, c;
+!function() {
+  var a = {}, d = {};
+  b = function(b, c, d) {
+    a[b] = {deps:c, callback:d};
+  }, c = function(b) {
+    function e(a) {
+      if ("." !== a.charAt(0)) {
+        return a;
+      }
+      for (var c = a.split("/"), d = b.split("/").slice(0, -1), e = 0, f = c.length;f > e;e++) {
+        var g = c[e];
+        if (".." === g) {
+          d.pop();
+        } else {
+          if ("." === g) {
+            continue;
+          }
+          d.push(g);
+        }
+      }
+      return d.join("/");
+    }
+    if (d[b]) {
+      return d[b];
+    }
+    if (d[b] = {}, !a[b]) {
+      throw new Error("Could not find module " + b);
+    }
+    for (var f, g = a[b], h = g.deps, i = g.callback, j = [], k = 0, l = h.length;l > k;k++) {
+      j.push("exports" === h[k] ? f = {} : c(e(h[k])));
+    }
+    var m = i.apply(this, j);
+    return d[b] = f || m;
+  }, c.entries = a;
+}(), b("rsvp/all-settled", ["./promise", "./utils", "exports"], function(a, b, c) {
+  function d(a) {
+    return{state:"fulfilled", value:a};
+  }
+  function e(a) {
+    return{state:"rejected", reason:a};
+  }
+  var f = a["default"], g = b.isArray, h = b.isNonThenable;
+  c["default"] = function(a, b) {
+    return new f(function(b) {
+      function c(a) {
+        return function(b) {
+          j(a, d(b));
+        };
+      }
+      function i(a) {
+        return function(b) {
+          j(a, e(b));
+        };
+      }
+      function j(a, c) {
+        m[a] = c, 0 === --l && b(m);
+      }
+      if (!g(a)) {
+        throw new TypeError("You must pass an array to allSettled.");
+      }
+      var k, l = a.length;
+      if (0 === l) {
+        return void b([]);
+      }
+      for (var m = new Array(l), n = 0;n < a.length;n++) {
+        k = a[n], h(k) ? j(n, d(k)) : f.resolve(k).then(c(n), i(n));
+      }
+    }, b);
+  };
+}), b("rsvp/all", ["./promise", "exports"], function(a, b) {
+  var c = a["default"];
+  b["default"] = function(a, b) {
+    return c.all(a, b);
+  };
+}), b("rsvp/asap", ["exports"], function(a) {
+  function b() {
+    return function() {
+      process.nextTick(e);
+    };
+  }
+  function c() {
+    var a = 0, b = new h(e), c = document.createTextNode("");
+    return b.observe(c, {characterData:!0}), function() {
+      c.data = a = ++a % 2;
+    };
+  }
+  function d() {
+    return function() {
+      setTimeout(e, 1);
+    };
+  }
+  function e() {
+    for (var a = 0;a < i.length;a++) {
+      var b = i[a], c = b[0], d = b[1];
+      c(d);
+    }
+    i.length = 0;
+  }
+  a["default"] = function(a, b) {
+    var c = i.push([a, b]);
+    1 === c && f();
+  };
+  var f, g = "undefined" != typeof window ? window : {}, h = g.MutationObserver || g.WebKitMutationObserver, i = [];
+  f = "undefined" != typeof process && "[object process]" === {}.toString.call(process) ? b() : h ? c() : d();
+}), b("rsvp/config", ["./events", "exports"], function(a, b) {
+  function c(a, b) {
+    return "onerror" === a ? void e.on("error", b) : 2 !== arguments.length ? e[a] : void(e[a] = b);
+  }
+  var d = a["default"], e = {instrument:!1};
+  d.mixin(e), b.config = e, b.configure = c;
+}), b("rsvp/defer", ["./promise", "exports"], function(a, b) {
+  var c = a["default"];
+  b["default"] = function(a) {
+    var b = {};
+    return b.promise = new c(function(a, c) {
+      b.resolve = a, b.reject = c;
+    }, a), b;
+  };
+}), b("rsvp/events", ["exports"], function(a) {
+  function b(a, b) {
+    for (var c = 0, d = a.length;d > c;c++) {
+      if (a[c] === b) {
+        return c;
+      }
+    }
+    return-1;
+  }
+  function c(a) {
+    var b = a._promiseCallbacks;
+    return b || (b = a._promiseCallbacks = {}), b;
+  }
+  a["default"] = {mixin:function(a) {
+    return a.on = this.on, a.off = this.off, a.trigger = this.trigger, a._promiseCallbacks = void 0, a;
+  }, on:function(a, d) {
+    var e, f = c(this);
+    e = f[a], e || (e = f[a] = []), -1 === b(e, d) && e.push(d);
+  }, off:function(a, d) {
+    var e, f, g = c(this);
+    return d ? (e = g[a], f = b(e, d), void(-1 !== f && e.splice(f, 1))) : void(g[a] = []);
+  }, trigger:function(a, b) {
+    var d, e, f = c(this);
+    if (d = f[a]) {
+      for (var g = 0;g < d.length;g++) {
+        (e = d[g])(b);
+      }
+    }
+  }};
+}), b("rsvp/filter", ["./promise", "./utils", "exports"], function(a, b, c) {
+  var d = a["default"], e = b.isFunction;
+  c["default"] = function(a, b, c) {
+    return d.all(a, c).then(function(a) {
+      if (!e(b)) {
+        throw new TypeError("You must pass a function as filter's second argument.");
+      }
+      for (var f = a.length, g = new Array(f), h = 0;f > h;h++) {
+        g[h] = b(a[h]);
+      }
+      return d.all(g, c).then(function(b) {
+        for (var c = new Array(f), d = 0, e = 0;f > e;e++) {
+          b[e] === !0 && (c[d] = a[e], d++);
+        }
+        return c.length = d, c;
+      });
+    });
+  };
+}), b("rsvp/hash-settled", ["./promise", "./utils", "exports"], function(a, b, c) {
+  function d(a) {
+    return{state:"fulfilled", value:a};
+  }
+  function e(a) {
+    return{state:"rejected", reason:a};
+  }
+  var f = a["default"], g = b.isNonThenable, h = b.keysOf;
+  c["default"] = function(a) {
+    return new f(function(b) {
+      function c(a) {
+        return function(b) {
+          j(a, d(b));
+        };
+      }
+      function i(a) {
+        return function(b) {
+          j(a, e(b));
+        };
+      }
+      function j(a, c) {
+        m[a] = c, 0 === --o && b(m);
+      }
+      var k, l, m = {}, n = h(a), o = n.length;
+      if (0 === o) {
+        return void b(m);
+      }
+      for (var p = 0;p < n.length;p++) {
+        l = n[p], k = a[l], g(k) ? j(l, d(k)) : f.resolve(k).then(c(l), i(l));
+      }
+    });
+  };
+}), b("rsvp/hash", ["./promise", "./utils", "exports"], function(a, b, c) {
+  var d = a["default"], e = b.isNonThenable, f = b.keysOf;
+  c["default"] = function(a) {
+    return new d(function(b, c) {
+      function g(a) {
+        return function(c) {
+          k[a] = c, 0 === --m && b(k);
+        };
+      }
+      function h(a) {
+        m = 0, c(a);
+      }
+      var i, j, k = {}, l = f(a), m = l.length;
+      if (0 === m) {
+        return void b(k);
+      }
+      for (var n = 0;n < l.length;n++) {
+        j = l[n], i = a[j], e(i) ? (k[j] = i, 0 === --m && b(k)) : d.resolve(i).then(g(j), h);
+      }
+    });
+  };
+}), b("rsvp/instrument", ["./config", "./utils", "exports"], function(a, b, c) {
+  var d = a.config, e = b.now;
+  c["default"] = function(a, b, c) {
+    try {
+      d.trigger(a, {guid:b._guidKey + b._id, eventName:a, detail:b._detail, childGuid:c && b._guidKey + c._id, label:b._label, timeStamp:e(), stack:(new Error(b._label)).stack});
+    } catch (f) {
+      setTimeout(function() {
+        throw f;
+      }, 0);
+    }
+  };
+}), b("rsvp/map", ["./promise", "./utils", "exports"], function(a, b, c) {
+  var d = a["default"], e = (b.isArray, b.isFunction);
+  c["default"] = function(a, b, c) {
+    return d.all(a, c).then(function(a) {
+      if (!e(b)) {
+        throw new TypeError("You must pass a function as map's second argument.");
+      }
+      for (var f = a.length, g = new Array(f), h = 0;f > h;h++) {
+        g[h] = b(a[h]);
+      }
+      return d.all(g, c);
+    });
+  };
+}), b("rsvp/node", ["./promise", "./utils", "exports"], function(a, b, c) {
+  var d = a["default"], e = b.isArray;
+  c["default"] = function(a, b) {
+    function c() {
+      for (var c = arguments.length, e = new Array(c), h = 0;c > h;h++) {
+        e[h] = arguments[h];
+      }
+      var i;
+      return f || (g || !b) ? i = this : (console.warn('Deprecation: RSVP.denodeify() doesn\'t allow setting the "this" binding anymore. Use yourFunction.bind(yourThis) instead.'), i = b), d.all(e).then(function(c) {
+        function e(d, e) {
+          function h() {
+            for (var a = arguments.length, c = new Array(a), h = 0;a > h;h++) {
+              c[h] = arguments[h];
+            }
+            var i = c[0], j = c[1];
+            if (i) {
+              e(i);
+            } else {
+              if (f) {
+                d(c.slice(1));
+              } else {
+                if (g) {
+                  var k, l, m = {}, n = c.slice(1);
+                  for (l = 0;l < b.length;l++) {
+                    k = b[l], m[k] = n[l];
+                  }
+                  d(m);
+                } else {
+                  d(j);
+                }
+              }
+            }
+          }
+          c.push(h), a.apply(i, c);
+        }
+        return new d(e);
+      });
+    }
+    var f = b === !0, g = e(b);
+    return c.__proto__ = a, c;
+  };
+}), b("rsvp/promise", ["./config", "./events", "./instrument", "./utils", "./promise/cast", "./promise/all", "./promise/race", "./promise/resolve", "./promise/reject", "exports"], function(a, b, c, d, e, f, g, h, i, j) {
+  function k() {
+  }
+  function l(a, b) {
+    if (!z(a)) {
+      throw new TypeError("You must pass a resolver function as the first argument to the promise constructor");
+    }
+    if (!(this instanceof l)) {
+      throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+    }
+    this._id = H++, this._label = b, this._subscribers = [], w.instrument && x("created", this), k !== a && m(a, this);
+  }
+  function m(a, b) {
+    function c(a) {
+      r(b, a);
+    }
+    function d(a) {
+      t(b, a);
+    }
+    try {
+      a(c, d);
+    } catch (e) {
+      d(e);
+    }
+  }
+  function n(a, b, c, d) {
+    var e = a._subscribers, f = e.length;
+    e[f] = b, e[f + K] = c, e[f + L] = d;
+  }
+  function o(a, b) {
+    var c, d, e = a._subscribers, f = a._detail;
+    w.instrument && x(b === K ? "fulfilled" : "rejected", a);
+    for (var g = 0;g < e.length;g += 3) {
+      c = e[g], d = e[g + b], p(b, c, d, f);
+    }
+    a._subscribers = null;
+  }
+  function p(a, b, c, d) {
+    var e, f, g, h, i = z(c);
+    if (i) {
+      try {
+        e = c(d), g = !0;
+      } catch (j) {
+        h = !0, f = j;
+      }
+    } else {
+      e = d, g = !0;
+    }
+    q(b, e) || (i && g ? r(b, e) : h ? t(b, f) : a === K ? r(b, e) : a === L && t(b, e));
+  }
+  function q(a, b) {
+    var c, d = null;
+    try {
+      if (a === b) {
+        throw new TypeError("A promises callback cannot return that same promise.");
+      }
+      if (y(b) && (d = b.then, z(d))) {
+        return d.call(b, function(d) {
+          return c ? !0 : (c = !0, void(b !== d ? r(a, d) : s(a, d)));
+        }, function(b) {
+          return c ? !0 : (c = !0, void t(a, b));
+        }, "Settle: " + (a._label || " unknown promise")), !0;
+      }
+    } catch (e) {
+      return c ? !0 : (t(a, e), !0);
+    }
+    return!1;
+  }
+  function r(a, b) {
+    a === b ? s(a, b) : q(a, b) || s(a, b);
+  }
+  function s(a, b) {
+    a._state === I && (a._state = J, a._detail = b, w.async(u, a));
+  }
+  function t(a, b) {
+    a._state === I && (a._state = J, a._detail = b, w.async(v, a));
+  }
+  function u(a) {
+    o(a, a._state = K);
+  }
+  function v(a) {
+    a._onerror && a._onerror(a._detail), o(a, a._state = L);
+  }
+  var w = a.config, x = (b["default"], c["default"]), y = d.objectOrFunction, z = d.isFunction, A = d.now, B = e["default"], C = f["default"], D = g["default"], E = h["default"], F = i["default"], G = "rsvp_" + A() + "-", H = 0;
+  j["default"] = l, l.cast = B, l.all = C, l.race = D, l.resolve = E, l.reject = F;
+  var I = void 0, J = 0, K = 1, L = 2;
+  l.prototype = {constructor:l, _id:void 0, _guidKey:G, _label:void 0, _state:void 0, _detail:void 0, _subscribers:void 0, _onerror:function(a) {
+    w.trigger("error", a);
+  }, then:function(a, b, c) {
+    var d = this;
+    this._onerror = null;
+    var e = new this.constructor(k, c);
+    if (this._state) {
+      var f = arguments;
+      w.async(function() {
+        p(d._state, e, f[d._state - 1], d._detail);
+      });
+    } else {
+      n(this, e, a, b);
+    }
+    return w.instrument && x("chained", d, e), e;
+  }, "catch":function(a, b) {
+    return this.then(null, a, b);
+  }, "finally":function(a, b) {
+    var c = this.constructor;
+    return this.then(function(b) {
+      return c.resolve(a()).then(function() {
+        return b;
+      });
+    }, function(b) {
+      return c.resolve(a()).then(function() {
+        throw b;
+      });
+    }, b);
+  }};
+}), b("rsvp/promise/all", ["../utils", "exports"], function(a, b) {
+  var c = a.isArray, d = a.isNonThenable;
+  b["default"] = function(a, b) {
+    var e = this;
+    return new e(function(b, f) {
+      function g(a) {
+        return function(c) {
+          k[a] = c, 0 === --j && b(k);
+        };
+      }
+      function h(a) {
+        j = 0, f(a);
+      }
+      if (!c(a)) {
+        throw new TypeError("You must pass an array to all.");
+      }
+      var i, j = a.length, k = new Array(j);
+      if (0 === j) {
+        return void b(k);
+      }
+      for (var l = 0;l < a.length;l++) {
+        i = a[l], d(i) ? (k[l] = i, 0 === --j && b(k)) : e.resolve(i).then(g(l), h);
+      }
+    }, b);
+  };
+}), b("rsvp/promise/cast", ["exports"], function(a) {
+  a["default"] = function(a, b) {
+    var c = this;
+    return a && ("object" == typeof a && a.constructor === c) ? a : new c(function(b) {
+      b(a);
+    }, b);
+  };
+}), b("rsvp/promise/race", ["../utils", "exports"], function(a, b) {
+  var c = a.isArray, d = (a.isFunction, a.isNonThenable);
+  b["default"] = function(a, b) {
+    var e, f = this;
+    return new f(function(b, g) {
+      function h(a) {
+        j && (j = !1, b(a));
+      }
+      function i(a) {
+        j && (j = !1, g(a));
+      }
+      if (!c(a)) {
+        throw new TypeError("You must pass an array to race.");
+      }
+      for (var j = !0, k = 0;k < a.length;k++) {
+        if (e = a[k], d(e)) {
+          return j = !1, void b(e);
+        }
+        f.resolve(e).then(h, i);
+      }
+    }, b);
+  };
+}), b("rsvp/promise/reject", ["exports"], function(a) {
+  a["default"] = function(a, b) {
+    var c = this;
+    return new c(function(b, c) {
+      c(a);
+    }, b);
+  };
+}), b("rsvp/promise/resolve", ["exports"], function(a) {
+  a["default"] = function(a, b) {
+    var c = this;
+    return a && ("object" == typeof a && a.constructor === c) ? a : new c(function(b) {
+      b(a);
+    }, b);
+  };
+}), b("rsvp/race", ["./promise", "exports"], function(a, b) {
+  var c = a["default"];
+  b["default"] = function(a, b) {
+    return c.race(a, b);
+  };
+}), b("rsvp/reject", ["./promise", "exports"], function(a, b) {
+  var c = a["default"];
+  b["default"] = function(a, b) {
+    return c.reject(a, b);
+  };
+}), b("rsvp/resolve", ["./promise", "exports"], function(a, b) {
+  var c = a["default"];
+  b["default"] = function(a, b) {
+    return c.resolve(a, b);
+  };
+}), b("rsvp/rethrow", ["exports"], function(a) {
+  a["default"] = function(a) {
+    throw setTimeout(function() {
+      throw a;
+    }), a;
+  };
+}), b("rsvp/utils", ["exports"], function(a) {
+  function b(a) {
+    return "function" == typeof a || "object" == typeof a && null !== a;
+  }
+  function c(a) {
+    return "function" == typeof a;
+  }
+  function d(a) {
+    return!b(a);
+  }
+  a.objectOrFunction = b, a.isFunction = c, a.isNonThenable = d;
+  var e;
+  e = Array.isArray ? Array.isArray : function(a) {
+    return "[object Array]" === Object.prototype.toString.call(a);
+  };
+  var f = e;
+  a.isArray = f;
+  var g = Date.now || function() {
+    return(new Date).getTime();
+  };
+  a.now = g;
+  var h = Object.keys || function(a) {
+    var b = [];
+    for (var c in a) {
+      b.push(c);
+    }
+    return b;
+  };
+  a.keysOf = h;
+}), b("rsvp", ["./rsvp/promise", "./rsvp/events", "./rsvp/node", "./rsvp/all", "./rsvp/all-settled", "./rsvp/race", "./rsvp/hash", "./rsvp/hash-settled", "./rsvp/rethrow", "./rsvp/defer", "./rsvp/config", "./rsvp/map", "./rsvp/resolve", "./rsvp/reject", "./rsvp/filter", "./rsvp/asap", "exports"], function(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) {
+  function r(a, b) {
+    E.async(a, b);
+  }
+  function s() {
+    E.on.apply(E, arguments);
+  }
+  function t() {
+    E.off.apply(E, arguments);
+  }
+  var u = a["default"], v = b["default"], w = c["default"], x = d["default"], y = e["default"], z = f["default"], A = g["default"], B = h["default"], C = i["default"], D = j["default"], E = k.config, F = k.configure, G = l["default"], H = m["default"], I = n["default"], J = o["default"], K = p["default"];
+  if (E.async = K, "undefined" != typeof window && "object" == typeof window.__PROMISE_INSTRUMENTATION__) {
+    var L = window.__PROMISE_INSTRUMENTATION__;
+    F("instrument", !0);
+    for (var M in L) {
+      L.hasOwnProperty(M) && s(M, L[M]);
+    }
+  }
+  q.Promise = u, q.EventTarget = v, q.all = x, q.allSettled = y, q.race = z, q.hash = A, q.hashSettled = B, q.rethrow = C, q.defer = D, q.denodeify = w, q.configure = F, q.on = s, q.off = t, q.resolve = H, q.reject = I, q.async = r, q.map = G, q.filter = J;
+});
+fb.simplelogin.util.RSVP = c("rsvp");
+goog.provide("fb.simplelogin.util.env");
+fb.simplelogin.util.env.hasLocalStorage = function(str) {
+  try {
+    if (localStorage) {
+      localStorage.setItem("firebase-sentinel", "test");
+      var result = localStorage.getItem("firebase-sentinel");
+      localStorage.removeItem("firebase-sentinel");
+      return result === "test";
+    }
+  } catch (e) {
+  }
+  return false;
+};
+fb.simplelogin.util.env.hasSessionStorage = function(str) {
+  try {
+    if (sessionStorage) {
+      sessionStorage.setItem("firebase-sentinel", "test");
+      var result = sessionStorage.getItem("firebase-sentinel");
+      sessionStorage.removeItem("firebase-sentinel");
+      return result === "test";
+    }
+  } catch (e) {
+  }
+  return false;
+};
+fb.simplelogin.util.env.isMobileCordovaInAppBrowser = function() {
+  return(window["cordova"] || (window["CordovaInAppBrowser"] || window["phonegap"])) && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
+};
+fb.simplelogin.util.env.isMobileTriggerIoTab = function() {
+  return window["forge"] && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
+};
+fb.simplelogin.util.env.isWindowsMetro = function() {
+  return!!window["Windows"] && /^ms-appx:/.test(location.href);
+};
+fb.simplelogin.util.env.isChromeiOS = function() {
+  return!!navigator.userAgent.match(/CriOS/);
+};
+fb.simplelogin.util.env.isTwitteriOS = function() {
+  return!!navigator.userAgent.match(/Twitter for iPhone/);
+};
+fb.simplelogin.util.env.isFacebookiOS = function() {
+  return!!navigator.userAgent.match(/FBAN\/FBIOS/);
+};
+fb.simplelogin.util.env.isWindowsPhone = function() {
+  return!!navigator.userAgent.match(/Windows Phone/);
+};
+fb.simplelogin.util.env.isStandaloneiOS = function() {
+  return!!window.navigator.standalone;
+};
+fb.simplelogin.util.env.isPhantomJS = function() {
+  return!!navigator.userAgent.match(/PhantomJS/);
+};
+fb.simplelogin.util.env.isIeLT10 = function() {
+  var re, match, rv = -1;
+  var ua = navigator["userAgent"];
+  if (navigator["appName"] === "Microsoft Internet Explorer") {
+    re = /MSIE ([0-9]{1,}[\.0-9]{0,})/;
+    match = ua.match(re);
+    if (match && match.length > 1) {
+      rv = parseFloat(match[1]);
+    }
+    if (rv < 10) {
+      return true;
+    }
+  }
+  return false;
+};
+fb.simplelogin.util.env.isFennec = function() {
+  try {
+    var userAgent = navigator["userAgent"];
+    return userAgent.indexOf("Fennec/") != -1 || userAgent.indexOf("Firefox/") != -1 && userAgent.indexOf("Android") != -1;
+  } catch (e) {
+  }
+  return false;
+};
+goog.provide("fb.simplelogin.transports.XHR");
+goog.provide("fb.simplelogin.transports.XHR_");
+goog.require("fb.simplelogin.transports.Transport");
+goog.require("fb.simplelogin.Vars");
+goog.require("fb.simplelogin.util.json");
+fb.simplelogin.transports.XHR_ = function() {
+};
+fb.simplelogin.transports.XHR_.prototype.open = function(url, data, onComplete) {
+  var self = this;
+  var options = {contentType:"application/json"};
+  var xhr = new XMLHttpRequest, method = (options.method || "GET").toUpperCase(), contentType = options.contentType || "application/x-www-form-urlencoded", callbackInvoked = false, key;
+  var callbackHandler = function() {
+    if (!callbackInvoked && xhr.readyState === 4) {
+      callbackInvoked = true;
+      var data, error;
+      try {
+        data = fb.simplelogin.util.json.parse(xhr.responseText);
+        error = data["error"] || null;
+        delete data["error"];
+      } catch (e) {
+      }
+      if (!data || error) {
+        return onComplete && onComplete(self.formatError_(error));
+      } else {
+        return onComplete && onComplete(error, data);
+      }
+    }
+  };
+  xhr.onreadystatechange = callbackHandler;
+  if (data) {
+    if (method === "GET") {
+      if (url.indexOf("?") === -1) {
+        url += "?";
+      }
+      url += this.formatQueryString(data);
+      data = null;
+    } else {
+      if (contentType === "application/json") {
+        data = fb.simplelogin.util.json.stringify(data);
+      }
+      if (contentType === "application/x-www-form-urlencoded") {
+        data = this.formatQueryString(data);
+      }
+    }
+  }
+  xhr.open(method, url, true);
+  var headers = {"X-Requested-With":"XMLHttpRequest", "Accept":"application/json;text/plain", "Content-Type":contentType};
+  options.headers = options.headers || {};
+  for (key in options.headers) {
+    headers[key] = options.headers[key];
+  }
+  for (key in headers) {
+    xhr.setRequestHeader(key, headers[key]);
+  }
+  xhr.send(data);
+};
+fb.simplelogin.transports.XHR_.prototype.isAvailable = function() {
+  return window["XMLHttpRequest"] && (typeof window["XMLHttpRequest"] === "function" && !fb.simplelogin.util.env.isIeLT10());
+};
+fb.simplelogin.transports.XHR_.prototype.formatQueryString = function(data) {
+  if (!data) {
+    return "";
+  }
+  var tokens = [];
+  for (var key in data) {
+    tokens.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
+  }
+  return tokens.join("&");
+};
+fb.simplelogin.transports.XHR_.prototype.formatError_ = function(error) {
+  if (error) {
+    return fb.simplelogin.Errors.format(error);
+  } else {
+    return fb.simplelogin.Errors.get("UNKNOWN_ERROR");
+  }
+};
+fb.simplelogin.transports.XHR = new fb.simplelogin.transports.XHR_;
+goog.provide("fb.simplelogin.util.validation");
+var VALID_EMAIL_REGEX_ = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,6})+$/;
+fb.simplelogin.util.validation.validateArgCount = function(fnName, minCount, maxCount, argCount) {
+  var argError;
+  if (argCount < minCount) {
+    argError = "at least " + minCount;
+  } else {
+    if (argCount > maxCount) {
+      argError = maxCount === 0 ? "none" : "no more than " + maxCount;
+    }
+  }
+  if (argError) {
+    var error = fnName + " failed: Was called with " + argCount + (argCount === 1 ? " argument." : " arguments.") + " Expects " + argError + ".";
+    throw new Error(error);
+  }
+};
+fb.simplelogin.util.validation.isValidEmail = function(email) {
+  return goog.isString(email) && VALID_EMAIL_REGEX_.test(email);
+};
+fb.simplelogin.util.validation.isValidPassword = function(password) {
+  return goog.isString(password);
+};
+fb.simplelogin.util.validation.isValidNamespace = function(namespace) {
+  return goog.isString(namespace);
+};
+fb.simplelogin.util.validation.errorPrefix_ = function(fnName, argumentNumber, optional) {
+  var argName = "";
+  switch(argumentNumber) {
+    case 1:
+      argName = optional ? "first" : "First";
+      break;
+    case 2:
+      argName = optional ? "second" : "Second";
+      break;
+    case 3:
+      argName = optional ? "third" : "Third";
+      break;
+    case 4:
+      argName = optional ? "fourth" : "Fourth";
+      break;
+    default:
+      fb.core.util.validation.assert(false, "errorPrefix_ called with argumentNumber > 4.  Need to update it?");
+  }
+  var error = fnName + " failed: ";
+  error += argName + " argument ";
+  return error;
+};
+fb.simplelogin.util.validation.validateNamespace = function(fnName, argumentNumber, namespace, optional) {
+  if (optional && !goog.isDef(namespace)) {
+    return;
+  }
+  if (!goog.isString(namespace)) {
+    throw new Error(fb.simplelogin.util.validation.errorPrefix_(fnName, argumentNumber, optional) + "must be a valid firebase namespace.");
+  }
+};
+fb.simplelogin.util.validation.validateCallback = function(fnName, argumentNumber, callback, optional) {
+  if (optional && !goog.isDef(callback)) {
+    return;
+  }
+  if (!goog.isFunction(callback)) {
+    throw new Error(fb.simplelogin.util.validation.errorPrefix_(fnName, argumentNumber, optional) + "must be a valid function.");
+  }
+};
+fb.simplelogin.util.validation.validateString = function(fnName, argumentNumber, string, optional) {
+  if (optional && !goog.isDef(string)) {
+    return;
+  }
+  if (!goog.isString(string)) {
+    throw new Error(fb.simplelogin.util.validation.errorPrefix_(fnName, argumentNumber, optional) + "must be a valid string.");
+  }
+};
+fb.simplelogin.util.validation.validateContextObject = function(fnName, argumentNumber, context, optional) {
+  if (optional && !goog.isDef(context)) {
+    return;
+  }
+  if (!goog.isObject(context) || context === null) {
+    throw new Error(fb.simplelogin.util.validation.errorPrefix_(fnName, argumentNumber, optional) + "must be a valid context object.");
+  }
+};
+goog.provide("fb.simplelogin.transports.JSONP");
+goog.provide("fb.simplelogin.transports.JSONP_");
+goog.require("fb.simplelogin.transports.Transport");
+goog.require("fb.simplelogin.Vars");
+goog.require("fb.simplelogin.util.json");
+var CALLBACK_NAMESPACE = "_FirebaseSimpleLoginJSONP";
+fb.simplelogin.transports.JSONP_ = function() {
+  window[CALLBACK_NAMESPACE] = window[CALLBACK_NAMESPACE] || {};
+};
+fb.simplelogin.transports.JSONP_.prototype.open = function(url, options, onComplete) {
+  url += /\?/.test(url) ? "" : "?";
+  url += "&transport=jsonp";
+  for (var param in options) {
+    url += "&" + encodeURIComponent(param) + "=" + encodeURIComponent(options[param]);
+  }
+  var callbackId = this.generateRequestId_();
+  url += "&callback=" + encodeURIComponent(CALLBACK_NAMESPACE + "." + callbackId);
+  this.registerCallback_(callbackId, onComplete);
+  this.writeScriptTag_(callbackId, url, onComplete);
+};
+fb.simplelogin.transports.JSONP_.prototype.generateRequestId_ = function() {
+  return "_FirebaseJSONP" + (new Date).getTime() + Math.floor(Math.random() * 100);
+};
+fb.simplelogin.transports.JSONP_.prototype.registerCallback_ = function(id, callback) {
+  var self = this;
+  window[CALLBACK_NAMESPACE][id] = function(result) {
+    var error = result["error"] || null;
+    delete result["error"];
+    callback(error, result);
+    self.removeCallback_(id);
+  };
+};
+fb.simplelogin.transports.JSONP_.prototype.removeCallback_ = function(id) {
+  setTimeout(function() {
+    delete window[CALLBACK_NAMESPACE][id];
+    var el = document.getElementById(id);
+    if (el) {
+      el.parentNode.removeChild(el);
+    }
+  }, 0);
+};
+fb.simplelogin.transports.JSONP_.prototype.writeScriptTag_ = function(id, url, cb) {
+  var self = this;
+  setTimeout(function() {
+    try {
+      var js = document.createElement("script");
+      js.type = "text/javascript";
+      js.id = id;
+      js.async = true;
+      js.src = url;
+      js.onerror = function() {
+        var el = document.getElementById(id);
+        if (el !== null) {
+          el.parentNode.removeChild(el);
+        }
+        cb && cb(self.formatError_({code:"SERVER_ERROR", message:"An unknown server error occurred."}));
+      };
+      var ref = document.getElementsByTagName("script")[0];
+      ref.parentNode.insertBefore(js, ref);
+    } catch (e) {
+      cb && cb(self.formatError_({code:"SERVER_ERROR", message:"An unknown server error occurred."}));
+    }
+  }, 0);
+};
+fb.simplelogin.transports.JSONP_.prototype.formatError_ = function(error) {
+  var errorObj;
+  if (!error) {
+    errorObj = new Error;
+    errorObj.code = "UNKNOWN_ERROR";
+  } else {
+    errorObj = new Error(error.message);
+    errorObj.code = error.code || "UNKNOWN_ERROR";
+  }
+  return errorObj;
+};
+fb.simplelogin.transports.JSONP = new fb.simplelogin.transports.JSONP_;
+goog.provide("fb.simplelogin.providers.Password");
+goog.provide("fb.simplelogin.providers.Password_");
+goog.require("fb.simplelogin.Vars");
+goog.require("fb.simplelogin.util.validation");
+goog.require("fb.simplelogin.Errors");
+goog.require("fb.simplelogin.transports.JSONP");
+goog.require("fb.simplelogin.transports.XHR");
+fb.simplelogin.providers.Password_ = function() {
+};
+fb.simplelogin.providers.Password_.prototype.getTransport_ = function() {
+  if (fb.simplelogin.transports.XHR.isAvailable()) {
+    return fb.simplelogin.transports.XHR;
+  } else {
+    return fb.simplelogin.transports.JSONP;
+  }
+};
+fb.simplelogin.providers.Password_.prototype.login = function(data, onComplete) {
+  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase";
+  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+  }
+  this.getTransport_().open(url, data, onComplete);
+};
+fb.simplelogin.providers.Password_.prototype.createUser = function(data, onComplete) {
+  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/create";
+  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+  }
+  if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
+  }
+  if (!fb.simplelogin.util.validation.isValidPassword(data["password"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_PASSWORD"));
+  }
+  this.getTransport_().open(url, data, onComplete);
+};
+fb.simplelogin.providers.Password_.prototype.changePassword = function(data, onComplete) {
+  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/update";
+  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+  }
+  if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
+  }
+  if (!fb.simplelogin.util.validation.isValidPassword(data["newPassword"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_PASSWORD"));
+  }
+  this.getTransport_().open(url, data, onComplete);
+};
+fb.simplelogin.providers.Password_.prototype.removeUser = function(data, onComplete) {
+  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/remove";
+  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+  }
+  if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
+  }
+  if (!fb.simplelogin.util.validation.isValidPassword(data["password"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_PASSWORD"));
+  }
+  this.getTransport_().open(url, data, onComplete);
+};
+fb.simplelogin.providers.Password_.prototype.sendPasswordResetEmail = function(data, onComplete) {
+  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/reset_password";
+  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+  }
+  if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
+    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
+  }
+  this.getTransport_().open(url, data, onComplete);
+};
+fb.simplelogin.providers.Password = new fb.simplelogin.providers.Password_;
+goog.provide("fb.simplelogin.transports.WindowsMetroAuthBroker");
+goog.provide("fb.simplelogin.transports.WindowsMetroAuthBroker_");
+goog.require("fb.simplelogin.transports.Popup");
+goog.require("fb.simplelogin.Vars");
+goog.require("fb.simplelogin.util.json");
+goog.require("fb.simplelogin.util.misc");
+fb.simplelogin.transports.WindowsMetroAuthBroker_ = function() {
+};
+fb.simplelogin.transports.WindowsMetroAuthBroker_.prototype.open = function(url, options, onComplete) {
+  var Uri, WebAuthenticationOptions, WebAuthenticationBroker, authenticateAsync, callbackInvoked, callbackHandler;
+  try {
+    Uri = window["Windows"]["Foundation"]["Uri"];
+    WebAuthenticationOptions = window["Windows"]["Security"]["Authentication"]["Web"]["WebAuthenticationOptions"];
+    WebAuthenticationBroker = window["Windows"]["Security"]["Authentication"]["Web"]["WebAuthenticationBroker"];
+    authenticateAsync = WebAuthenticationBroker["authenticateAsync"];
+  } catch (err) {
+    return onComplete({code:"WINDOWS_METRO", message:'"Windows.Security.Authentication.Web.WebAuthenticationBroker" required when using Firebase Simple Login in Windows Metro context'});
+  }
+  callbackInvoked = false;
+  var callbackHandler = function() {
+    var args = Array.prototype.slice.apply(arguments);
+    if (!callbackInvoked) {
+      callbackInvoked = true;
+      onComplete.apply(null, args);
+    }
+  };
+  var startUri = new Uri(url + "&transport=internal-redirect-hash");
+  var endUri = new Uri(fb.simplelogin.Vars.getApiHost() + "/blank/page.html");
+  authenticateAsync(WebAuthenticationOptions["none"], startUri, endUri).done(function(data) {
+    var result;
+    if (data && data["responseData"]) {
+      try {
+        var urlObj = fb.simplelogin.util.misc.parseUrl(data["responseData"]);
+        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj["hash"]));
+        var temporaryResult = {};
+        for (var key in urlHashEncoded) {
+          temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
+        }
+        result = temporaryResult;
+      } catch (e) {
+      }
+    }
+    if (result && (result["token"] && result["user"])) {
+      callbackHandler(null, result);
+    } else {
+      if (result && result["error"]) {
+        callbackHandler(result["error"]);
+      } else {
+        callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred."});
+      }
+    }
+  }, function(err) {
+    callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred."});
+  });
+};
+fb.simplelogin.transports.WindowsMetroAuthBroker = new fb.simplelogin.transports.WindowsMetroAuthBroker_;
+goog.provide("goog.string");
+goog.provide("goog.string.Unicode");
+goog.string.Unicode = {NBSP:"\u00a0"};
+goog.string.startsWith = function(str, prefix) {
+  return str.lastIndexOf(prefix, 0) == 0;
+};
+goog.string.endsWith = function(str, suffix) {
+  var l = str.length - suffix.length;
+  return l >= 0 && str.indexOf(suffix, l) == l;
+};
+goog.string.caseInsensitiveStartsWith = function(str, prefix) {
+  return goog.string.caseInsensitiveCompare(prefix, str.substr(0, prefix.length)) == 0;
+};
+goog.string.caseInsensitiveEndsWith = function(str, suffix) {
+  return goog.string.caseInsensitiveCompare(suffix, str.substr(str.length - suffix.length, suffix.length)) == 0;
+};
+goog.string.caseInsensitiveEquals = function(str1, str2) {
+  return str1.toLowerCase() == str2.toLowerCase();
+};
+goog.string.subs = function(str, var_args) {
+  var splitParts = str.split("%s");
+  var returnString = "";
+  var subsArguments = Array.prototype.slice.call(arguments, 1);
+  while (subsArguments.length && splitParts.length > 1) {
+    returnString += splitParts.shift() + subsArguments.shift();
+  }
+  return returnString + splitParts.join("%s");
+};
+goog.string.collapseWhitespace = function(str) {
+  return str.replace(/[\s\xa0]+/g, " ").replace(/^\s+|\s+$/g, "");
+};
+goog.string.isEmpty = function(str) {
+  return/^[\s\xa0]*$/.test(str);
+};
+goog.string.isEmptySafe = function(str) {
+  return goog.string.isEmpty(goog.string.makeSafe(str));
+};
+goog.string.isBreakingWhitespace = function(str) {
+  return!/[^\t\n\r ]/.test(str);
+};
+goog.string.isAlpha = function(str) {
+  return!/[^a-zA-Z]/.test(str);
+};
+goog.string.isNumeric = function(str) {
+  return!/[^0-9]/.test(str);
+};
+goog.string.isAlphaNumeric = function(str) {
+  return!/[^a-zA-Z0-9]/.test(str);
+};
+goog.string.isSpace = function(ch) {
+  return ch == " ";
+};
+goog.string.isUnicodeChar = function(ch) {
+  return ch.length == 1 && (ch >= " " && ch <= "~") || ch >= "\u0080" && ch <= "\ufffd";
+};
+goog.string.stripNewlines = function(str) {
+  return str.replace(/(\r\n|\r|\n)+/g, " ");
+};
+goog.string.canonicalizeNewlines = function(str) {
+  return str.replace(/(\r\n|\r|\n)/g, "\n");
+};
+goog.string.normalizeWhitespace = function(str) {
+  return str.replace(/\xa0|\s/g, " ");
+};
+goog.string.normalizeSpaces = function(str) {
+  return str.replace(/\xa0|[ \t]+/g, " ");
+};
+goog.string.collapseBreakingSpaces = function(str) {
+  return str.replace(/[\t\r\n ]+/g, " ").replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, "");
+};
+goog.string.trim = function(str) {
+  return str.replace(/^[\s\xa0]+|[\s\xa0]+$/g, "");
+};
+goog.string.trimLeft = function(str) {
+  return str.replace(/^[\s\xa0]+/, "");
+};
+goog.string.trimRight = function(str) {
+  return str.replace(/[\s\xa0]+$/, "");
+};
+goog.string.caseInsensitiveCompare = function(str1, str2) {
+  var test1 = String(str1).toLowerCase();
+  var test2 = String(str2).toLowerCase();
+  if (test1 < test2) {
+    return-1;
+  } else {
+    if (test1 == test2) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+};
+goog.string.numerateCompareRegExp_ = /(\.\d+)|(\d+)|(\D+)/g;
+goog.string.numerateCompare = function(str1, str2) {
+  if (str1 == str2) {
+    return 0;
+  }
+  if (!str1) {
+    return-1;
+  }
+  if (!str2) {
+    return 1;
+  }
+  var tokens1 = str1.toLowerCase().match(goog.string.numerateCompareRegExp_);
+  var tokens2 = str2.toLowerCase().match(goog.string.numerateCompareRegExp_);
+  var count = Math.min(tokens1.length, tokens2.length);
+  for (var i = 0;i < count;i++) {
+    var a = tokens1[i];
+    var b = tokens2[i];
+    if (a != b) {
+      var num1 = parseInt(a, 10);
+      if (!isNaN(num1)) {
+        var num2 = parseInt(b, 10);
+        if (!isNaN(num2) && num1 - num2) {
+          return num1 - num2;
+        }
+      }
+      return a < b ? -1 : 1;
+    }
+  }
+  if (tokens1.length != tokens2.length) {
+    return tokens1.length - tokens2.length;
+  }
+  return str1 < str2 ? -1 : 1;
+};
+goog.string.urlEncode = function(str) {
+  return encodeURIComponent(String(str));
+};
+goog.string.urlDecode = function(str) {
+  return decodeURIComponent(str.replace(/\+/g, " "));
+};
+goog.string.newLineToBr = function(str, opt_xml) {
+  return str.replace(/(\r\n|\r|\n)/g, opt_xml ? "<br />" : "<br>");
+};
+goog.string.htmlEscape = function(str, opt_isLikelyToContainHtmlChars) {
+  if (opt_isLikelyToContainHtmlChars) {
+    return str.replace(goog.string.amperRe_, "&amp;").replace(goog.string.ltRe_, "&lt;").replace(goog.string.gtRe_, "&gt;").replace(goog.string.quotRe_, "&quot;").replace(goog.string.singleQuoteRe_, "&#39;");
+  } else {
+    if (!goog.string.allRe_.test(str)) {
+      return str;
+    }
+    if (str.indexOf("&") != -1) {
+      str = str.replace(goog.string.amperRe_, "&amp;");
+    }
+    if (str.indexOf("<") != -1) {
+      str = str.replace(goog.string.ltRe_, "&lt;");
+    }
+    if (str.indexOf(">") != -1) {
+      str = str.replace(goog.string.gtRe_, "&gt;");
+    }
+    if (str.indexOf('"') != -1) {
+      str = str.replace(goog.string.quotRe_, "&quot;");
+    }
+    if (str.indexOf("'") != -1) {
+      str = str.replace(goog.string.singleQuoteRe_, "&#39;");
+    }
+    return str;
+  }
+};
+goog.string.amperRe_ = /&/g;
+goog.string.ltRe_ = /</g;
+goog.string.gtRe_ = />/g;
+goog.string.quotRe_ = /"/g;
+goog.string.singleQuoteRe_ = /'/g;
+goog.string.allRe_ = /[&<>"']/;
+goog.string.unescapeEntities = function(str) {
+  if (goog.string.contains(str, "&")) {
+    if ("document" in goog.global) {
+      return goog.string.unescapeEntitiesUsingDom_(str);
+    } else {
+      return goog.string.unescapePureXmlEntities_(str);
+    }
+  }
+  return str;
+};
+goog.string.unescapeEntitiesWithDocument = function(str, document) {
+  if (goog.string.contains(str, "&")) {
+    return goog.string.unescapeEntitiesUsingDom_(str, document);
+  }
+  return str;
+};
+goog.string.unescapeEntitiesUsingDom_ = function(str, opt_document) {
+  var seen = {"&amp;":"&", "&lt;":"<", "&gt;":">", "&quot;":'"'};
+  var div;
+  if (opt_document) {
+    div = opt_document.createElement("div");
+  } else {
+    div = document.createElement("div");
+  }
+  return str.replace(goog.string.HTML_ENTITY_PATTERN_, function(s, entity) {
+    var value = seen[s];
+    if (value) {
+      return value;
+    }
+    if (entity.charAt(0) == "#") {
+      var n = Number("0" + entity.substr(1));
+      if (!isNaN(n)) {
+        value = String.fromCharCode(n);
+      }
+    }
+    if (!value) {
+      div.innerHTML = s + " ";
+      value = div.firstChild.nodeValue.slice(0, -1);
+    }
+    return seen[s] = value;
+  });
+};
+goog.string.unescapePureXmlEntities_ = function(str) {
+  return str.replace(/&([^;]+);/g, function(s, entity) {
+    switch(entity) {
+      case "amp":
+        return "&";
+      case "lt":
+        return "<";
+      case "gt":
+        return ">";
+      case "quot":
+        return'"';
+      default:
+        if (entity.charAt(0) == "#") {
+          var n = Number("0" + entity.substr(1));
+          if (!isNaN(n)) {
+            return String.fromCharCode(n);
+          }
+        }
+        return s;
+    }
+  });
+};
+goog.string.HTML_ENTITY_PATTERN_ = /&([^;\s<&]+);?/g;
+goog.string.whitespaceEscape = function(str, opt_xml) {
+  return goog.string.newLineToBr(str.replace(/  /g, " &#160;"), opt_xml);
+};
+goog.string.stripQuotes = function(str, quoteChars) {
+  var length = quoteChars.length;
+  for (var i = 0;i < length;i++) {
+    var quoteChar = length == 1 ? quoteChars : quoteChars.charAt(i);
+    if (str.charAt(0) == quoteChar && str.charAt(str.length - 1) == quoteChar) {
+      return str.substring(1, str.length - 1);
+    }
+  }
+  return str;
+};
+goog.string.truncate = function(str, chars, opt_protectEscapedCharacters) {
+  if (opt_protectEscapedCharacters) {
+    str = goog.string.unescapeEntities(str);
+  }
+  if (str.length > chars) {
+    str = str.substring(0, chars - 3) + "...";
+  }
+  if (opt_protectEscapedCharacters) {
+    str = goog.string.htmlEscape(str);
+  }
+  return str;
+};
+goog.string.truncateMiddle = function(str, chars, opt_protectEscapedCharacters, opt_trailingChars) {
+  if (opt_protectEscapedCharacters) {
+    str = goog.string.unescapeEntities(str);
+  }
+  if (opt_trailingChars && str.length > chars) {
+    if (opt_trailingChars > chars) {
+      opt_trailingChars = chars;
+    }
+    var endPoint = str.length - opt_trailingChars;
+    var startPoint = chars - opt_trailingChars;
+    str = str.substring(0, startPoint) + "..." + str.substring(endPoint);
+  } else {
+    if (str.length > chars) {
+      var half = Math.floor(chars / 2);
+      var endPos = str.length - half;
+      half += chars % 2;
+      str = str.substring(0, half) + "..." + str.substring(endPos);
+    }
+  }
+  if (opt_protectEscapedCharacters) {
+    str = goog.string.htmlEscape(str);
+  }
+  return str;
+};
+goog.string.specialEscapeChars_ = {"\x00":"\\0", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\x0B", '"':'\\"', "\\":"\\\\"};
+goog.string.jsEscapeCache_ = {"'":"\\'"};
+goog.string.quote = function(s) {
+  s = String(s);
+  if (s.quote) {
+    return s.quote();
+  } else {
+    var sb = ['"'];
+    for (var i = 0;i < s.length;i++) {
+      var ch = s.charAt(i);
+      var cc = ch.charCodeAt(0);
+      sb[i + 1] = goog.string.specialEscapeChars_[ch] || (cc > 31 && cc < 127 ? ch : goog.string.escapeChar(ch));
+    }
+    sb.push('"');
+    return sb.join("");
+  }
+};
+goog.string.escapeString = function(str) {
+  var sb = [];
+  for (var i = 0;i < str.length;i++) {
+    sb[i] = goog.string.escapeChar(str.charAt(i));
+  }
+  return sb.join("");
+};
+goog.string.escapeChar = function(c) {
+  if (c in goog.string.jsEscapeCache_) {
+    return goog.string.jsEscapeCache_[c];
+  }
+  if (c in goog.string.specialEscapeChars_) {
+    return goog.string.jsEscapeCache_[c] = goog.string.specialEscapeChars_[c];
+  }
+  var rv = c;
+  var cc = c.charCodeAt(0);
+  if (cc > 31 && cc < 127) {
+    rv = c;
+  } else {
+    if (cc < 256) {
+      rv = "\\x";
+      if (cc < 16 || cc > 256) {
+        rv += "0";
+      }
+    } else {
+      rv = "\\u";
+      if (cc < 4096) {
+        rv += "0";
+      }
+    }
+    rv += cc.toString(16).toUpperCase();
+  }
+  return goog.string.jsEscapeCache_[c] = rv;
+};
+goog.string.toMap = function(s) {
+  var rv = {};
+  for (var i = 0;i < s.length;i++) {
+    rv[s.charAt(i)] = true;
+  }
+  return rv;
+};
+goog.string.contains = function(s, ss) {
+  return s.indexOf(ss) != -1;
+};
+goog.string.countOf = function(s, ss) {
+  return s && ss ? s.split(ss).length - 1 : 0;
+};
+goog.string.removeAt = function(s, index, stringLength) {
+  var resultStr = s;
+  if (index >= 0 && (index < s.length && stringLength > 0)) {
+    resultStr = s.substr(0, index) + s.substr(index + stringLength, s.length - index - stringLength);
+  }
+  return resultStr;
+};
+goog.string.remove = function(s, ss) {
+  var re = new RegExp(goog.string.regExpEscape(ss), "");
+  return s.replace(re, "");
+};
+goog.string.removeAll = function(s, ss) {
+  var re = new RegExp(goog.string.regExpEscape(ss), "g");
+  return s.replace(re, "");
+};
+goog.string.regExpEscape = function(s) {
+  return String(s).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, "\\$1").replace(/\x08/g, "\\x08");
+};
+goog.string.repeat = function(string, length) {
+  return(new Array(length + 1)).join(string);
+};
+goog.string.padNumber = function(num, length, opt_precision) {
+  var s = goog.isDef(opt_precision) ? num.toFixed(opt_precision) : String(num);
+  var index = s.indexOf(".");
+  if (index == -1) {
+    index = s.length;
+  }
+  return goog.string.repeat("0", Math.max(0, length - index)) + s;
+};
+goog.string.makeSafe = function(obj) {
+  return obj == null ? "" : String(obj);
+};
+goog.string.buildString = function(var_args) {
+  return Array.prototype.join.call(arguments, "");
+};
+goog.string.getRandomString = function() {
+  var x = 2147483648;
+  return Math.floor(Math.random() * x).toString(36) + Math.abs(Math.floor(Math.random() * x) ^ goog.now()).toString(36);
+};
+goog.string.compareVersions = function(version1, version2) {
+  var order = 0;
+  var v1Subs = goog.string.trim(String(version1)).split(".");
+  var v2Subs = goog.string.trim(String(version2)).split(".");
+  var subCount = Math.max(v1Subs.length, v2Subs.length);
+  for (var subIdx = 0;order == 0 && subIdx < subCount;subIdx++) {
+    var v1Sub = v1Subs[subIdx] || "";
+    var v2Sub = v2Subs[subIdx] || "";
+    var v1CompParser = new RegExp("(\\d*)(\\D*)", "g");
+    var v2CompParser = new RegExp("(\\d*)(\\D*)", "g");
+    do {
+      var v1Comp = v1CompParser.exec(v1Sub) || ["", "", ""];
+      var v2Comp = v2CompParser.exec(v2Sub) || ["", "", ""];
+      if (v1Comp[0].length == 0 && v2Comp[0].length == 0) {
+        break;
+      }
+      var v1CompNum = v1Comp[1].length == 0 ? 0 : parseInt(v1Comp[1], 10);
+      var v2CompNum = v2Comp[1].length == 0 ? 0 : parseInt(v2Comp[1], 10);
+      order = goog.string.compareElements_(v1CompNum, v2CompNum) || (goog.string.compareElements_(v1Comp[2].length == 0, v2Comp[2].length == 0) || goog.string.compareElements_(v1Comp[2], v2Comp[2]));
+    } while (order == 0);
+  }
+  return order;
+};
+goog.string.compareElements_ = function(left, right) {
+  if (left < right) {
+    return-1;
+  } else {
+    if (left > right) {
+      return 1;
+    }
+  }
+  return 0;
+};
+goog.string.HASHCODE_MAX_ = 4294967296;
+goog.string.hashCode = function(str) {
+  var result = 0;
+  for (var i = 0;i < str.length;++i) {
+    result = 31 * result + str.charCodeAt(i);
+    result %= goog.string.HASHCODE_MAX_;
+  }
+  return result;
+};
+goog.string.uniqueStringCounter_ = Math.random() * 2147483648 | 0;
+goog.string.createUniqueString = function() {
+  return "goog_" + goog.string.uniqueStringCounter_++;
+};
+goog.string.toNumber = function(str) {
+  var num = Number(str);
+  if (num == 0 && goog.string.isEmpty(str)) {
+    return NaN;
+  }
+  return num;
+};
+goog.string.isLowerCamelCase = function(str) {
+  return/^[a-z]+([A-Z][a-z]*)*$/.test(str);
+};
+goog.string.isUpperCamelCase = function(str) {
+  return/^([A-Z][a-z]*)+$/.test(str);
+};
+goog.string.toCamelCase = function(str) {
+  return String(str).replace(/\-([a-z])/g, function(all, match) {
+    return match.toUpperCase();
+  });
+};
+goog.string.toSelectorCase = function(str) {
+  return String(str).replace(/([A-Z])/g, "-$1").toLowerCase();
+};
+goog.string.toTitleCase = function(str, opt_delimiters) {
+  var delimiters = goog.isString(opt_delimiters) ? goog.string.regExpEscape(opt_delimiters) : "\\s";
+  delimiters = delimiters ? "|[" + delimiters + "]+" : "";
+  var regexp = new RegExp("(^" + delimiters + ")([a-z])", "g");
+  return str.replace(regexp, function(all, p1, p2) {
+    return p1 + p2.toUpperCase();
+  });
+};
+goog.string.parseInt = function(value) {
+  if (isFinite(value)) {
+    value = String(value);
+  }
+  if (goog.isString(value)) {
+    return/^\s*-?0x/i.test(value) ? parseInt(value, 16) : parseInt(value, 10);
+  }
+  return NaN;
+};
+goog.string.splitLimit = function(str, separator, limit) {
+  var parts = str.split(separator);
+  var returnVal = [];
+  while (limit > 0 && parts.length) {
+    returnVal.push(parts.shift());
+    limit--;
+  }
+  if (parts.length) {
+    returnVal.push(parts.join(separator));
+  }
+  return returnVal;
+};
+goog.provide("fb.simplelogin.providers.Persona");
+goog.provide("fb.simplelogin.providers.Persona_");
+goog.require("fb.simplelogin.util.validation");
+fb.simplelogin.providers.Persona_ = function() {
+};
+fb.simplelogin.providers.Persona_.prototype.login = function(options, onComplete) {
+  navigator["id"]["watch"]({"onlogin":function(assertion) {
+    onComplete(assertion);
+  }, "onlogout":function() {
+  }});
+  options = options || {};
+  options["oncancel"] = function() {
+    onComplete(null);
+  };
+  navigator["id"]["request"](options);
+};
+fb.simplelogin.providers.Persona = new fb.simplelogin.providers.Persona_;
 goog.provide("fb.simplelogin.util.sjcl");
 var sjcl = {cipher:{}, hash:{}, keyexchange:{}, mode:{}, misc:{}, codec:{}, exception:{corrupt:function(a) {
   this.toString = function() {
@@ -1925,6 +3395,7 @@ sjcl.misc.cachedPbkdf2 = function(a, b) {
   d[c] = d[c] || sjcl.misc.pbkdf2(a, c, b.iter);
   return{key:d[c].slice(0), salt:c.slice(0)};
 };
+fb.simplelogin.util.sjcl = sjcl;
 goog.provide("goog.net.Cookies");
 goog.provide("goog.net.cookies");
 goog.net.Cookies = function(context) {
@@ -2046,66 +3517,6 @@ goog.net.Cookies.prototype.getKeyValues_ = function() {
 };
 goog.net.cookies = new goog.net.Cookies(document);
 goog.net.cookies.MAX_COOKIE_LENGTH = goog.net.Cookies.MAX_COOKIE_LENGTH;
-goog.provide("fb.simplelogin.util.env");
-fb.simplelogin.util.env.hasLocalStorage = function(str) {
-  try {
-    if (localStorage) {
-      localStorage.setItem("firebase-sentinel", "test");
-      var result = localStorage.getItem("firebase-sentinel");
-      localStorage.removeItem("firebase-sentinel");
-      return result === "test";
-    }
-  } catch (e) {
-  }
-  return false;
-};
-fb.simplelogin.util.env.hasSessionStorage = function(str) {
-  try {
-    if (sessionStorage) {
-      sessionStorage.setItem("firebase-sentinel", "test");
-      var result = sessionStorage.getItem("firebase-sentinel");
-      sessionStorage.removeItem("firebase-sentinel");
-      return result === "test";
-    }
-  } catch (e) {
-  }
-  return false;
-};
-fb.simplelogin.util.env.isMobileCordovaInAppBrowser = function() {
-  return(window["cordova"] || (window["CordovaInAppBrowser"] || window["phonegap"])) && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
-};
-fb.simplelogin.util.env.isMobileTriggerIoTab = function() {
-  return window["forge"] && /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
-};
-fb.simplelogin.util.env.isWindowsMetro = function() {
-  return!!window["Windows"] && /^ms-appx:/.test(location.href);
-};
-fb.simplelogin.util.env.isChromeiOS = function() {
-  return!!navigator.userAgent.match(/CriOS/);
-};
-fb.simplelogin.util.env.isTwitteriOS = function() {
-  return!!navigator.userAgent.match(/Twitter for iPhone/);
-};
-fb.simplelogin.util.env.isFacebookiOS = function() {
-  return!!navigator.userAgent.match(/FBAN\/FBIOS/);
-};
-fb.simplelogin.util.env.isWindowsPhone = function() {
-  return!!navigator.userAgent.match(/Windows Phone/);
-};
-fb.simplelogin.util.env.isStandaloneiOS = function() {
-  return!!window.navigator.standalone;
-};
-fb.simplelogin.util.env.isPhantomJS = function() {
-  return!!navigator.userAgent.match(/PhantomJS/);
-};
-fb.simplelogin.util.env.isFennec = function() {
-  try {
-    var userAgent = navigator["userAgent"];
-    return userAgent.indexOf("Fennec/") != -1 || userAgent.indexOf("Firefox/") != -1 && userAgent.indexOf("Android") != -1;
-  } catch (e) {
-  }
-  return false;
-};
 goog.provide("fb.simplelogin.SessionStore");
 goog.provide("fb.simplelogin.SessionStore_");
 goog.require("fb.simplelogin.util.env");
@@ -2153,865 +3564,10 @@ fb.simplelogin.SessionStore_.prototype.clear = function() {
   goog.net.cookies.remove(encryptionStorageKey, cookieStoragePath, null);
 };
 fb.simplelogin.SessionStore = new fb.simplelogin.SessionStore_;
-goog.provide("fb.simplelogin.transports.XHR");
-goog.provide("fb.simplelogin.transports.XHR_");
-goog.require("fb.simplelogin.transports.Transport");
-goog.require("fb.simplelogin.Vars");
-goog.require("fb.simplelogin.util.json");
-fb.simplelogin.transports.XHR_ = function() {
-};
-fb.simplelogin.transports.XHR_.prototype.open = function(url, data, onComplete) {
-  var self = this;
-  var options = {contentType:"application/json"};
-  var xhr = new XMLHttpRequest, method = (options.method || "GET").toUpperCase(), contentType = options.contentType || "application/x-www-form-urlencoded", callbackInvoked = false, key;
-  var callbackHandler = function() {
-    if (!callbackInvoked && xhr.readyState === 4) {
-      callbackInvoked = true;
-      var data, error;
-      try {
-        data = fb.simplelogin.util.json.parse(xhr.responseText);
-        error = data["error"] || null;
-        delete data["error"];
-      } catch (e) {
-      }
-      if (!data || error) {
-        return onComplete && onComplete(self.formatError_(error));
-      } else {
-        return onComplete && onComplete(error, data);
-      }
-    }
-  };
-  xhr.onreadystatechange = callbackHandler;
-  if (data) {
-    if (method === "GET") {
-      if (url.indexOf("?") === -1) {
-        url += "?";
-      }
-      url += this.formatQueryString(data);
-      data = null;
-    } else {
-      if (contentType === "application/json") {
-        data = fb.simplelogin.util.json.stringify(data);
-      }
-      if (contentType === "application/x-www-form-urlencoded") {
-        data = this.formatQueryString(data);
-      }
-    }
-  }
-  xhr.open(method, url, true);
-  var headers = {"X-Requested-With":"XMLHttpRequest", "Accept":"application/json;text/plain", "Content-Type":contentType};
-  options.headers = options.headers || {};
-  for (key in options.headers) {
-    headers[key] = options.headers[key];
-  }
-  for (key in headers) {
-    xhr.setRequestHeader(key, headers[key]);
-  }
-  xhr.send(data);
-};
-fb.simplelogin.transports.XHR_.prototype.isAvailable = function() {
-  return window["XMLHttpRequest"] && typeof window["XMLHttpRequest"] === "function";
-};
-fb.simplelogin.transports.XHR_.prototype.formatQueryString = function(data) {
-  if (!data) {
-    return "";
-  }
-  var tokens = [];
-  for (var key in data) {
-    tokens.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
-  }
-  return tokens.join("&");
-};
-fb.simplelogin.transports.XHR_.prototype.formatError_ = function(error) {
-  if (error) {
-    return fb.simplelogin.Errors.format(error);
-  } else {
-    return fb.simplelogin.Errors.get("UNKNOWN_ERROR");
-  }
-};
-fb.simplelogin.transports.XHR = new fb.simplelogin.transports.XHR_;
-goog.provide("fb.simplelogin.util.validation");
-var VALID_EMAIL_REGEX_ = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,6})+$/;
-fb.simplelogin.util.validation.validateArgCount = function(fnName, minCount, maxCount, argCount) {
-  var argError;
-  if (argCount < minCount) {
-    argError = "at least " + minCount;
-  } else {
-    if (argCount > maxCount) {
-      argError = maxCount === 0 ? "none" : "no more than " + maxCount;
-    }
-  }
-  if (argError) {
-    var error = fnName + " failed: Was called with " + argCount + (argCount === 1 ? " argument." : " arguments.") + " Expects " + argError + ".";
-    throw new Error(error);
-  }
-};
-fb.simplelogin.util.validation.isValidEmail = function(email) {
-  return goog.isString(email) && VALID_EMAIL_REGEX_.test(email);
-};
-fb.simplelogin.util.validation.isValidPassword = function(password) {
-  return goog.isString(password);
-};
-fb.simplelogin.util.validation.isValidNamespace = function(namespace) {
-  return goog.isString(namespace);
-};
-fb.simplelogin.util.validation.errorPrefix_ = function(fnName, argumentNumber, optional) {
-  var argName = "";
-  switch(argumentNumber) {
-    case 1:
-      argName = optional ? "first" : "First";
-      break;
-    case 2:
-      argName = optional ? "second" : "Second";
-      break;
-    case 3:
-      argName = optional ? "third" : "Third";
-      break;
-    case 4:
-      argName = optional ? "fourth" : "Fourth";
-      break;
-    default:
-      fb.core.util.validation.assert(false, "errorPrefix_ called with argumentNumber > 4.  Need to update it?");
-  }
-  var error = fnName + " failed: ";
-  error += argName + " argument ";
-  return error;
-};
-fb.simplelogin.util.validation.validateNamespace = function(fnName, argumentNumber, namespace, optional) {
-  if (optional && !goog.isDef(namespace)) {
-    return;
-  }
-  if (!goog.isString(namespace)) {
-    throw new Error(fb.simplelogin.util.validation.errorPrefix_(fnName, argumentNumber, optional) + "must be a valid firebase namespace.");
-  }
-};
-fb.simplelogin.util.validation.validateCallback = function(fnName, argumentNumber, callback, optional) {
-  if (optional && !goog.isDef(callback)) {
-    return;
-  }
-  if (!goog.isFunction(callback)) {
-    throw new Error(fb.simplelogin.util.validation.errorPrefix_(fnName, argumentNumber, optional) + "must be a valid function.");
-  }
-};
-fb.simplelogin.util.validation.validateString = function(fnName, argumentNumber, string, optional) {
-  if (optional && !goog.isDef(string)) {
-    return;
-  }
-  if (!goog.isString(string)) {
-    throw new Error(fb.simplelogin.util.validation.errorPrefix_(fnName, argumentNumber, optional) + "must be a valid string.");
-  }
-};
-fb.simplelogin.util.validation.validateContextObject = function(fnName, argumentNumber, context, optional) {
-  if (optional && !goog.isDef(context)) {
-    return;
-  }
-  if (!goog.isObject(context) || context === null) {
-    throw new Error(fb.simplelogin.util.validation.errorPrefix_(fnName, argumentNumber, optional) + "must be a valid context object.");
-  }
-};
-goog.provide("fb.simplelogin.transports.JSONP");
-goog.provide("fb.simplelogin.transports.JSONP_");
-goog.require("fb.simplelogin.transports.Transport");
-goog.require("fb.simplelogin.Vars");
-goog.require("fb.simplelogin.util.json");
-var CALLBACK_NAMESPACE = "_FirebaseSimpleLoginJSONP";
-fb.simplelogin.transports.JSONP_ = function() {
-  window[CALLBACK_NAMESPACE] = window[CALLBACK_NAMESPACE] || {};
-};
-fb.simplelogin.transports.JSONP_.prototype.open = function(url, options, onComplete) {
-  url += /\?/.test(url) ? "" : "?";
-  url += "&transport=jsonp";
-  for (var param in options) {
-    url += "&" + encodeURIComponent(param) + "=" + encodeURIComponent(options[param]);
-  }
-  var callbackId = this.generateRequestId_();
-  url += "&callback=" + encodeURIComponent(CALLBACK_NAMESPACE + "." + callbackId);
-  this.registerCallback_(callbackId, onComplete);
-  this.writeScriptTag_(callbackId, url, onComplete);
-};
-fb.simplelogin.transports.JSONP_.prototype.generateRequestId_ = function() {
-  return "_FirebaseJSONP" + (new Date).getTime() + Math.floor(Math.random() * 100);
-};
-fb.simplelogin.transports.JSONP_.prototype.registerCallback_ = function(id, callback) {
-  var self = this;
-  window[CALLBACK_NAMESPACE][id] = function(result) {
-    var error = result["error"] || null;
-    delete result["error"];
-    callback(error, result);
-    self.removeCallback_(id);
-  };
-};
-fb.simplelogin.transports.JSONP_.prototype.removeCallback_ = function(id) {
-  setTimeout(function() {
-    delete window[CALLBACK_NAMESPACE][id];
-    var el = document.getElementById(id);
-    if (el) {
-      el.parentNode.removeChild(el);
-    }
-  }, 0);
-};
-fb.simplelogin.transports.JSONP_.prototype.writeScriptTag_ = function(id, url, cb) {
-  var self = this;
-  setTimeout(function() {
-    try {
-      var js = document.createElement("script");
-      js.type = "text/javascript";
-      js.id = id;
-      js.async = true;
-      js.src = url;
-      js.onerror = function() {
-        var el = document.getElementById(id);
-        if (el !== null) {
-          el.parentNode.removeChild(el);
-        }
-        cb && cb(self.formatError_({code:"SERVER_ERROR", message:"An unknown server error occurred."}));
-      };
-      var ref = document.getElementsByTagName("script")[0];
-      ref.parentNode.insertBefore(js, ref);
-    } catch (e) {
-      cb && cb(self.formatError_({code:"SERVER_ERROR", message:"An unknown server error occurred."}));
-    }
-  }, 0);
-};
-fb.simplelogin.transports.JSONP_.prototype.formatError_ = function(error) {
-  var errorObj;
-  if (!error) {
-    errorObj = new Error;
-    errorObj.code = "UNKNOWN_ERROR";
-  } else {
-    errorObj = new Error(error.message);
-    errorObj.code = error.code || "UNKNOWN_ERROR";
-  }
-  return errorObj;
-};
-fb.simplelogin.transports.JSONP = new fb.simplelogin.transports.JSONP_;
-goog.provide("fb.simplelogin.providers.Password");
-goog.provide("fb.simplelogin.providers.Password_");
-goog.require("fb.simplelogin.Vars");
-goog.require("fb.simplelogin.util.validation");
-goog.require("fb.simplelogin.Errors");
-goog.require("fb.simplelogin.transports.JSONP");
-goog.require("fb.simplelogin.transports.XHR");
-fb.simplelogin.providers.Password_ = function() {
-};
-fb.simplelogin.providers.Password_.prototype.getTransport_ = function() {
-  if (fb.simplelogin.transports.XHR.isAvailable()) {
-    return fb.simplelogin.transports.XHR;
-  } else {
-    return fb.simplelogin.transports.JSONP;
-  }
-};
-fb.simplelogin.providers.Password_.prototype.login = function(data, onComplete) {
-  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase";
-  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
-  }
-  this.getTransport_().open(url, data, onComplete);
-};
-fb.simplelogin.providers.Password_.prototype.createUser = function(data, onComplete) {
-  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/create";
-  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
-  }
-  if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
-  }
-  if (!fb.simplelogin.util.validation.isValidPassword(data["password"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_PASSWORD"));
-  }
-  this.getTransport_().open(url, data, onComplete);
-};
-fb.simplelogin.providers.Password_.prototype.changePassword = function(data, onComplete) {
-  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/update";
-  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
-  }
-  if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
-  }
-  if (!fb.simplelogin.util.validation.isValidPassword(data["newPassword"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_PASSWORD"));
-  }
-  this.getTransport_().open(url, data, onComplete);
-};
-fb.simplelogin.providers.Password_.prototype.removeUser = function(data, onComplete) {
-  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/remove";
-  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
-  }
-  if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
-  }
-  if (!fb.simplelogin.util.validation.isValidPassword(data["password"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_PASSWORD"));
-  }
-  this.getTransport_().open(url, data, onComplete);
-};
-fb.simplelogin.providers.Password_.prototype.sendPasswordResetEmail = function(data, onComplete) {
-  var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/reset_password";
-  if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
-  }
-  if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
-  }
-  this.getTransport_().open(url, data, onComplete);
-};
-fb.simplelogin.providers.Password = new fb.simplelogin.providers.Password_;
-goog.provide("fb.simplelogin.transports.WindowsMetroAuthBroker");
-goog.provide("fb.simplelogin.transports.WindowsMetroAuthBroker_");
-goog.require("fb.simplelogin.transports.Popup");
-goog.require("fb.simplelogin.Vars");
-goog.require("fb.simplelogin.util.json");
-goog.require("fb.simplelogin.util.misc");
-fb.simplelogin.transports.WindowsMetroAuthBroker_ = function() {
-};
-fb.simplelogin.transports.WindowsMetroAuthBroker_.prototype.open = function(url, options, onComplete) {
-  var Uri, WebAuthenticationOptions, WebAuthenticationBroker, authenticateAsync, callbackInvoked, callbackHandler;
-  try {
-    Uri = window["Windows"]["Foundation"]["Uri"];
-    WebAuthenticationOptions = window["Windows"]["Security"]["Authentication"]["Web"]["WebAuthenticationOptions"];
-    WebAuthenticationBroker = window["Windows"]["Security"]["Authentication"]["Web"]["WebAuthenticationBroker"];
-    authenticateAsync = WebAuthenticationBroker["authenticateAsync"];
-  } catch (err) {
-    return onComplete({code:"WINDOWS_METRO", message:'"Windows.Security.Authentication.Web.WebAuthenticationBroker" required when using Firebase Simple Login in Windows Metro context'});
-  }
-  callbackInvoked = false;
-  var callbackHandler = function() {
-    var args = Array.prototype.slice.apply(arguments);
-    if (!callbackInvoked) {
-      callbackInvoked = true;
-      onComplete.apply(null, args);
-    }
-  };
-  var startUri = new Uri(url + "&transport=internal-redirect-hash");
-  var endUri = new Uri(fb.simplelogin.Vars.getApiHost() + "/blank/page.html");
-  authenticateAsync(WebAuthenticationOptions["none"], startUri, endUri).done(function(data) {
-    var result;
-    if (data && data["responseData"]) {
-      try {
-        var urlObj = fb.simplelogin.util.misc.parseUrl(data["responseData"]);
-        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj["hash"]));
-        var temporaryResult = {};
-        for (var key in urlHashEncoded) {
-          temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
-        }
-        result = temporaryResult;
-      } catch (e) {
-      }
-    }
-    if (result && (result["token"] && result["user"])) {
-      callbackHandler(null, result);
-    } else {
-      if (result && result["error"]) {
-        callbackHandler(result["error"]);
-      } else {
-        callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred."});
-      }
-    }
-  }, function(err) {
-    callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred."});
-  });
-};
-fb.simplelogin.transports.WindowsMetroAuthBroker = new fb.simplelogin.transports.WindowsMetroAuthBroker_;
-goog.provide("goog.string");
-goog.provide("goog.string.Unicode");
-goog.string.Unicode = {NBSP:"\u00a0"};
-goog.string.startsWith = function(str, prefix) {
-  return str.lastIndexOf(prefix, 0) == 0;
-};
-goog.string.endsWith = function(str, suffix) {
-  var l = str.length - suffix.length;
-  return l >= 0 && str.indexOf(suffix, l) == l;
-};
-goog.string.caseInsensitiveStartsWith = function(str, prefix) {
-  return goog.string.caseInsensitiveCompare(prefix, str.substr(0, prefix.length)) == 0;
-};
-goog.string.caseInsensitiveEndsWith = function(str, suffix) {
-  return goog.string.caseInsensitiveCompare(suffix, str.substr(str.length - suffix.length, suffix.length)) == 0;
-};
-goog.string.caseInsensitiveEquals = function(str1, str2) {
-  return str1.toLowerCase() == str2.toLowerCase();
-};
-goog.string.subs = function(str, var_args) {
-  var splitParts = str.split("%s");
-  var returnString = "";
-  var subsArguments = Array.prototype.slice.call(arguments, 1);
-  while (subsArguments.length && splitParts.length > 1) {
-    returnString += splitParts.shift() + subsArguments.shift();
-  }
-  return returnString + splitParts.join("%s");
-};
-goog.string.collapseWhitespace = function(str) {
-  return str.replace(/[\s\xa0]+/g, " ").replace(/^\s+|\s+$/g, "");
-};
-goog.string.isEmpty = function(str) {
-  return/^[\s\xa0]*$/.test(str);
-};
-goog.string.isEmptySafe = function(str) {
-  return goog.string.isEmpty(goog.string.makeSafe(str));
-};
-goog.string.isBreakingWhitespace = function(str) {
-  return!/[^\t\n\r ]/.test(str);
-};
-goog.string.isAlpha = function(str) {
-  return!/[^a-zA-Z]/.test(str);
-};
-goog.string.isNumeric = function(str) {
-  return!/[^0-9]/.test(str);
-};
-goog.string.isAlphaNumeric = function(str) {
-  return!/[^a-zA-Z0-9]/.test(str);
-};
-goog.string.isSpace = function(ch) {
-  return ch == " ";
-};
-goog.string.isUnicodeChar = function(ch) {
-  return ch.length == 1 && (ch >= " " && ch <= "~") || ch >= "\u0080" && ch <= "\ufffd";
-};
-goog.string.stripNewlines = function(str) {
-  return str.replace(/(\r\n|\r|\n)+/g, " ");
-};
-goog.string.canonicalizeNewlines = function(str) {
-  return str.replace(/(\r\n|\r|\n)/g, "\n");
-};
-goog.string.normalizeWhitespace = function(str) {
-  return str.replace(/\xa0|\s/g, " ");
-};
-goog.string.normalizeSpaces = function(str) {
-  return str.replace(/\xa0|[ \t]+/g, " ");
-};
-goog.string.collapseBreakingSpaces = function(str) {
-  return str.replace(/[\t\r\n ]+/g, " ").replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, "");
-};
-goog.string.trim = function(str) {
-  return str.replace(/^[\s\xa0]+|[\s\xa0]+$/g, "");
-};
-goog.string.trimLeft = function(str) {
-  return str.replace(/^[\s\xa0]+/, "");
-};
-goog.string.trimRight = function(str) {
-  return str.replace(/[\s\xa0]+$/, "");
-};
-goog.string.caseInsensitiveCompare = function(str1, str2) {
-  var test1 = String(str1).toLowerCase();
-  var test2 = String(str2).toLowerCase();
-  if (test1 < test2) {
-    return-1;
-  } else {
-    if (test1 == test2) {
-      return 0;
-    } else {
-      return 1;
-    }
-  }
-};
-goog.string.numerateCompareRegExp_ = /(\.\d+)|(\d+)|(\D+)/g;
-goog.string.numerateCompare = function(str1, str2) {
-  if (str1 == str2) {
-    return 0;
-  }
-  if (!str1) {
-    return-1;
-  }
-  if (!str2) {
-    return 1;
-  }
-  var tokens1 = str1.toLowerCase().match(goog.string.numerateCompareRegExp_);
-  var tokens2 = str2.toLowerCase().match(goog.string.numerateCompareRegExp_);
-  var count = Math.min(tokens1.length, tokens2.length);
-  for (var i = 0;i < count;i++) {
-    var a = tokens1[i];
-    var b = tokens2[i];
-    if (a != b) {
-      var num1 = parseInt(a, 10);
-      if (!isNaN(num1)) {
-        var num2 = parseInt(b, 10);
-        if (!isNaN(num2) && num1 - num2) {
-          return num1 - num2;
-        }
-      }
-      return a < b ? -1 : 1;
-    }
-  }
-  if (tokens1.length != tokens2.length) {
-    return tokens1.length - tokens2.length;
-  }
-  return str1 < str2 ? -1 : 1;
-};
-goog.string.urlEncode = function(str) {
-  return encodeURIComponent(String(str));
-};
-goog.string.urlDecode = function(str) {
-  return decodeURIComponent(str.replace(/\+/g, " "));
-};
-goog.string.newLineToBr = function(str, opt_xml) {
-  return str.replace(/(\r\n|\r|\n)/g, opt_xml ? "<br />" : "<br>");
-};
-goog.string.htmlEscape = function(str, opt_isLikelyToContainHtmlChars) {
-  if (opt_isLikelyToContainHtmlChars) {
-    return str.replace(goog.string.amperRe_, "&amp;").replace(goog.string.ltRe_, "&lt;").replace(goog.string.gtRe_, "&gt;").replace(goog.string.quotRe_, "&quot;").replace(goog.string.singleQuoteRe_, "&#39;");
-  } else {
-    if (!goog.string.allRe_.test(str)) {
-      return str;
-    }
-    if (str.indexOf("&") != -1) {
-      str = str.replace(goog.string.amperRe_, "&amp;");
-    }
-    if (str.indexOf("<") != -1) {
-      str = str.replace(goog.string.ltRe_, "&lt;");
-    }
-    if (str.indexOf(">") != -1) {
-      str = str.replace(goog.string.gtRe_, "&gt;");
-    }
-    if (str.indexOf('"') != -1) {
-      str = str.replace(goog.string.quotRe_, "&quot;");
-    }
-    if (str.indexOf("'") != -1) {
-      str = str.replace(goog.string.singleQuoteRe_, "&#39;");
-    }
-    return str;
-  }
-};
-goog.string.amperRe_ = /&/g;
-goog.string.ltRe_ = /</g;
-goog.string.gtRe_ = />/g;
-goog.string.quotRe_ = /"/g;
-goog.string.singleQuoteRe_ = /'/g;
-goog.string.allRe_ = /[&<>"']/;
-goog.string.unescapeEntities = function(str) {
-  if (goog.string.contains(str, "&")) {
-    if ("document" in goog.global) {
-      return goog.string.unescapeEntitiesUsingDom_(str);
-    } else {
-      return goog.string.unescapePureXmlEntities_(str);
-    }
-  }
-  return str;
-};
-goog.string.unescapeEntitiesWithDocument = function(str, document) {
-  if (goog.string.contains(str, "&")) {
-    return goog.string.unescapeEntitiesUsingDom_(str, document);
-  }
-  return str;
-};
-goog.string.unescapeEntitiesUsingDom_ = function(str, opt_document) {
-  var seen = {"&amp;":"&", "&lt;":"<", "&gt;":">", "&quot;":'"'};
-  var div;
-  if (opt_document) {
-    div = opt_document.createElement("div");
-  } else {
-    div = document.createElement("div");
-  }
-  return str.replace(goog.string.HTML_ENTITY_PATTERN_, function(s, entity) {
-    var value = seen[s];
-    if (value) {
-      return value;
-    }
-    if (entity.charAt(0) == "#") {
-      var n = Number("0" + entity.substr(1));
-      if (!isNaN(n)) {
-        value = String.fromCharCode(n);
-      }
-    }
-    if (!value) {
-      div.innerHTML = s + " ";
-      value = div.firstChild.nodeValue.slice(0, -1);
-    }
-    return seen[s] = value;
-  });
-};
-goog.string.unescapePureXmlEntities_ = function(str) {
-  return str.replace(/&([^;]+);/g, function(s, entity) {
-    switch(entity) {
-      case "amp":
-        return "&";
-      case "lt":
-        return "<";
-      case "gt":
-        return ">";
-      case "quot":
-        return'"';
-      default:
-        if (entity.charAt(0) == "#") {
-          var n = Number("0" + entity.substr(1));
-          if (!isNaN(n)) {
-            return String.fromCharCode(n);
-          }
-        }
-        return s;
-    }
-  });
-};
-goog.string.HTML_ENTITY_PATTERN_ = /&([^;\s<&]+);?/g;
-goog.string.whitespaceEscape = function(str, opt_xml) {
-  return goog.string.newLineToBr(str.replace(/  /g, " &#160;"), opt_xml);
-};
-goog.string.stripQuotes = function(str, quoteChars) {
-  var length = quoteChars.length;
-  for (var i = 0;i < length;i++) {
-    var quoteChar = length == 1 ? quoteChars : quoteChars.charAt(i);
-    if (str.charAt(0) == quoteChar && str.charAt(str.length - 1) == quoteChar) {
-      return str.substring(1, str.length - 1);
-    }
-  }
-  return str;
-};
-goog.string.truncate = function(str, chars, opt_protectEscapedCharacters) {
-  if (opt_protectEscapedCharacters) {
-    str = goog.string.unescapeEntities(str);
-  }
-  if (str.length > chars) {
-    str = str.substring(0, chars - 3) + "...";
-  }
-  if (opt_protectEscapedCharacters) {
-    str = goog.string.htmlEscape(str);
-  }
-  return str;
-};
-goog.string.truncateMiddle = function(str, chars, opt_protectEscapedCharacters, opt_trailingChars) {
-  if (opt_protectEscapedCharacters) {
-    str = goog.string.unescapeEntities(str);
-  }
-  if (opt_trailingChars && str.length > chars) {
-    if (opt_trailingChars > chars) {
-      opt_trailingChars = chars;
-    }
-    var endPoint = str.length - opt_trailingChars;
-    var startPoint = chars - opt_trailingChars;
-    str = str.substring(0, startPoint) + "..." + str.substring(endPoint);
-  } else {
-    if (str.length > chars) {
-      var half = Math.floor(chars / 2);
-      var endPos = str.length - half;
-      half += chars % 2;
-      str = str.substring(0, half) + "..." + str.substring(endPos);
-    }
-  }
-  if (opt_protectEscapedCharacters) {
-    str = goog.string.htmlEscape(str);
-  }
-  return str;
-};
-goog.string.specialEscapeChars_ = {"\x00":"\\0", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\x0B", '"':'\\"', "\\":"\\\\"};
-goog.string.jsEscapeCache_ = {"'":"\\'"};
-goog.string.quote = function(s) {
-  s = String(s);
-  if (s.quote) {
-    return s.quote();
-  } else {
-    var sb = ['"'];
-    for (var i = 0;i < s.length;i++) {
-      var ch = s.charAt(i);
-      var cc = ch.charCodeAt(0);
-      sb[i + 1] = goog.string.specialEscapeChars_[ch] || (cc > 31 && cc < 127 ? ch : goog.string.escapeChar(ch));
-    }
-    sb.push('"');
-    return sb.join("");
-  }
-};
-goog.string.escapeString = function(str) {
-  var sb = [];
-  for (var i = 0;i < str.length;i++) {
-    sb[i] = goog.string.escapeChar(str.charAt(i));
-  }
-  return sb.join("");
-};
-goog.string.escapeChar = function(c) {
-  if (c in goog.string.jsEscapeCache_) {
-    return goog.string.jsEscapeCache_[c];
-  }
-  if (c in goog.string.specialEscapeChars_) {
-    return goog.string.jsEscapeCache_[c] = goog.string.specialEscapeChars_[c];
-  }
-  var rv = c;
-  var cc = c.charCodeAt(0);
-  if (cc > 31 && cc < 127) {
-    rv = c;
-  } else {
-    if (cc < 256) {
-      rv = "\\x";
-      if (cc < 16 || cc > 256) {
-        rv += "0";
-      }
-    } else {
-      rv = "\\u";
-      if (cc < 4096) {
-        rv += "0";
-      }
-    }
-    rv += cc.toString(16).toUpperCase();
-  }
-  return goog.string.jsEscapeCache_[c] = rv;
-};
-goog.string.toMap = function(s) {
-  var rv = {};
-  for (var i = 0;i < s.length;i++) {
-    rv[s.charAt(i)] = true;
-  }
-  return rv;
-};
-goog.string.contains = function(s, ss) {
-  return s.indexOf(ss) != -1;
-};
-goog.string.countOf = function(s, ss) {
-  return s && ss ? s.split(ss).length - 1 : 0;
-};
-goog.string.removeAt = function(s, index, stringLength) {
-  var resultStr = s;
-  if (index >= 0 && (index < s.length && stringLength > 0)) {
-    resultStr = s.substr(0, index) + s.substr(index + stringLength, s.length - index - stringLength);
-  }
-  return resultStr;
-};
-goog.string.remove = function(s, ss) {
-  var re = new RegExp(goog.string.regExpEscape(ss), "");
-  return s.replace(re, "");
-};
-goog.string.removeAll = function(s, ss) {
-  var re = new RegExp(goog.string.regExpEscape(ss), "g");
-  return s.replace(re, "");
-};
-goog.string.regExpEscape = function(s) {
-  return String(s).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, "\\$1").replace(/\x08/g, "\\x08");
-};
-goog.string.repeat = function(string, length) {
-  return(new Array(length + 1)).join(string);
-};
-goog.string.padNumber = function(num, length, opt_precision) {
-  var s = goog.isDef(opt_precision) ? num.toFixed(opt_precision) : String(num);
-  var index = s.indexOf(".");
-  if (index == -1) {
-    index = s.length;
-  }
-  return goog.string.repeat("0", Math.max(0, length - index)) + s;
-};
-goog.string.makeSafe = function(obj) {
-  return obj == null ? "" : String(obj);
-};
-goog.string.buildString = function(var_args) {
-  return Array.prototype.join.call(arguments, "");
-};
-goog.string.getRandomString = function() {
-  var x = 2147483648;
-  return Math.floor(Math.random() * x).toString(36) + Math.abs(Math.floor(Math.random() * x) ^ goog.now()).toString(36);
-};
-goog.string.compareVersions = function(version1, version2) {
-  var order = 0;
-  var v1Subs = goog.string.trim(String(version1)).split(".");
-  var v2Subs = goog.string.trim(String(version2)).split(".");
-  var subCount = Math.max(v1Subs.length, v2Subs.length);
-  for (var subIdx = 0;order == 0 && subIdx < subCount;subIdx++) {
-    var v1Sub = v1Subs[subIdx] || "";
-    var v2Sub = v2Subs[subIdx] || "";
-    var v1CompParser = new RegExp("(\\d*)(\\D*)", "g");
-    var v2CompParser = new RegExp("(\\d*)(\\D*)", "g");
-    do {
-      var v1Comp = v1CompParser.exec(v1Sub) || ["", "", ""];
-      var v2Comp = v2CompParser.exec(v2Sub) || ["", "", ""];
-      if (v1Comp[0].length == 0 && v2Comp[0].length == 0) {
-        break;
-      }
-      var v1CompNum = v1Comp[1].length == 0 ? 0 : parseInt(v1Comp[1], 10);
-      var v2CompNum = v2Comp[1].length == 0 ? 0 : parseInt(v2Comp[1], 10);
-      order = goog.string.compareElements_(v1CompNum, v2CompNum) || (goog.string.compareElements_(v1Comp[2].length == 0, v2Comp[2].length == 0) || goog.string.compareElements_(v1Comp[2], v2Comp[2]));
-    } while (order == 0);
-  }
-  return order;
-};
-goog.string.compareElements_ = function(left, right) {
-  if (left < right) {
-    return-1;
-  } else {
-    if (left > right) {
-      return 1;
-    }
-  }
-  return 0;
-};
-goog.string.HASHCODE_MAX_ = 4294967296;
-goog.string.hashCode = function(str) {
-  var result = 0;
-  for (var i = 0;i < str.length;++i) {
-    result = 31 * result + str.charCodeAt(i);
-    result %= goog.string.HASHCODE_MAX_;
-  }
-  return result;
-};
-goog.string.uniqueStringCounter_ = Math.random() * 2147483648 | 0;
-goog.string.createUniqueString = function() {
-  return "goog_" + goog.string.uniqueStringCounter_++;
-};
-goog.string.toNumber = function(str) {
-  var num = Number(str);
-  if (num == 0 && goog.string.isEmpty(str)) {
-    return NaN;
-  }
-  return num;
-};
-goog.string.isLowerCamelCase = function(str) {
-  return/^[a-z]+([A-Z][a-z]*)*$/.test(str);
-};
-goog.string.isUpperCamelCase = function(str) {
-  return/^([A-Z][a-z]*)+$/.test(str);
-};
-goog.string.toCamelCase = function(str) {
-  return String(str).replace(/\-([a-z])/g, function(all, match) {
-    return match.toUpperCase();
-  });
-};
-goog.string.toSelectorCase = function(str) {
-  return String(str).replace(/([A-Z])/g, "-$1").toLowerCase();
-};
-goog.string.toTitleCase = function(str, opt_delimiters) {
-  var delimiters = goog.isString(opt_delimiters) ? goog.string.regExpEscape(opt_delimiters) : "\\s";
-  delimiters = delimiters ? "|[" + delimiters + "]+" : "";
-  var regexp = new RegExp("(^" + delimiters + ")([a-z])", "g");
-  return str.replace(regexp, function(all, p1, p2) {
-    return p1 + p2.toUpperCase();
-  });
-};
-goog.string.parseInt = function(value) {
-  if (isFinite(value)) {
-    value = String(value);
-  }
-  if (goog.isString(value)) {
-    return/^\s*-?0x/i.test(value) ? parseInt(value, 16) : parseInt(value, 10);
-  }
-  return NaN;
-};
-goog.string.splitLimit = function(str, separator, limit) {
-  var parts = str.split(separator);
-  var returnVal = [];
-  while (limit > 0 && parts.length) {
-    returnVal.push(parts.shift());
-    limit--;
-  }
-  if (parts.length) {
-    returnVal.push(parts.join(separator));
-  }
-  return returnVal;
-};
-goog.provide("fb.simplelogin.providers.Persona");
-goog.provide("fb.simplelogin.providers.Persona_");
-goog.require("fb.simplelogin.util.validation");
-fb.simplelogin.providers.Persona_ = function() {
-};
-fb.simplelogin.providers.Persona_.prototype.login = function(options, onComplete) {
-  navigator["id"]["watch"]({"onlogin":function(assertion) {
-    onComplete(assertion);
-  }, "onlogout":function() {
-  }});
-  options = options || {};
-  options["oncancel"] = function() {
-    onComplete(null);
-  };
-  navigator["id"]["request"](options);
-};
-fb.simplelogin.providers.Persona = new fb.simplelogin.providers.Persona_;
 goog.provide("fb.simplelogin.client");
 goog.require("fb.simplelogin.util.env");
 goog.require("fb.simplelogin.util.json");
+goog.require("fb.simplelogin.util.RSVP");
 goog.require("fb.simplelogin.util.validation");
 goog.require("fb.simplelogin.Vars");
 goog.require("fb.simplelogin.Errors");
@@ -3024,7 +3580,7 @@ goog.require("fb.simplelogin.transports.TriggerIoTab");
 goog.require("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
 goog.require("goog.string");
-var CLIENT_VERSION = "1.3.1";
+var CLIENT_VERSION = "1.4.0";
 fb.simplelogin.client = function(ref, callback, context, apiHost) {
   var self = this;
   this.mRef = ref;
@@ -3110,7 +3666,7 @@ fb.simplelogin.client.prototype.resumeSession = function() {
     }
   }
 };
-fb.simplelogin.client.prototype.attemptAuth = function(token, user, saveSession) {
+fb.simplelogin.client.prototype.attemptAuth = function(token, user, saveSession, resolveCb, rejectCb) {
   var self = this;
   this.mRef["auth"](token, function(error, dummy) {
     if (!error) {
@@ -3123,13 +3679,22 @@ fb.simplelogin.client.prototype.attemptAuth = function(token, user, saveSession)
       delete user["sessionKey"];
       user["firebaseAuthToken"] = token;
       self.mLoginStateChange(null, user);
+      if (resolveCb) {
+        resolveCb(user);
+      }
     } else {
       fb.simplelogin.SessionStore.clear();
       self.mLoginStateChange(null, null);
+      if (rejectCb) {
+        rejectCb();
+      }
     }
   }, function(error) {
     fb.simplelogin.SessionStore.clear();
     self.mLoginStateChange(null, null);
+    if (rejectCb) {
+      rejectCb();
+    }
   });
 };
 fb.simplelogin.client.prototype.login = function() {
@@ -3173,81 +3738,95 @@ fb.simplelogin.client.prototype.login = function() {
   }
 };
 fb.simplelogin.client.prototype.loginAnonymously = function(options) {
-  var self = this;
-  var provider = "anonymous";
-  options.firebase = this.mNamespace;
-  options.v = CLIENT_VERSION;
-  fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + "/auth/anonymous", options, function(error, response) {
-    if (error || !response["token"]) {
-      self.mLoginStateChange(fb.simplelogin.Errors.format(error), null);
-    } else {
-      var token = response["token"];
-      var user = response["user"];
-      self.attemptAuth(token, user, true);
-    }
+  var self = this, provider = "anonymous";
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    options.firebase = self.mNamespace;
+    options.v = CLIENT_VERSION;
+    fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + "/auth/anonymous", options, function(error, response) {
+      if (error || !response["token"]) {
+        var errorObj = fb.simplelogin.Errors.format(error);
+        self.mLoginStateChange(errorObj, null);
+        reject(errorObj);
+      } else {
+        var token = response["token"];
+        var user = response["user"];
+        self.attemptAuth(token, user, true, resolve, reject);
+      }
+    });
   });
+  return promise;
 };
 fb.simplelogin.client.prototype.loginWithPassword = function(options) {
   var self = this;
-  options.firebase = this.mNamespace;
-  options.v = CLIENT_VERSION;
-  fb.simplelogin.providers.Password.login(options, function(error, response) {
-    if (error || !response["token"]) {
-      self.mLoginStateChange(fb.simplelogin.Errors.format(error));
-    } else {
-      var token = response["token"];
-      var user = response["user"];
-      self.attemptAuth(token, user, true);
-    }
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    options.firebase = self.mNamespace;
+    options.v = CLIENT_VERSION;
+    fb.simplelogin.providers.Password.login(options, function(error, response) {
+      if (error || !response["token"]) {
+        var errorObj = fb.simplelogin.Errors.format(error);
+        self.mLoginStateChange(errorObj, null);
+        reject(errorObj);
+      } else {
+        var token = response["token"];
+        var user = response["user"];
+        self.attemptAuth(token, user, true, resolve, reject);
+      }
+    });
   });
+  return promise;
 };
 fb.simplelogin.client.prototype.loginWithGithub = function(options) {
   options["height"] = 850;
   options["width"] = 950;
-  this.loginViaOAuth("github", options);
+  return this.loginViaOAuth("github", options);
 };
 fb.simplelogin.client.prototype.loginWithGoogle = function(options) {
   options["height"] = 650;
   options["width"] = 575;
-  this.loginViaOAuth("google", options);
+  return this.loginViaOAuth("google", options);
 };
 fb.simplelogin.client.prototype.loginWithFacebook = function(options) {
   options["height"] = 400;
   options["width"] = 535;
-  this.loginViaOAuth("facebook", options);
+  return this.loginViaOAuth("facebook", options);
 };
 fb.simplelogin.client.prototype.loginWithTwitter = function(options) {
-  this.loginViaOAuth("twitter", options);
+  return this.loginViaOAuth("twitter", options);
 };
 fb.simplelogin.client.prototype.loginWithFacebookToken = function(options) {
-  this.loginViaToken("facebook", options);
+  return this.loginViaToken("facebook", options);
 };
 fb.simplelogin.client.prototype.loginWithGoogleToken = function(options) {
-  this.loginViaToken("google", options);
+  return this.loginViaToken("google", options);
 };
 fb.simplelogin.client.prototype.loginWithTwitterToken = function(options) {
-  this.loginViaToken("twitter", options);
+  return this.loginViaToken("twitter", options);
 };
 fb.simplelogin.client.prototype.loginWithPersona = function(options) {
   var self = this;
   if (!navigator["id"]) {
     throw new Error("FirebaseSimpleLogin.login(persona): Unable to find Persona include.js");
   }
-  fb.simplelogin.providers.Persona.login(options, function(assertion) {
-    if (assertion === null) {
-      callback(fb.simplelogin.Errors.get("UNKNOWN_ERROR"));
-    } else {
-      fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + "/auth/persona/token", {"firebase":self.mNamespace, "assertion":assertion, "v":CLIENT_VERSION}, function(err, res) {
-        if (err || (!res["token"] || !res["user"])) {
-          self.mLoginStateChange(fb.simplelogin.Errors.format(err), null);
-        } else {
-          var token = res["token"];
-          var user = res["user"];
-          self.attemptAuth(token, user, true);
-        }
-      });
-    }
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    fb.simplelogin.providers.Persona.login(options, function(assertion) {
+      if (assertion === null) {
+        callback(fb.simplelogin.Errors.get("UNKNOWN_ERROR"));
+      } else {
+        fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + "/auth/persona/token", {"firebase":self.mNamespace, "assertion":assertion, "v":CLIENT_VERSION}, function(err, res) {
+          if (err || (!res["token"] || !res["user"])) {
+            var errorObj = fb.simplelogin.Errors.format(err);
+            self.mLoginStateChange(errorObj, null);
+            reject(errorObj);
+          } else {
+            var token = res["token"];
+            var user = res["user"];
+            self.attemptAuth(token, user, true, resolve, reject);
+          }
+        });
+      }
+    });
   });
+  return promise;
 };
 fb.simplelogin.client.prototype.logout = function() {
   fb.simplelogin.SessionStore.clear();
@@ -3258,25 +3837,27 @@ fb.simplelogin.client.prototype.loginViaToken = function(provider, options, cb) 
   options = options || {};
   options.v = CLIENT_VERSION;
   var self = this, url = fb.simplelogin.Vars.getApiHost() + "/auth/" + provider + "/token?firebase=" + self.mNamespace;
-  fb.simplelogin.transports.JSONP.open(url, options, function(err, res) {
-    if (err || (!res["token"] || !res["user"])) {
-      self.mLoginStateChange(fb.simplelogin.Errors.format(err), null);
-    } else {
-      var token = res["token"];
-      var user = res["user"];
-      self.attemptAuth(token, user, true);
-    }
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    fb.simplelogin.transports.JSONP.open(url, options, function(err, res) {
+      if (err || (!res["token"] || !res["user"])) {
+        var errorObj = fb.simplelogin.Errors.format(err);
+        self.mLoginStateChange(errorObj);
+        reject(errorObj);
+      } else {
+        var token = res["token"];
+        var user = res["user"];
+        self.attemptAuth(token, user, true, resolve, reject);
+      }
+    });
   });
+  return promise;
 };
 fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) {
   options = options || {};
   var self = this;
-  var url = fb.simplelogin.Vars.getApiHost() + "/auth/" + provider + "?firebase=" + this.mNamespace;
+  var url = fb.simplelogin.Vars.getApiHost() + "/auth/" + provider + "?firebase=" + self.mNamespace;
   if (options["scope"]) {
     url += "&scope=" + options["scope"];
-  }
-  if (options["debug"]) {
-    url += "&debug=" + options["debug"];
   }
   url += "&v=" + encodeURIComponent(CLIENT_VERSION);
   var window_features = {"menubar":0, "location":0, "resizable":0, "scrollbars":1, "status":0, "dialog":1, "width":700, "height":375};
@@ -3336,52 +3917,66 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
     window.location = url;
     return;
   }
-  transport.open(url, options, function(error, res) {
-    if (res && (res.token && res.user)) {
-      self.attemptAuth(res.token, res.user, true);
-    } else {
-      var errObj = error || {code:"UNKNOWN_ERROR", message:"An unknown error occurred."};
-      if (error === "unknown closed window") {
-        errObj = {code:"USER_DENIED", message:"User cancelled the authentication request."};
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    transport.open(url, options, function(error, res) {
+      if (res && (res.token && res.user)) {
+        self.attemptAuth(res.token, res.user, true, resolve, reject);
       } else {
-        if (res && res.error) {
-          errObj = res.error;
+        var errObj = error || {code:"UNKNOWN_ERROR", message:"An unknown error occurred."};
+        if (error === "unknown closed window") {
+          errObj = {code:"USER_DENIED", message:"User cancelled the authentication request."};
+        } else {
+          if (res && res.error) {
+            errObj = res.error;
+          }
         }
+        var errorObj = fb.simplelogin.Errors.format(errObj);
+        self.mLoginStateChange(errorObj);
+        reject(errorObj);
       }
-      self.mLoginStateChange(fb.simplelogin.Errors.format(errObj), null);
-    }
+    });
   });
+  return promise;
 };
 fb.simplelogin.client.prototype.manageFirebaseUsers = function(method, data, cb) {
   data["firebase"] = this.mNamespace;
-  fb.simplelogin.providers.Password[method](data, function(error, result) {
-    if (error) {
-      return cb && cb(fb.simplelogin.Errors.format(error), null);
-    } else {
-      return cb && cb(null, result);
-    }
+  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
+    fb.simplelogin.providers.Password[method](data, function(error, result) {
+      if (error) {
+        var errorObj = fb.simplelogin.Errors.format(error);
+        reject(errorObj);
+        return cb && cb(errorObj, null);
+      } else {
+        resolve(result);
+        return cb && cb(null, result);
+      }
+    });
   });
+  return promise;
 };
 fb.simplelogin.client.prototype.createUser = function(email, password, cb) {
-  this.manageFirebaseUsers("createUser", {"email":email, "password":password}, cb);
+  return this.manageFirebaseUsers("createUser", {"email":email, "password":password}, cb);
 };
 fb.simplelogin.client.prototype.changePassword = function(email, oldPassword, newPassword, cb) {
-  this.manageFirebaseUsers("changePassword", {"email":email, "oldPassword":oldPassword, "newPassword":newPassword}, function(error) {
+  return this.manageFirebaseUsers("changePassword", {"email":email, "oldPassword":oldPassword, "newPassword":newPassword}, function(error) {
     return cb && cb(error);
   });
 };
 fb.simplelogin.client.prototype.removeUser = function(email, password, cb) {
-  this.manageFirebaseUsers("removeUser", {"email":email, "password":password}, function(error) {
+  return this.manageFirebaseUsers("removeUser", {"email":email, "password":password}, function(error) {
     return cb && cb(error);
   });
 };
 fb.simplelogin.client.prototype.sendPasswordResetEmail = function(email, cb) {
-  this.manageFirebaseUsers("sendPasswordResetEmail", {"email":email}, function(error) {
+  return this.manageFirebaseUsers("sendPasswordResetEmail", {"email":email}, function(error) {
     return cb && cb(error);
   });
 };
 fb.simplelogin.client.onOpen = function(cb) {
   fb.simplelogin.transports.WinChan.onOpen(cb);
+};
+fb.simplelogin.client.VERSION = function() {
+  return CLIENT_VERSION;
 };
 goog.provide("FirebaseSimpleLogin");
 goog.require("fb.simplelogin.client");
@@ -3401,36 +3996,37 @@ FirebaseSimpleLogin = function(ref, cb, context, apiHost) {
   return{"setApiHost":function(apiHost) {
     var method = "FirebaseSimpleLogin.setApiHost";
     fb.simplelogin.util.validation.validateArgCount(method, 1, 1, arguments.length);
-    client_.setApiHost(apiHost);
+    return client_.setApiHost(apiHost);
   }, "login":function() {
-    client_.login.apply(client_, arguments);
+    return client_.login.apply(client_, arguments);
   }, "logout":function() {
     var methodId = "FirebaseSimpleLogin.logout";
     fb.simplelogin.util.validation.validateArgCount(methodId, 0, 0, arguments.length);
-    client_.logout();
+    return client_.logout();
   }, "createUser":function(email, password, cb) {
     var method = "FirebaseSimpleLogin.createUser";
     fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
     fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
-    client_.createUser(email, password, cb);
+    return client_.createUser(email, password, cb);
   }, "changePassword":function(email, oldPassword, newPassword, cb) {
     var method = "FirebaseSimpleLogin.changePassword";
     fb.simplelogin.util.validation.validateArgCount(method, 4, 4, arguments.length);
     fb.simplelogin.util.validation.validateCallback(method, 4, cb, false);
-    client_.changePassword(email, oldPassword, newPassword, cb);
+    return client_.changePassword(email, oldPassword, newPassword, cb);
   }, "removeUser":function(email, password, cb) {
     var method = "FirebaseSimpleLogin.removeUser";
     fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
     fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
-    client_.removeUser(email, password, cb);
+    return client_.removeUser(email, password, cb);
   }, "sendPasswordResetEmail":function(email, cb) {
     var method = "FirebaseSimpleLogin.sendPasswordResetEmail";
     fb.simplelogin.util.validation.validateArgCount(method, 2, 2, arguments.length);
     fb.simplelogin.util.validation.validateCallback(method, 2, cb, false);
-    client_.sendPasswordResetEmail(email, cb);
+    return client_.sendPasswordResetEmail(email, cb);
   }};
 };
 FirebaseSimpleLogin.onOpen = function(cb) {
   fb.simplelogin.client.onOpen(cb);
 };
+FirebaseSimpleLogin.VERSION = fb.simplelogin.client.VERSION();
 

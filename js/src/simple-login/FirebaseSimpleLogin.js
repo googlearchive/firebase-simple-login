@@ -29,45 +29,45 @@ FirebaseSimpleLogin = function(ref, cb, context, apiHost) {
     'setApiHost': function(apiHost) {
       var method = 'FirebaseSimpleLogin.setApiHost';
       fb.simplelogin.util.validation.validateArgCount(method, 1, 1, arguments.length);
-      client_.setApiHost(apiHost);
+      return client_.setApiHost(apiHost);
     },
 
     'login': function() {
-      client_.login.apply(client_, arguments);
+      return client_.login.apply(client_, arguments);
     },
 
     'logout': function() {
       var methodId = 'FirebaseSimpleLogin.logout';
       fb.simplelogin.util.validation.validateArgCount(methodId, 0, 0, arguments.length);
-      client_.logout();
+      return client_.logout();
     },
 
     'createUser': function(email, password, cb) {
       var method = 'FirebaseSimpleLogin.createUser';
       fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
       fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
-      client_.createUser(email, password, cb);
+      return client_.createUser(email, password, cb);
     },
 
     'changePassword': function(email, oldPassword, newPassword, cb) {
       var method = 'FirebaseSimpleLogin.changePassword';
       fb.simplelogin.util.validation.validateArgCount(method, 4, 4, arguments.length);
       fb.simplelogin.util.validation.validateCallback(method, 4, cb, false);
-      client_.changePassword(email, oldPassword, newPassword, cb);
+      return client_.changePassword(email, oldPassword, newPassword, cb);
     },
 
     'removeUser': function(email, password, cb) {
       var method = 'FirebaseSimpleLogin.removeUser';
       fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
       fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
-      client_.removeUser(email, password, cb);
+      return client_.removeUser(email, password, cb);
     },
 
     'sendPasswordResetEmail': function(email, cb) {
       var method = 'FirebaseSimpleLogin.sendPasswordResetEmail';
       fb.simplelogin.util.validation.validateArgCount(method, 2, 2, arguments.length);
       fb.simplelogin.util.validation.validateCallback(method, 2, cb, false);
-      client_.sendPasswordResetEmail(email, cb);
+      return client_.sendPasswordResetEmail(email, cb);
     }
   };
 };
@@ -79,3 +79,5 @@ FirebaseSimpleLogin = function(ref, cb, context, apiHost) {
 FirebaseSimpleLogin.onOpen = function(cb) {
   fb.simplelogin.client.onOpen(cb);
 };
+
+FirebaseSimpleLogin.VERSION = fb.simplelogin.client.VERSION();

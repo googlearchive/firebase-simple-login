@@ -92,7 +92,9 @@ fb.simplelogin.transports.XHR_.prototype.open = function(url, data, onComplete) 
  * @return {boolean}
  */
 fb.simplelogin.transports.XHR_.prototype.isAvailable = function() {
-  return window['XMLHttpRequest'] && typeof window['XMLHttpRequest'] === 'function';
+  return window['XMLHttpRequest'] &&
+         typeof window['XMLHttpRequest'] === 'function' &&
+         !fb.simplelogin.util.env.isIeLT10();
 };
 
 /**
@@ -118,7 +120,7 @@ fb.simplelogin.transports.XHR_.prototype.formatError_ = function(error) {
   if (error) {
     return fb.simplelogin.Errors.format(error);
   } else {
-    return fb.simplelogin.Errors.get('UNKNOWN_ERROR'); 
+    return fb.simplelogin.Errors.get('UNKNOWN_ERROR');
   }
 };
 
