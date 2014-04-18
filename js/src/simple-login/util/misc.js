@@ -58,3 +58,19 @@ fb.simplelogin.util.misc.parseSubdomain = function(url) {
   } catch(e) {}
   return subdomain;
 };
+
+/**
+ * Logs message using using console.warn if it exists
+ * or console.log otherwise.
+ *
+ * @param {String} message The message to log
+ */
+fb.simplelogin.util.misc.warn = function(message) {
+  if (typeof console !== 'undefined') {
+    if (typeof console.warn !== 'undefined') {
+      console.warn(message);
+    } else {
+      console.log(message);
+    }
+  }
+};
