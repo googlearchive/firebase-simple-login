@@ -719,6 +719,15 @@ fb.simplelogin.util.misc.parseSubdomain = function(url) {
   }
   return subdomain;
 };
+fb.simplelogin.util.misc.warn = function(message) {
+  if (typeof console !== "undefined") {
+    if (typeof console.warn !== "undefined") {
+      console.warn(message);
+    } else {
+      console.log(message);
+    }
+  }
+};
 goog.provide("fb.simplelogin.transports.CordovaInAppBrowser");
 goog.provide("fb.simplelogin.transports.CordovaInAppBrowser_");
 goog.require("fb.simplelogin.transports.Popup");
@@ -3590,11 +3599,11 @@ fb.simplelogin.client = function(ref, callback, context, apiHost) {
   window[globalNamespace] = window[globalNamespace] || {};
   window[globalNamespace]["callbacks"] = window[globalNamespace]["callbacks"] || [];
   window[globalNamespace]["callbacks"].push({"cb":callback, "ctx":context});
-  var warnTestingLocally = window.location.protocol === "file:" && (!fb.simplelogin.util.env.isPhantomJS() && (!fb.simplelogin.util.env.isMobileCordovaInAppBrowser() && (console && console.log)));
+  var warnTestingLocally = window.location.protocol === "file:" && (!fb.simplelogin.util.env.isPhantomJS() && !fb.simplelogin.util.env.isMobileCordovaInAppBrowser());
   if (warnTestingLocally) {
     var message = "FirebaseSimpleLogin(): Due to browser security restrictions, " + "loading applications via `file://*` URLs will prevent popup-based authentication " + "providers from working properly. When testing locally, you'll need to run a " + "barebones webserver on your machine rather than loading your test files via " + "`file://*`. The easiest way to run a barebones server on your local machine is to " + "`cd` to the root directory of your code and run `python -m SimpleHTTPServer`, " + 
     "which will allow you to access your content via `http://127.0.0.1:8000/*`.";
-    console.log(message);
+    fb.simplelogin.util.misc.warn(message);
   }
   if (apiHost) {
     fb.simplelogin.Vars.setApiHost(apiHost);
@@ -3803,6 +3812,7 @@ fb.simplelogin.client.prototype.loginWithTwitterToken = function(options) {
   return this.loginViaToken("twitter", options);
 };
 fb.simplelogin.client.prototype.loginWithPersona = function(options) {
+  fb.simplelogin.util.misc.warn("Persona authentication in Firebase Simple Login has been deprecated. Persona will be removed as an authentication provider at the end of May, 2014 with version 2.0.0.");
   var self = this;
   if (!navigator["id"]) {
     throw new Error("FirebaseSimpleLogin.login(persona): Unable to find Persona include.js");

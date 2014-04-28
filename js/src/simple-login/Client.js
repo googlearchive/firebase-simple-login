@@ -47,8 +47,7 @@ fb.simplelogin.client = function(ref, callback, context, apiHost) {
 
   var warnTestingLocally = window.location.protocol === "file:" &&
     !fb.simplelogin.util.env.isPhantomJS() &&
-    !fb.simplelogin.util.env.isMobileCordovaInAppBrowser() &&
-    console && console.log;
+    !fb.simplelogin.util.env.isMobileCordovaInAppBrowser();
 
   if (warnTestingLocally) {
     var message = 'FirebaseSimpleLogin(): Due to browser security restrictions, '            +
@@ -58,7 +57,7 @@ fb.simplelogin.client = function(ref, callback, context, apiHost) {
         '`file://*`. The easiest way to run a barebones server on your local machine is to ' +
         '`cd` to the root directory of your code and run `python -m SimpleHTTPServer`, '     +
         'which will allow you to access your content via `http://127.0.0.1:8000/*`.';
-    console.log(message);
+    fb.simplelogin.util.misc.warn(message);
   }
 
   if (apiHost) {
@@ -352,6 +351,8 @@ fb.simplelogin.client.prototype.loginWithTwitterToken = function(options) {
  * @private
  */
 fb.simplelogin.client.prototype.loginWithPersona = function(options) {
+  fb.simplelogin.util.misc.warn("Persona authentication in Firebase Simple Login has been deprecated. Persona will be removed as an authentication provider at the end of May, 2014 with version 2.0.0.")
+
   var self = this;
 
   if (!navigator['id']) {
