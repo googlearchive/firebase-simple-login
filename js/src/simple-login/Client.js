@@ -24,7 +24,7 @@ goog.require('goog.string');
  * @const
  * @type {string}
  */
-var CLIENT_VERSION = '1.4.0';
+var CLIENT_VERSION = '1.4.1';
 
 /**
  * @constructor
