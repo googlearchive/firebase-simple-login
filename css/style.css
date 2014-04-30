@@ -155,10 +155,6 @@ p.larger {
   background-position: -83px -2px;
 }
 
-.example.persona .icon {
-  background-position: -125px -2px;
-}
-
 .example.twitter .icon {
   background-position: -41px -2px;
 }
@@ -214,7 +210,7 @@ p.larger {
 
 #twitterFooter {
    position: relative;
-   top: 5px;	
+   top: 5px;
 }
 
 #googleFooter {
