@@ -32,6 +32,10 @@ To get started, visit the Simple Login tab in Firebase Forge, at
 `https://<YOUR-FIREBASE>.firebaseio.com`. There you may enable / disable auth.
 providers, setup OAuth credentials, and configure valid OAuth request origins.
 
+__Note:__ Persona authentication in Firebase Simple Login has been deprecated.
+Persona will be removed as an authentication provider at the end of May, 2014
+with version 2.0.0.
+
 ## Usage
 
 Start monitoring user authentication state in your application by instantiating
