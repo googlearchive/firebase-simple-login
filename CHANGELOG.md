@@ -1,3 +1,9 @@
+v2.0.0
+-------------
+Release Date: 2014-06-02
+
+  * Persona provider officially removed
+
 v1.4.1
 -------------
 Release Date: 2014-04-29
