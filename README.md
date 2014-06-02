@@ -25,16 +25,15 @@ for complete documentation and API reference.
 ## Configuration
 
 Firebase Simple Login supports email & password, Facebook, Google,
-GitHub, Persona, Twitter, and anonymous authentication methods. Before adding to
+GitHub, Twitter, and anonymous authentication methods. Before adding to
 your application, you'll need to first enable these auth. providers in your app.
 
 To get started, visit the Simple Login tab in Firebase Forge, at
 `https://<YOUR-FIREBASE>.firebaseio.com`. There you may enable / disable auth.
 providers, setup OAuth credentials, and configure valid OAuth request origins.
 
-__Note:__ Persona authentication in Firebase Simple Login has been deprecated.
-Persona will be removed as an authentication provider at the end of May, 2014
-with version 2.0.0.
+__Note:__ Persona was removed as an authentication provider in Firebase Simple
+Login as of version 1.5.0.
 
 ## Usage
 

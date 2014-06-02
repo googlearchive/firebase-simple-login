@@ -2580,23 +2580,6 @@ goog.string.splitLimit = function(str, separator, limit) {
   }
   return returnVal;
 };
-goog.provide("fb.simplelogin.providers.Persona");
-goog.provide("fb.simplelogin.providers.Persona_");
-goog.require("fb.simplelogin.util.validation");
-fb.simplelogin.providers.Persona_ = function() {
-};
-fb.simplelogin.providers.Persona_.prototype.login = function(options, onComplete) {
-  navigator["id"]["watch"]({"onlogin":function(assertion) {
-    onComplete(assertion);
-  }, "onlogout":function() {
-  }});
-  options = options || {};
-  options["oncancel"] = function() {
-    onComplete(null);
-  };
-  navigator["id"]["request"](options);
-};
-fb.simplelogin.providers.Persona = new fb.simplelogin.providers.Persona_;
 goog.provide("fb.simplelogin.util.sjcl");
 var sjcl = {cipher:{}, hash:{}, keyexchange:{}, mode:{}, misc:{}, codec:{}, exception:{corrupt:function(a) {
   this.toString = function() {
@@ -3581,7 +3564,6 @@ goog.require("fb.simplelogin.util.validation");
 goog.require("fb.simplelogin.Vars");
 goog.require("fb.simplelogin.Errors");
 goog.require("fb.simplelogin.SessionStore");
-goog.require("fb.simplelogin.providers.Persona");
 goog.require("fb.simplelogin.providers.Password");
 goog.require("fb.simplelogin.transports.JSONP");
 goog.require("fb.simplelogin.transports.CordovaInAppBrowser");
@@ -3723,8 +3705,6 @@ fb.simplelogin.client.prototype.login = function() {
       return this.loginWithGoogleToken(options);
     case "password":
       return this.loginWithPassword(options);
-    case "persona":
-      return this.loginWithPersona(options);
     case "twitter-token":
       return this.loginWithTwitterToken(options);
     case "facebook":
@@ -3810,33 +3790,6 @@ fb.simplelogin.client.prototype.loginWithGoogleToken = function(options) {
 };
 fb.simplelogin.client.prototype.loginWithTwitterToken = function(options) {
   return this.loginViaToken("twitter", options);
-};
-fb.simplelogin.client.prototype.loginWithPersona = function(options) {
-  fb.simplelogin.util.misc.warn("Persona authentication in Firebase Simple Login has been deprecated. Persona will be removed as an authentication provider at the end of May, 2014 with version 2.0.0.");
-  var self = this;
-  if (!navigator["id"]) {
-    throw new Error("FirebaseSimpleLogin.login(persona): Unable to find Persona include.js");
-  }
-  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
-    fb.simplelogin.providers.Persona.login(options, function(assertion) {
-      if (assertion === null) {
-        callback(fb.simplelogin.Errors.get("UNKNOWN_ERROR"));
-      } else {
-        fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + "/auth/persona/token", {"firebase":self.mNamespace, "assertion":assertion, "v":CLIENT_VERSION}, function(err, res) {
-          if (err || (!res["token"] || !res["user"])) {
-            var errorObj = fb.simplelogin.Errors.format(err);
-            self.mLoginStateChange(errorObj, null);
-            reject(errorObj);
-          } else {
-            var token = res["token"];
-            var user = res["user"];
-            self.attemptAuth(token, user, true, resolve, reject);
-          }
-        });
-      }
-    });
-  });
-  return promise;
 };
 fb.simplelogin.client.prototype.logout = function() {
   fb.simplelogin.SessionStore.clear();
