@@ -33,7 +33,7 @@ To get started, visit the Simple Login tab in Firebase Forge, at
 providers, setup OAuth credentials, and configure valid OAuth request origins.
 
 __Note:__ Persona was removed as an authentication provider in Firebase Simple
-Login as of version 2.0.0.
+Login as of version 1.5.0.
 
 ## Usage
 
