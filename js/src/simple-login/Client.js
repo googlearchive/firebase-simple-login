@@ -8,7 +8,6 @@ goog.require("fb.simplelogin.Vars");
 goog.require("fb.simplelogin.Errors");
 goog.require("fb.simplelogin.SessionStore");
 
-goog.require("fb.simplelogin.providers.Persona");
 goog.require("fb.simplelogin.providers.Password");
 
 goog.require("fb.simplelogin.transports.JSONP");
@@ -220,7 +219,6 @@ fb.simplelogin.client.prototype.login = function() {
     case 'github'         : return this.loginWithGithub(options);
     case 'google-token'   : return this.loginWithGoogleToken(options);
     case 'password'       : return this.loginWithPassword(options);
-    case 'persona'        : return this.loginWithPersona(options);
     case 'twitter-token'  : return this.loginWithTwitterToken(options);
     case 'facebook'       :
       if (options['access_token']) {
@@ -345,44 +343,6 @@ fb.simplelogin.client.prototype.loginWithGoogleToken = function(options) {
  */
 fb.simplelogin.client.prototype.loginWithTwitterToken = function(options) {
   return this.loginViaToken('twitter', options);
-};
-
-/**
- * @private
- */
-fb.simplelogin.client.prototype.loginWithPersona = function(options) {
-  fb.simplelogin.util.misc.warn("Persona authentication in Firebase Simple Login has been deprecated. Persona will be removed as an authentication provider at the end of May, 2014 with version 2.0.0.")
-
-  var self = this;
-
-  if (!navigator['id']) {
-    throw new Error('FirebaseSimpleLogin.login(persona): Unable to find Persona include.js');
-  }
-
-  var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
-    fb.simplelogin.providers.Persona.login(options, function(assertion) {
-      if (assertion === null) {
-        callback(fb.simplelogin.Errors.get('UNKNOWN_ERROR'));
-      } else {
-        fb.simplelogin.transports.JSONP.open(fb.simplelogin.Vars.getApiHost() + '/auth/persona/token', {
-          'firebase'  : self.mNamespace,
-          'assertion' : assertion,
-          'v'         : CLIENT_VERSION
-        }, function(err, res) {
-          if (err || !res['token'] || !res['user']) {
-            var errorObj = fb.simplelogin.Errors.format(err);
-            self.mLoginStateChange(errorObj, null);
-            reject(errorObj);
-          } else {
-            var token = res['token'];
-            var user = res['user'];
-            self.attemptAuth(token, user, /* saveSession */ true, resolve, reject);
-          }
-        });
-      }
-    });
-  });
-  return promise;
 };
 
 /**

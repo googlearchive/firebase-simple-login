@@ -1,8 +1,14 @@
+v1.5.0
+-------------
+Release Date: 2014-06-02
+
+  * Persona provider officially removed
+
 v1.4.1
 -------------
 Release Date: 2014-04-29
 
-  * Add Persona provider deprecation warning (will be removed in v2.0.0)
+  * Add Persona provider deprecation warning (will be removed on 2014-06-02)
 
 v1.4.0
 -------------
