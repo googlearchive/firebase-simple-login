@@ -215,6 +215,8 @@ fb.simplelogin.transports.WinChan_.prototype.open = function(url, opts, cb) {
 fb.simplelogin.transports.WinChan_.prototype.onOpen = function(cb) {
   var o = "*";
   var msgTarget = isInternetExplorer ? findRelay() : window.opener;
+  var autoClose = true;
+
   if (!msgTarget) throw "can't find relay frame";
   function doPost(msg) {
     msg = fb.simplelogin.util.json.stringify(msg);
@@ -239,7 +241,8 @@ fb.simplelogin.transports.WinChan_.prototype.onOpen = function(cb) {
       // in ie8 sometimes addListener for 'message' can synchronously
       // cause your callback to be invoked.  awesome.
       setTimeout(function() {
-        cb(o, d.d, function(r) {
+        cb(o, d.d, function(r, forceKeepWindowOpen) {
+          autoClose = !forceKeepWindowOpen;
           cb = undefined;
           doPost({a: 'response', d: r});
         });
@@ -248,7 +251,7 @@ fb.simplelogin.transports.WinChan_.prototype.onOpen = function(cb) {
   }
 
   function onDie(e) {
-    if (e.data === CLOSE_CMD) {
+    if (autoClose && e.data === CLOSE_CMD) {
       try { window.close(); } catch (o_O) {}
     }
   }
