@@ -1,6 +1,6 @@
 v1.5.1
 -------------
-Release Date: 2014-06-10
+Release Date: 2014-06-11
 
   * Remove dependency on cookies / SJCL to better support the PhoneGap / Cordova environments.
 
