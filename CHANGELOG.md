@@ -1,3 +1,9 @@
+v1.5.1
+-------------
+Release Date: 2014-06-10
+
+  * Remove dependency on cookies to better support the PhoneGap / Cordova environments.
+
 v1.5.0
 -------------
 Release Date: 2014-06-02

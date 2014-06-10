@@ -2,17 +2,10 @@ goog.provide('fb.simplelogin.SessionStore');
 goog.provide('fb.simplelogin.SessionStore_');
 goog.require('fb.simplelogin.util.env');
 goog.require('fb.simplelogin.util.sjcl');
-goog.require('goog.net.cookies');
+
 
 /**
- * Session cookie storage path.
- * @const
- * @type {string}
- */
-var cookieStoragePath = '/';
-
-/**
- * Session cookie storage key.
+ * Session key storage key.
  * @const
  * @type {string}
  */
@@ -33,7 +26,7 @@ var hasLocalStorage = fb.simplelogin.util.env.hasLocalStorage();
 fb.simplelogin.SessionStore_ = function() {};
 
 /**
- * Store a session using a combination of cookies and LocalStorage.
+ * Store a session using LocalStorage.
  * @param {Object} session The user session data to persist.
  * @param {number=} opt_sessionLengthDays The number of days to persist the session for {optional}.
  */
@@ -48,21 +41,20 @@ fb.simplelogin.SessionStore_.prototype.set = function(session, opt_sessionLength
     // Write LocalStorage portion of session storage, including encrypted user payload.
     localStorage.setItem(sessionPersistentStorageKey, fb.simplelogin.util.json.stringify(payload));
 
-    // Write cookie portion of session storage, including key for payload in LocalStorage.
-    var maxAgeSeconds = (opt_sessionLengthDays) ? opt_sessionLengthDays * 86400 : -1;
-    goog.net.cookies.set(encryptionStorageKey, sessionEncryptionKey, maxAgeSeconds, cookieStoragePath, /* domain */ null, /* secure */ false);
+    // Write key for payload in LocalStorage.
+    localStorage.setItem(encryptionStorageKey, sessionEncryptionKey);
   } catch (e) {}
 };
 
 /**
- * Retrieve a session using a combination of cookies and LocalStorage.
+ * Retrieve a session using LocalStorage.
  * @return {Object} The user session data.
  */
 fb.simplelogin.SessionStore_.prototype.get = function() {
   if (!hasLocalStorage) return;
 
   try {
-    var sessionEncryptionKey = goog.net.cookies.get(encryptionStorageKey);
+    var sessionEncryptionKey = localStorage.getItem(encryptionStorageKey);
     var payload = localStorage.getItem(sessionPersistentStorageKey);
     if (sessionEncryptionKey && payload) {
       var session = fb.simplelogin.util.json.parse(sjcl.decrypt(sessionEncryptionKey, fb.simplelogin.util.json.parse(payload)));
@@ -80,7 +72,7 @@ fb.simplelogin.SessionStore_.prototype.clear = function() {
   if (!hasLocalStorage) return;
 
   localStorage.removeItem(sessionPersistentStorageKey);
-  goog.net.cookies.remove(encryptionStorageKey, cookieStoragePath, /* domain */ null)
+  localStorage.removeItem(encryptionStorageKey);
 };
 
 /**

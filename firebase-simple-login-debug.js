@@ -3388,133 +3388,10 @@ sjcl.misc.cachedPbkdf2 = function(a, b) {
   return{key:d[c].slice(0), salt:c.slice(0)};
 };
 fb.simplelogin.util.sjcl = sjcl;
-goog.provide("goog.net.Cookies");
-goog.provide("goog.net.cookies");
-goog.net.Cookies = function(context) {
-  this.document_ = context;
-};
-goog.net.Cookies.MAX_COOKIE_LENGTH = 3950;
-goog.net.Cookies.SPLIT_RE_ = /\s*;\s*/;
-goog.net.Cookies.prototype.isEnabled = function() {
-  return navigator.cookieEnabled;
-};
-goog.net.Cookies.prototype.isValidName = function(name) {
-  return!/[;=\s]/.test(name);
-};
-goog.net.Cookies.prototype.isValidValue = function(value) {
-  return!/[;\r\n]/.test(value);
-};
-goog.net.Cookies.prototype.set = function(name, value, opt_maxAge, opt_path, opt_domain, opt_secure) {
-  if (!this.isValidName(name)) {
-    throw Error('Invalid cookie name "' + name + '"');
-  }
-  if (!this.isValidValue(value)) {
-    throw Error('Invalid cookie value "' + value + '"');
-  }
-  if (!goog.isDef(opt_maxAge)) {
-    opt_maxAge = -1;
-  }
-  var domainStr = opt_domain ? ";domain=" + opt_domain : "";
-  var pathStr = opt_path ? ";path=" + opt_path : "";
-  var secureStr = opt_secure ? ";secure" : "";
-  var expiresStr;
-  if (opt_maxAge < 0) {
-    expiresStr = "";
-  } else {
-    if (opt_maxAge == 0) {
-      var pastDate = new Date(1970, 1, 1);
-      expiresStr = ";expires=" + pastDate.toUTCString();
-    } else {
-      var futureDate = new Date(goog.now() + opt_maxAge * 1E3);
-      expiresStr = ";expires=" + futureDate.toUTCString();
-    }
-  }
-  this.setCookie_(name + "=" + value + domainStr + pathStr + expiresStr + secureStr);
-};
-goog.net.Cookies.prototype.get = function(name, opt_default) {
-  var nameEq = name + "=";
-  var parts = this.getParts_();
-  for (var i = 0, part;part = parts[i];i++) {
-    if (part.lastIndexOf(nameEq, 0) == 0) {
-      return part.substr(nameEq.length);
-    }
-    if (part == name) {
-      return "";
-    }
-  }
-  return opt_default;
-};
-goog.net.Cookies.prototype.remove = function(name, opt_path, opt_domain) {
-  var rv = this.containsKey(name);
-  this.set(name, "", 0, opt_path, opt_domain);
-  return rv;
-};
-goog.net.Cookies.prototype.getKeys = function() {
-  return this.getKeyValues_().keys;
-};
-goog.net.Cookies.prototype.getValues = function() {
-  return this.getKeyValues_().values;
-};
-goog.net.Cookies.prototype.isEmpty = function() {
-  return!this.getCookie_();
-};
-goog.net.Cookies.prototype.getCount = function() {
-  var cookie = this.getCookie_();
-  if (!cookie) {
-    return 0;
-  }
-  return this.getParts_().length;
-};
-goog.net.Cookies.prototype.containsKey = function(key) {
-  return goog.isDef(this.get(key));
-};
-goog.net.Cookies.prototype.containsValue = function(value) {
-  var values = this.getKeyValues_().values;
-  for (var i = 0;i < values.length;i++) {
-    if (values[i] == value) {
-      return true;
-    }
-  }
-  return false;
-};
-goog.net.Cookies.prototype.clear = function() {
-  var keys = this.getKeyValues_().keys;
-  for (var i = keys.length - 1;i >= 0;i--) {
-    this.remove(keys[i]);
-  }
-};
-goog.net.Cookies.prototype.setCookie_ = function(s) {
-  this.document_.cookie = s;
-};
-goog.net.Cookies.prototype.getCookie_ = function() {
-  return this.document_.cookie;
-};
-goog.net.Cookies.prototype.getParts_ = function() {
-  return(this.getCookie_() || "").split(goog.net.Cookies.SPLIT_RE_);
-};
-goog.net.Cookies.prototype.getKeyValues_ = function() {
-  var parts = this.getParts_();
-  var keys = [], values = [], index, part;
-  for (var i = 0;part = parts[i];i++) {
-    index = part.indexOf("=");
-    if (index == -1) {
-      keys.push("");
-      values.push(part);
-    } else {
-      keys.push(part.substring(0, index));
-      values.push(part.substring(index + 1));
-    }
-  }
-  return{keys:keys, values:values};
-};
-goog.net.cookies = new goog.net.Cookies(document);
-goog.net.cookies.MAX_COOKIE_LENGTH = goog.net.Cookies.MAX_COOKIE_LENGTH;
 goog.provide("fb.simplelogin.SessionStore");
 goog.provide("fb.simplelogin.SessionStore_");
 goog.require("fb.simplelogin.util.env");
 goog.require("fb.simplelogin.util.sjcl");
-goog.require("goog.net.cookies");
-var cookieStoragePath = "/";
 var encryptionStorageKey = "firebaseSessionKey";
 var sessionPersistentStorageKey = "firebaseSession";
 var hasLocalStorage = fb.simplelogin.util.env.hasLocalStorage();
@@ -3528,8 +3405,7 @@ fb.simplelogin.SessionStore_.prototype.set = function(session, opt_sessionLength
     var sessionEncryptionKey = session["sessionKey"];
     var payload = sjcl.encrypt(sessionEncryptionKey, fb.simplelogin.util.json.stringify(session));
     localStorage.setItem(sessionPersistentStorageKey, fb.simplelogin.util.json.stringify(payload));
-    var maxAgeSeconds = opt_sessionLengthDays ? opt_sessionLengthDays * 86400 : -1;
-    goog.net.cookies.set(encryptionStorageKey, sessionEncryptionKey, maxAgeSeconds, cookieStoragePath, null, false);
+    localStorage.setItem(encryptionStorageKey, sessionEncryptionKey);
   } catch (e) {
   }
 };
@@ -3538,7 +3414,7 @@ fb.simplelogin.SessionStore_.prototype.get = function() {
     return;
   }
   try {
-    var sessionEncryptionKey = goog.net.cookies.get(encryptionStorageKey);
+    var sessionEncryptionKey = localStorage.getItem(encryptionStorageKey);
     var payload = localStorage.getItem(sessionPersistentStorageKey);
     if (sessionEncryptionKey && payload) {
       var session = fb.simplelogin.util.json.parse(sjcl.decrypt(sessionEncryptionKey, fb.simplelogin.util.json.parse(payload)));
@@ -3553,7 +3429,7 @@ fb.simplelogin.SessionStore_.prototype.clear = function() {
     return;
   }
   localStorage.removeItem(sessionPersistentStorageKey);
-  goog.net.cookies.remove(encryptionStorageKey, cookieStoragePath, null);
+  localStorage.removeItem(encryptionStorageKey);
 };
 fb.simplelogin.SessionStore = new fb.simplelogin.SessionStore_;
 goog.provide("fb.simplelogin.client");
