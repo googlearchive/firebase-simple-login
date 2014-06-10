@@ -1,15 +1,7 @@
 goog.provide('fb.simplelogin.SessionStore');
 goog.provide('fb.simplelogin.SessionStore_');
 goog.require('fb.simplelogin.util.env');
-goog.require('fb.simplelogin.util.sjcl');
 
-
-/**
- * Session key storage key.
- * @const
- * @type {string}
- */
-var encryptionStorageKey = 'firebaseSessionKey';
 
 /**
  * Key for encrypted user payload in persistent storage.
@@ -35,14 +27,10 @@ fb.simplelogin.SessionStore_.prototype.set = function(session, opt_sessionLength
 
   // TODO: Use goog.storage.EncryptedStorage with goog.storage.ExpiringStorage for this task.
   try {
-    var sessionEncryptionKey = session['sessionKey'];
-    var payload = sjcl.encrypt(sessionEncryptionKey, fb.simplelogin.util.json.stringify(session));
+    var payload = fb.simplelogin.util.json.stringify(session);
 
     // Write LocalStorage portion of session storage, including encrypted user payload.
     localStorage.setItem(sessionPersistentStorageKey, fb.simplelogin.util.json.stringify(payload));
-
-    // Write key for payload in LocalStorage.
-    localStorage.setItem(encryptionStorageKey, sessionEncryptionKey);
   } catch (e) {}
 };
 
@@ -54,10 +42,9 @@ fb.simplelogin.SessionStore_.prototype.get = function() {
   if (!hasLocalStorage) return;
 
   try {
-    var sessionEncryptionKey = localStorage.getItem(encryptionStorageKey);
     var payload = localStorage.getItem(sessionPersistentStorageKey);
-    if (sessionEncryptionKey && payload) {
-      var session = fb.simplelogin.util.json.parse(sjcl.decrypt(sessionEncryptionKey, fb.simplelogin.util.json.parse(payload)));
+    if (payload) {
+      var session = fb.simplelogin.util.json.parse(fb.simplelogin.util.json.parse(payload));
       return session;
     }
   } catch (e) {}
@@ -72,7 +59,6 @@ fb.simplelogin.SessionStore_.prototype.clear = function() {
   if (!hasLocalStorage) return;
 
   localStorage.removeItem(sessionPersistentStorageKey);
-  localStorage.removeItem(encryptionStorageKey);
 };
 
 /**
