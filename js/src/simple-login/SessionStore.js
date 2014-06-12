@@ -44,7 +44,7 @@ fb.simplelogin.SessionStore_.prototype.get = function() {
   try {
     var payload = localStorage.getItem(sessionPersistentStorageKey);
     if (payload) {
-      var session = fb.simplelogin.util.json.parse(fb.simplelogin.util.json.parse(payload));
+      var session = fb.simplelogin.util.json.parse(payload);
       return session;
     }
   } catch (e) {}
