@@ -10,7 +10,7 @@ goog.require('fb.simplelogin.util.misc');
  * @const
  * @type {number}
  */
-var popupTimeout = 40000;
+var popupTimeout = 120000;
 
 /**
  * @constructor
