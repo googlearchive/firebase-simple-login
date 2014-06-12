@@ -2604,7 +2604,7 @@ fb.simplelogin.SessionStore_.prototype.get = function() {
   try {
     var payload = localStorage.getItem(sessionPersistentStorageKey);
     if (payload) {
-      var session = fb.simplelogin.util.json.parse(fb.simplelogin.util.json.parse(payload));
+      var session = fb.simplelogin.util.json.parse(payload);
       return session;
     }
   } catch (e) {
@@ -2633,7 +2633,7 @@ goog.require("fb.simplelogin.transports.TriggerIoTab");
 goog.require("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
 goog.require("goog.string");
-var CLIENT_VERSION = "1.5.1";
+var CLIENT_VERSION = "1.6.0";
 fb.simplelogin.client = function(ref, callback, context, apiHost) {
   var self = this;
   this.mRef = ref;
