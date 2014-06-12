@@ -734,7 +734,7 @@ goog.require("fb.simplelogin.transports.Popup");
 goog.require("fb.simplelogin.Vars");
 goog.require("fb.simplelogin.util.json");
 goog.require("fb.simplelogin.util.misc");
-var popupTimeout = 4E4;
+var popupTimeout = 12E4;
 fb.simplelogin.transports.CordovaInAppBrowser_ = function() {
 };
 fb.simplelogin.transports.CordovaInAppBrowser_.prototype.open = function(url, options, onComplete) {
