@@ -24,13 +24,9 @@ fb.simplelogin.SessionStore_ = function() {};
  */
 fb.simplelogin.SessionStore_.prototype.set = function(session, opt_sessionLengthDays) {
   if (!hasLocalStorage) return;
-
-  // TODO: Use goog.storage.EncryptedStorage with goog.storage.ExpiringStorage for this task.
   try {
-    var payload = fb.simplelogin.util.json.stringify(session);
-
-    // Write LocalStorage portion of session storage, including encrypted user payload.
-    localStorage.setItem(sessionPersistentStorageKey, fb.simplelogin.util.json.stringify(payload));
+    // Write session storage to LocalStorage.
+    localStorage.setItem(sessionPersistentStorageKey, fb.simplelogin.util.json.stringify(session));
   } catch (e) {}
 };
 
@@ -40,7 +36,6 @@ fb.simplelogin.SessionStore_.prototype.set = function(session, opt_sessionLength
  */
 fb.simplelogin.SessionStore_.prototype.get = function() {
   if (!hasLocalStorage) return;
-
   try {
     var payload = localStorage.getItem(sessionPersistentStorageKey);
     if (payload) {
@@ -48,7 +43,6 @@ fb.simplelogin.SessionStore_.prototype.get = function() {
       return session;
     }
   } catch (e) {}
-
   return null;
 };
 

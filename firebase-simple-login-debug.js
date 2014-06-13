@@ -2592,8 +2592,7 @@ fb.simplelogin.SessionStore_.prototype.set = function(session, opt_sessionLength
     return;
   }
   try {
-    var payload = fb.simplelogin.util.json.stringify(session);
-    localStorage.setItem(sessionPersistentStorageKey, fb.simplelogin.util.json.stringify(payload));
+    localStorage.setItem(sessionPersistentStorageKey, fb.simplelogin.util.json.stringify(session));
   } catch (e) {
   }
 };
