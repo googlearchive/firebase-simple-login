@@ -1,8 +1,17 @@
-v1.5.1
+v1.6.1
 -------------
-Release Date: 2014-06-06
+Release Date: 2014-06-20
 
   * Add (internal) option to keep pop-up window alive after communicating reply to opener.
+
+v1.6.0
+-------------
+Release Date: 2014-06-12
+
+  * NOTE: This update modifies the Firebase Simple Login persistence, so updating to this version will have the effect
+          of blowing away your users' existing, persisted sessions.
+  * Remove dependency on cookies / SJCL to better support the PhoneGap / Cordova environments.
+  * Increase the PhoneGap / Cordova InAppBrowser timeout from 40 to 120 seconds (thanks @VishalRJoshi).
 
 v1.5.0
 -------------
