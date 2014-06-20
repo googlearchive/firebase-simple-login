@@ -1,3 +1,9 @@
+v1.6.1
+-------------
+Release Date: 2014-06-20
+
+  * Add (internal) option to keep pop-up window alive after communicating reply to opener.
+
 v1.6.0
 -------------
 Release Date: 2014-06-12

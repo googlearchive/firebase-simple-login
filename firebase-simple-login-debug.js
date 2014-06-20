@@ -1004,6 +1004,7 @@ fb.simplelogin.transports.WinChan_.prototype.open = function(url, opts, cb) {
 fb.simplelogin.transports.WinChan_.prototype.onOpen = function(cb) {
   var o = "*";
   var msgTarget = isInternetExplorer ? findRelay() : window.opener;
+  var autoClose = true;
   if (!msgTarget) {
     throw "can't find relay frame";
   }
@@ -1028,7 +1029,8 @@ fb.simplelogin.transports.WinChan_.prototype.onOpen = function(cb) {
     o = e.origin;
     if (cb) {
       setTimeout(function() {
-        cb(o, d.d, function(r) {
+        cb(o, d.d, function(r, forceKeepWindowOpen) {
+          autoClose = !forceKeepWindowOpen;
           cb = undefined;
           doPost({a:"response", d:r});
         });
@@ -1036,7 +1038,7 @@ fb.simplelogin.transports.WinChan_.prototype.onOpen = function(cb) {
     }
   }
   function onDie(e) {
-    if (e.data === CLOSE_CMD) {
+    if (autoClose && e.data === CLOSE_CMD) {
       try {
         window.close();
       } catch (o_O) {
@@ -2632,7 +2634,7 @@ goog.require("fb.simplelogin.transports.TriggerIoTab");
 goog.require("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
 goog.require("goog.string");
-var CLIENT_VERSION = "1.6.0";
+var CLIENT_VERSION = "1.6.1";
 fb.simplelogin.client = function(ref, callback, context, apiHost) {
   var self = this;
   this.mRef = ref;
