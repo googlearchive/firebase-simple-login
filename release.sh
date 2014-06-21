@@ -96,10 +96,11 @@ echo
 cd -
 
 echo
-echo "Manual steps:"
+echo "Manual steps remaining:"
 echo "  1) Deploy firebase-clients to CDN via Jenkins"
 echo "  2) Update the release notes for version ${VERSION} on GitHub"
-echo "  3) Tweet @FirebaseRelease: 'v${VERSION} of @Firebase Simple Login web client is available https://cdn.firebase.com/js/simple-login/$VERSION/firebase-simple-login.js Changelog: https://cdn.firebase.com/js/simple-login/changelog.txt'"
+echo "  3) Update all Simple Login web client version numbers specified in firebase-website to ${VERSION}"
+echo "  4) Tweet @FirebaseRelease: 'v${VERSION} of @Firebase Simple Login web client is available https://cdn.firebase.com/js/simple-login/$VERSION/firebase-simple-login.js Changelog: https://cdn.firebase.com/js/simple-login/changelog.txt'"
 echo
 echo "Done! Woo!"
 echo
