@@ -1764,11 +1764,7 @@ fb.simplelogin.transports.XHR_.prototype.open = function(url, data, onComplete) 
         delete data["error"];
       } catch (e) {
       }
-      if (!data || error) {
-        return onComplete && onComplete(self.formatError_(error));
-      } else {
-        return onComplete && onComplete(error, data);
-      }
+      return onComplete && onComplete(error, data);
     }
   };
   xhr.onreadystatechange = callbackHandler;
@@ -1811,13 +1807,6 @@ fb.simplelogin.transports.XHR_.prototype.formatQueryString = function(data) {
     tokens.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
   }
   return tokens.join("&");
-};
-fb.simplelogin.transports.XHR_.prototype.formatError_ = function(error) {
-  if (error) {
-    return fb.simplelogin.Errors.format(error);
-  } else {
-    return fb.simplelogin.Errors.get("UNKNOWN_ERROR");
-  }
 };
 fb.simplelogin.transports.XHR = new fb.simplelogin.transports.XHR_;
 goog.provide("fb.simplelogin.util.validation");
