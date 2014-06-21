@@ -5,39 +5,55 @@ DESCRIPTION="Simple Login Web Client"
 STANDALONE_DEST="../firebase-clients/js/simple-login"
 STANDALONE_STUB="firebase-simple-login"
 
-# Ensure they updated the changelog
-read -p "Have you remembered to update the changelog for this release? (Y/n) " HAS_UPDATED_CHANGELOG
-if [[ $HAS_UPDATED_CHANGELOG != "" &&  $HAS_UPDATED_CHANGELOG != "Y" && $HAS_UPDATED_CHANGELOG != "y" ]]; then
-  exit 1
-fi
-echo
-
-# Check for destination
+# Ensure the firebase-clients repo is at the correct relative path
 if [[ ! -d $STANDALONE_DEST ]]; then
   echo "Eror: Destination directory not found; 'firebase-clients' needs to be a sibling of this repo."
   exit 1
 fi
 
 # Get the version we are releasing
-PARSED_VERSION=$(grep "CLIENT_VERSION" firebase-simple-login-debug.js | head -1 |awk -F '"' '{print $2}')
+PARSED_CLIENT_VERSION=$(grep "CLIENT_VERSION" firebase-simple-login-debug.js | head -1 | awk -F '"' '{print $2}')
 
 # Ensure this is the correct version number
-read -p "What version are we releasing? ($PARSED_VERSION) " VERSION
+read -p "What version are we releasing? ($PARSED_CLIENT_VERSION) " VERSION
 if [[ -z $VER ]]; then
-  VERSION=$PARSED_VERSION
+  VERSION=$PARSED_CLIENT_VERSION
 fi
 echo
 
-# Create a new tag if they have not already done so
-read -p "Have you already tagged the latest commit as v${VERSION}? (y/N) " HAS_TAGGED_REPO
-if [[ $HAS_TAGGED_REPO == "" ||  $HAS_TAGGED_REPO == "N" || $HAS_TAGGED_REPO == "n" ]]; then
+# Ensure the changelog has been updated for the newest version
+CHANGELOG_VERSION="$(head -1 CHANGELOG.md | awk -F 'v' '{print $2}')"
+if [[ $PARSED_CLIENT_VERSION != $CHANGELOG_VERSION ]]; then
+  echo "Error: Most recent version in changelog (${CHANGELOG_VERSION}) does not match version you are releasing (${VERSION})."
+  exit 1
+fi
+
+# Ensure the version number in the package.json is correct
+NPM_VERSION=$(grep "version" package.json | head -1 | awk -F '"' '{print $4}')
+if [[ $PARSED_CLIENT_VERSION != $NPM_VERSION ]]; then
+  echo "Error: npm version specified in package.json (${NPM_VERSION}) does not match version you are releasing (${VERSION})."
+  exit 1
+fi
+
+# Ensure the version number in the bower.json is correct
+BOWER_VERSION=$(grep "version" bower.json | head -1 | awk -F '"' '{print $4}')
+if [[ $PARSED_CLIENT_VERSION != $BOWER_VERSION ]]; then
+  echo "Error: Bower version specified in bower.json (${BOWER_VERSION}) does not match version you are releasing (${VERSION})."
+  exit 1
+fi
+
+# Create a new git tag if they have not already done so
+LAST_GIT_TAG="$(git tag --list | tail -1 | awk -F 'v' '{print $2}')"
+if [[ $PARSED_CLIENT_VERSION != $LAST_GIT_TAG ]]; then
   git tag v$VERSION
   git push --tags
 
-  echo
   echo "*** Last commit tagged as v${VERSION} ***"
+  echo
+else
+  echo "*** Git tag v${VERSION} already created ***"
+  echo
 fi
-echo
 
 # Check if we already have this as a standalone
 STANDALONE_TARGET_DIR="${STANDALONE_DEST}/${VERSION}/"
