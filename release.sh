@@ -16,7 +16,7 @@ PARSED_CLIENT_VERSION=$(grep "CLIENT_VERSION" firebase-simple-login-debug.js | h
 
 # Ensure this is the correct version number
 read -p "What version are we releasing? ($PARSED_CLIENT_VERSION) " VERSION
-if [[ -z $VER ]]; then
+if [[ -z $VERSION ]]; then
   VERSION=$PARSED_CLIENT_VERSION
 fi
 echo
