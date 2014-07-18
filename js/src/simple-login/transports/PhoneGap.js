@@ -48,10 +48,10 @@ fb.simplelogin.transports.CordovaInAppBrowser_.prototype.open = function(url, op
       windowRef.close();
 
       try {
-        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj['hash']));
+        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(urlObj['hash']);
         var temporaryResult = {};
         for (var key in urlHashEncoded) {
-          temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
+          temporaryResult[key] = fb.simplelogin.util.json.parse(decodeURIComponent(urlHashEncoded[key]));
         }
         result = temporaryResult;
       } catch (e) {}
@@ -61,7 +61,7 @@ fb.simplelogin.transports.CordovaInAppBrowser_.prototype.open = function(url, op
       } else if (result && result['error']) {
         callbackHandler(result['error']);
       } else {
-        callbackHandler({ code: 'UNKNOWN_ERROR', message: 'An unknown error occurred.' });
+        callbackHandler({ code: 'RESPONSE_PAYLOAD_ERROR', message: 'Unable to parse response payload for PhoneGap.' });
       }
     }
   });

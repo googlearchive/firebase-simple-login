@@ -49,10 +49,10 @@ fb.simplelogin.transports.WindowsMetroAuthBroker_.prototype.open = function(url,
       if (data && data['responseData']) {
         try {
           var urlObj = fb.simplelogin.util.misc.parseUrl(data["responseData"]);
-          var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj['hash']));
+          var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(urlObj['hash']);
           var temporaryResult = {};
           for (var key in urlHashEncoded) {
-            temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
+            temporaryResult[key] = fb.simplelogin.util.json.parse(decodeURIComponent(urlHashEncoded[key]));
           }
           result = temporaryResult;
         } catch (e) {}
@@ -63,10 +63,10 @@ fb.simplelogin.transports.WindowsMetroAuthBroker_.prototype.open = function(url,
       } else if (result && result['error']) {
         callbackHandler(result['error']);
       } else {
-        callbackHandler({ code: 'UNKNOWN_ERROR', message: 'An unknown error occurred.' });
+        callbackHandler({ code: 'RESPONSE_PAYLOAD_ERROR', message: 'Unable to parse response payload for Windows.' });
       }
     }, function(err) {
-      callbackHandler({ code: 'UNKNOWN_ERROR', message: 'An unknown error occurred.' });
+      callbackHandler({ code: 'UNKNOWN_ERROR', message: 'An unknown error occurred for Windows.' });
     });
 };
 
