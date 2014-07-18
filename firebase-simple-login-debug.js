@@ -2625,7 +2625,6 @@ goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
 goog.require("goog.string");
 var CLIENT_VERSION = "1.6.1";
 fb.simplelogin.client = function(ref, callback, context, apiHost) {
-  apiHost = "http://fblocal.com:12000";
   var self = this;
   this.mRef = ref;
   this.mNamespace = fb.simplelogin.util.misc.parseSubdomain(ref.toString());
@@ -2848,14 +2847,6 @@ fb.simplelogin.client.prototype.logout = function() {
   fb.simplelogin.SessionStore.clear();
   this.mRef["unauth"]();
   this.mLoginStateChange(null, null);
-  var cookies = document.cookie.split(";");
-  console.log(cookies);
-  for (var i = 0;i < cookies.length;i++) {
-    var cookie = cookies[i];
-    var eqPos = cookie.indexOf("=");
-    var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  }
 };
 fb.simplelogin.client.prototype.loginViaToken = function(provider, options, cb) {
   options = options || {};
