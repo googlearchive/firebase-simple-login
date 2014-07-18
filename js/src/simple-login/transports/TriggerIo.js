@@ -46,10 +46,10 @@ fb.simplelogin.transports.TriggerIoTab_.prototype.open = function(url, options, 
     if (data && data['url']) {
       try {
         var urlObj = fb.simplelogin.util.misc.parseUrl(data['url']);
-        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj['hash']));
+        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(urlObj['hash']);
         var temporaryResult = {};
         for (var key in urlHashEncoded) {
-          temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
+          temporaryResult[key] = fb.simplelogin.util.json.parse(decodeURIComponent(urlHashEncoded[key]));
         }
         result = temporaryResult;
       } catch (e) {}
@@ -60,10 +60,10 @@ fb.simplelogin.transports.TriggerIoTab_.prototype.open = function(url, options, 
     } else if (result && result['error']) {
       callbackHandler(result['error']);
     } else {
-      callbackHandler({ code: 'UNKNOWN_ERROR', message: 'An unknown error occurred.' });
+      callbackHandler({ code: 'RESPONSE_PAYLOAD_ERROR', message: 'Unable to parse response payload for Trigger.io.' });
     }
   }, function(err) {
-    callbackHandler({ code: 'UNKNOWN_ERROR', message: 'An unknown error occurred.' });
+    callbackHandler({ code: 'UNKNOWN_ERROR', message: 'An unknown error occurred for Trigger.io.' });
   });
 };
 

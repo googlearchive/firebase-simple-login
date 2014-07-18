@@ -13,13 +13,14 @@ var messagePrefix = 'FirebaseSimpleLogin: ';
  * @type {Object}
  */
 var errors = {
-  'UNKNOWN_ERROR'    : 'An unknown error occurred.',
-  'INVALID_EMAIL'    : 'Invalid email specified.',
-  'INVALID_PASSWORD' : 'Invalid password specified.',
-  'USER_DENIED'      : 'User cancelled the authentication request.',
-  'TRIGGER_IO_TABS'  : 'The "forge.tabs" module required when using Firebase Simple Login and \
-                        Trigger.io. Without this module included and enabled, login attempts to \
-                        OAuth authentication providers will not be able to complete.'
+  'UNKNOWN_ERROR'           : 'An unknown error occurred.',
+  'INVALID_EMAIL'           : 'Invalid email specified.',
+  'INVALID_PASSWORD'        : 'Invalid password specified.',
+  'USER_DENIED'             : 'User cancelled the authentication request.',
+  'RESPONSE_PAYLOAD_ERROR'  : 'Unable to parse response payload.',
+  'TRIGGER_IO_TABS'         : 'The "forge.tabs" module required when using Firebase Simple Login and \
+                              Trigger.io. Without this module included and enabled, login attempts to \
+                              OAuth authentication providers will not be able to complete.'
 };
 
 fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
