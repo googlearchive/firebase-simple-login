@@ -2623,7 +2623,7 @@ goog.require("fb.simplelogin.transports.TriggerIoTab");
 goog.require("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
 goog.require("goog.string");
-var CLIENT_VERSION = "1.6.1";
+var CLIENT_VERSION = "1.6.2";
 fb.simplelogin.client = function(ref, callback, context, apiHost) {
   var self = this;
   this.mRef = ref;
