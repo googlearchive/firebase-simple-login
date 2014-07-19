@@ -1,7 +1,5 @@
 #!/bin/bash
 
-DESCRIPTION="Simple Login Web Client"
-
 STANDALONE_DEST="../firebase-clients/js/simple-login"
 STANDALONE_STUB="firebase-simple-login"
 
@@ -102,24 +100,24 @@ fi
 ######################
 #  PUBLISH TO Bower  #
 ######################
-# Pull any changes to the geofire repo
+# Pull any changes to the firebase-simple-login repo
 git pull origin master
 if [[ $? -ne 0 ]]; then
-  echo "Error: Failed to do 'git pull' from geofire repo."
+  echo "Error: Failed to do 'git pull' from firebase-simple-login repo."
   exit 1
 fi
 
 # Create a git tag for the new version
 git tag v$VERSION
 if [[ $? -ne 0 ]]; then
-  echo "Error: Failed to do 'git tag' from geofire repo."
+  echo "Error: Failed to do 'git tag' from firebase-simple-login repo."
   exit 1
 fi
 
 # Push the new git tag
 git push --tags
 if [[ $? -ne 0 ]]; then
-  echo "Error: Failed to do 'git push --tags' from geofire repo."
+  echo "Error: Failed to do 'git push --tags' from firebase-simple-login repo."
   exit 1
 fi
 
@@ -172,7 +170,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # Commit to the firebase-clients repo
-git commit -am "[firebase-release] Updated GeoFire to $VERSION"
+git commit -am "[firebase-release] Updated Simple Login JavaScript client to $VERSION"
 if [[ $? -ne 0 ]]; then
   echo "Error: Failed to do 'git commit' from firebase-clients repo."
   exit 1
