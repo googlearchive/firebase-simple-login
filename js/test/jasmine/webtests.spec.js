@@ -1,6 +1,35 @@
+/* Keeps track of all the current asynchronous tasks being run */
+function Checklist(items, expect, done) {
+  var eventsToComplete = items;
+
+  /* Removes a task from the events list */
+  this.x = function(item) {
+    var index = eventsToComplete.indexOf(item);
+    if (index === -1) {
+      expect("Attempting to delete unexpected item '" + item + "' from Checklist").toBeFalsy();
+    }
+    else {
+      eventsToComplete.splice(index, 1);
+      if (this.isEmpty()) {
+        done();
+      }
+    }
+  };
+
+  /* Returns the length of the events list */
+  this.length = function() {
+    return eventsToComplete.length;
+  };
+
+  /* Returns true if the events list is empty */
+  this.isEmpty = function() {
+    return (this.length() === 0);
+  };
+};
+
 describe("Firebase Simple Login", function() {
 
-  it("Check that invalid parameters throw and correct ones don't", function() {
+  it("Check that invalid parameters throw and correct ones don't", function(done) {
 
     //constructor
     var ctx = new Firebase.Context();
@@ -48,48 +77,45 @@ describe("Firebase Simple Login", function() {
       expect(error.code).toBe('INVALID_PASSWORD');
     });
 
-    var done = false;
-    runs(function() {
-      //createUser
-      authClient.createUser("testuser@firebase.com", "password", function() {
-        //changePassword
-        authClient.changePassword("testuser@firebase.com", "password", "newPassword", function() {
-          //removeUser
-          authClient.removeUser("testuser@firebase.com", "newPassword", function() {});
-          done = true;
+    //createUser
+    authClient.createUser("testuser@firebase.com", "password", function() {
+      //changePassword
+      authClient.changePassword("testuser@firebase.com", "password", "newPassword", function() {
+        //removeUser
+        authClient.removeUser("testuser@firebase.com", "newPassword", function() {
+          done();
         });
       });
     });
-
-    waitsFor(function() {
-      return done;
-    }, "test all method parameters", TEST_TIMEOUT);
   });
 
-  it("Multiple client instances work concurrently", function() {
+  xit("Multiple client instances work concurrently", function(done) {
+    var cl = new Checklist(["clientA", "clientB"], expect, done);
+
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
-    var gotA, gotB;
 
     var clientA = new FirebaseSimpleLogin(ref, function(resError, resUser) {
-      if (resUser) gotA = true;
+      if (resUser !== null) {
+        expect(resError).toBeNull();
+        delete clientA;
+        cl.x("clientA");
+      }
     });
     clientA.setApiHost(TEST_AUTH_SERVER);
     clientA.logout();
 
-    var gotB = false;
     var clientB = new FirebaseSimpleLogin(ref, function(resError, resUser) {
-      if (resUser) gotB = true;
+      if (resUser !== null) {
+        expect(resError).toBeNull();
+        delete clientB;
+        cl.x("clientB");
+      }
     });
     clientB.setApiHost(TEST_AUTH_SERVER);
     clientB.logout();
 
-    gotA = false, gotB = false;
     clientA.login('anonymous');
-
-    waitsFor(function() {
-      return gotA && gotB;
-    }, "both client instances received on-login callback", TEST_TIMEOUT);
   });
 
 });
@@ -97,163 +123,201 @@ describe("Firebase Simple Login", function() {
 
 describe("Email / Password Tests", function() {
 
-  it("Create Account and Login", function() {
+  it("Attempt To Create Duplicate Account", function(done) {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
 
-    var done = false, error = null, user = null;
-    var authClient = new FirebaseSimpleLogin(ref, function(resError, resUser) {
-      error = resError; user = resUser; done = true;
+    var status = "first";
+    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+      if (status === "first") {
+        expect(authError).toBeNull();
+        expect(authUser).toBeNull();
+
+        status = "notFirst";
+
+        authClient.removeUser("person@firebase.com", "pw", function() {
+          authClient.createUser("person@firebase.com", "pw", function(error1, user1) {
+            expect(error1).toBeNull();
+            expect(user1).not.toBeNull();
+            authClient.createUser("person@firebase.com", "pw", function(error2, user2) {
+              expect(error2.code).toBe("EMAIL_TAKEN");
+              expect(user2).toBeNull();
+
+              status = "done";
+
+              done();
+            });
+          });
+        });
+      }
     });
     authClient.setApiHost(TEST_AUTH_SERVER);
     authClient.logout();
-
-    waitsFor(function() {
-      return done;
-    }, "initialize client and ensure user logged out", TEST_TIMEOUT);
-
-    runs(function() {
-      done = false;
-      authClient.createUser("person@firebase.com", "pw", function(error, userId) {
-        expect(error).toBe(null);
-        authClient.createUser("person@firebase.com", "pw", function(error, userId) {
-          expect(error.code).toBe("EMAIL_TAKEN");
-          done = true;
-        });
-      });
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "attempt creating duplicate account", TEST_TIMEOUT);
-
-    runs(function() {
-      done = false;
-      authClient.login("password", { email: "person@firebase.com", password: "blah" });
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "attempt login with incorrect password", TEST_TIMEOUT);
-
-    runs(function() {
-      expect(error.code).toBe("INVALID_PASSWORD");
-    });
-
-    runs(function() {
-      done = false;
-      authClient.login("password", { email: "PeRsOn@firebase.com", password: "pw" });
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "attempt login with correct password and different case", TEST_TIMEOUT);
-
-    runs(function() {
-      expect(error).toBe(null);
-    });
-
-    runs(function() {
-      done = false;
-      authClient.removeUser("person@firebase.com", "pw", function(error) {
-        expect(error).toBe(null);
-        done = true;
-      });
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "account removal", TEST_TIMEOUT);
   });
 
-  it("Create Account and Login - with Promises", function() {
+  it("Attempt Login With Incorrect Password", function(done) {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
 
-    var done = false, error = null, user = null;
-    var authClient = new FirebaseSimpleLogin(ref, function(resError, resUser) {
-      done = true;
+    var status = "first";
+    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+      if (status === "first") {
+        expect(authError).toBeNull();
+        expect(authUser).toBeNull();
+
+        status = "notFirst";
+
+        authClient.login("password", { email: "person@firebase.com", password: "blah" });
+      }
+      else if (status !== "done") {
+        expect(authError.code).toBe("INVALID_PASSWORD");
+        expect(authUser).toBeNull();
+
+        status = "done";
+
+        done();
+      }
     });
     authClient.setApiHost(TEST_AUTH_SERVER);
     authClient.logout();
-
-    waitsFor(function() {
-      return done;
-    }, "initialize client and ensure user logged out", TEST_TIMEOUT);
-
-    runs(function() {
-      done = false;
-      authClient.createUser("person@firebase.com", "pw", function(error, userId) {
-        expect(error).toBe(null);
-        authClient.createUser("person@firebase.com", "pw", function(error, userId) {
-          expect(error.code).toBe("EMAIL_TAKEN");
-          done = true;
-        });
-      });
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "attempt creating duplicate account", TEST_TIMEOUT);
-
-    runs(function() {
-      done = false;
-      authClient.login("password", { email: "person@firebase.com", password: "blah" })
-        .then(function(resUser) {
-          user = resUser;
-          error = null;
-          done = true;
-        }, function(resError) {
-          user = null;
-          error = resError;
-          done = true;
-        });
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "attempt login with incorrect password", TEST_TIMEOUT);
-
-    runs(function() {
-      expect(error.code).toBe("INVALID_PASSWORD");
-    });
-
-    runs(function() {
-      done = false;
-      authClient.login("password", { email: "PeRsOn@firebase.com", password: "pw" })
-        .then(function(resUser) {
-          user = resUser;
-          error = null;
-          done = true;
-        }, function(resError) {
-          user = null;
-          error = resError;
-          done = true;
-        });
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "attempt login with correct password and different case", TEST_TIMEOUT);
-
-    runs(function() {
-      expect(error).toBe(null);
-    });
-
-    runs(function() {
-      done = false;
-      authClient.removeUser("person@firebase.com", "pw", function(error) {
-        expect(error).toBe(null);
-        done = true;
-      });
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "account removal", TEST_TIMEOUT);
   });
 
-  it("Set Password", function() {
+  it("Attempt Login With Incorrect Password - With Promise", function(done) {
+    var ctx = new Firebase.Context();
+    var ref = new Firebase(TEST_NAMESPACE, ctx);
+
+    var status = "first";
+    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+      if (status === "first") {
+        expect(authError).toBeNull();
+        expect(authUser).toBeNull();
+
+        status = "notFirst";
+
+        authClient.login("password", { email: "person@firebase.com", password: "blah" })
+          .then(function(resUser) {
+            expect(true).toBeFalsy();
+          }, function(resError) {
+            expect(resError.code).toBe("INVALID_PASSWORD");
+
+            status = "done";
+
+            done();
+          });
+      }
+    });
+    authClient.setApiHost(TEST_AUTH_SERVER);
+    authClient.logout();
+  });
+
+  it("Attempt Login With Correct Password And Different Case", function(done) {
+    var ctx = new Firebase.Context();
+    var ref = new Firebase(TEST_NAMESPACE, ctx);
+
+    var status = "first";
+    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+      if (status === "first") {
+        expect(authError).toBeNull();
+        expect(authUser).toBeNull();
+
+        status = "notFirst";
+
+        authClient.login("password", { email: "PeRsOn@firebase.com", password: "pw" });
+      }
+      else if (status !== "done") {
+        expect(authError).toBeNull();
+        expect(authUser).not.toBeNull();
+
+        status = "done";
+
+        done();
+      }
+    });
+    authClient.setApiHost(TEST_AUTH_SERVER);
+    authClient.logout();
+  });
+
+  it("Attempt Login With Correct Password And Different Case - With Promise", function(done) {
+    var ctx = new Firebase.Context();
+    var ref = new Firebase(TEST_NAMESPACE, ctx);
+
+    var status = "first";
+    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+      if (status === "first") {
+        expect(authError).toBeNull();
+        expect(authUser).toBeNull();
+
+        status = "notFirst";
+
+        authClient.login("password", { email: "PeRsOn@firebase.com", password: "pw" })
+          .then(function(resUser) {
+            expect(resUser).not.toBeNull();
+
+            status = "done";
+
+            done();
+          }, function(resError) {
+            expect(true).toBeFalsy();
+          });
+      }
+    });
+    authClient.setApiHost(TEST_AUTH_SERVER);
+    authClient.logout();
+  });
+
+  it("Remove User", function(done) {
+    var ctx = new Firebase.Context();
+    var ref = new Firebase(TEST_NAMESPACE, ctx);
+
+    var status = "first";
+    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+      if (status === "first") {
+        expect(authError).toBeNull();
+        expect(authUser).toBeNull();
+
+        status = "notFirst";
+
+        authClient.removeUser("person@firebase.com", "pw", function(error) {
+          expect(error).toBe(null);
+
+          status = "done";
+
+          done();
+        });
+      }
+    });
+    authClient.setApiHost(TEST_AUTH_SERVER);
+    authClient.logout();
+  });
+
+  xit("Set Password", function(done) {
+    var ctx = new Firebase.Context();
+    var ref = new Firebase(TEST_NAMESPACE, ctx);
+
+    var uid = "person+" + (2<<29 * Math.random()) + "@firebase.com";
+
+    var status = "first";
+    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+      if (status === "first") {
+        expect(authError).toBeNull();
+        expect(authUser).toBeNull();
+
+        status = "notFirst";
+
+        authClient.removeUser("person@firebase.com", "pw", function(error) {
+          expect(error).toBe(null);
+
+          status = "done";
+
+          done();
+        });
+      }
+    });
+    authClient.setApiHost(TEST_AUTH_SERVER);
+    authClient.logout();
+  });
+
+  xit("Set Password", function() {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
     var uid = "person+" + (2<<29 * Math.random()) + "@firebase.com";
@@ -326,7 +390,7 @@ describe("Email / Password Tests", function() {
     }, "set password of nonexistent user", TEST_TIMEOUT);
   });
 
-  it("Remove Account", function() {
+  xit("Remove Account", function() {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
 
@@ -375,79 +439,67 @@ describe("Email / Password Tests", function() {
 
 describe("Anonymous Login Tests", function() {
 
-  it("Anonymous Auth. Test", function() {
+  it("Anonymous Auth. Test", function(done) {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
 
-    var done = false, error = null, user = null;
-    var authClient = new FirebaseSimpleLogin(ref, function(resError, resUser) {
-      error = resError; user = resUser; done = true;
+    var status = "first";
+    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+      if (status === "first") {
+        expect(authError).toBeNull();
+        expect(authUser).toBeNull();
+
+        status = "notFirst";
+
+        authClient.login("anonymous");
+      }
+      else if (status !== "done") {
+        expect(authError).toBeNull();
+        expect(authUser).not.toBeNull();
+        expect(authUser.provider).toBe("anonymous");
+        expect(typeof authUser.id).toBe("string");
+        expect(authUser.uid).toBe(authUser.provider + ":" + authUser.id);
+        expect(authUser.displayName).toBeDefined();
+
+        status = "done";
+
+        done();
+      }
     });
     authClient.setApiHost(TEST_AUTH_SERVER);
     authClient.logout();
-
-    waitsFor(function() {
-      return done;
-    }, "initialize client and ensure user logged out", TEST_TIMEOUT);
-
-    runs(function() {
-      done = false;
-      authClient.login("anonymous");
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "attempt authentication with Anonymous", TEST_TIMEOUT);
-
-    runs(function() {
-      expect(error).toBe(null);
-      expect(user.provider).toBe("anonymous");
-      expect(typeof user.id).toBe("string");
-      expect(user.uid).toBe(user.provider + ":" + user.id);
-      expect(user.displayName).toBeDefined();
-    });
   });
 
-  it("Anonymous Auth. Test - with Promises", function() {
+  it("Anonymous Auth. Test - With Promise", function(done) {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
 
-    var done = false, error = null, user = null;
-    var authClient = new FirebaseSimpleLogin(ref, function(resError, resUser) {
-      done = true;
+    var status = "first";
+    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+      if (status === "first") {
+        expect(authError).toBeNull();
+        expect(authUser).toBeNull();
+
+        status = "notFirst";
+
+        authClient.login("anonymous")
+          .then(function(resUser) {
+            expect(resUser).not.toBeNull();
+            expect(resUser.provider).toBe("anonymous");
+            expect(typeof resUser.id).toBe("string");
+            expect(resUser.uid).toBe(resUser.provider + ":" + resUser.id);
+            expect(resUser.displayName).toBeDefined();
+
+            status = "done";
+
+            done();
+          }, function(resError) {
+            expect("true").toBeFalsy();
+          });
+      }
     });
     authClient.setApiHost(TEST_AUTH_SERVER);
     authClient.logout();
-
-    waitsFor(function() {
-      return done;
-    }, "initialize client and ensure user logged out", TEST_TIMEOUT);
-
-    runs(function() {
-      done = false;
-      authClient.login("anonymous")
-        .then(function(resUser) {
-          user = resUser;
-          error = null;
-          done = true;
-        }, function(resError) {
-          user = null;
-          error = resError;
-          done = true;
-        });
-    });
-
-    waitsFor(function() {
-      return done;
-    }, "attempt authentication with Anonymous", TEST_TIMEOUT);
-
-    runs(function() {
-      expect(error).toBe(null);
-      expect(user.provider).toBe("anonymous");
-      expect(typeof user.id).toBe("string");
-      expect(user.uid).toBe(user.provider + ":" + user.id);
-      expect(user.displayName).toBeDefined();
-    });
   });
 
 });
