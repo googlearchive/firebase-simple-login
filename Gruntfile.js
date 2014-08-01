@@ -119,5 +119,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build-concurrent', ['jshint', 'concurrent:closure']);
   grunt.registerTask('test-casper', ['connect:casper-server', 'exec:casper']);
   grunt.registerTask('test', ['jasmine', 'test-casper']);
+  grunt.registerTask('test:jasmine', ['jasmine']);
+  grunt.registerTask('test:casper', ['test-casper']);
   grunt.registerTask('default', ['build-concurrent', 'test']);
 };
