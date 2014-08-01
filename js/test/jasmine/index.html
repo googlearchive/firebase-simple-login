@@ -88,10 +88,15 @@
           }
         }, /* context */ null, /* apiHost */ TEST_AUTH_SERVER);
       });
+
       function login(provider, options) {
-        auth.logout();
+        logout();
         $el.html('waiting...')
         auth.login(provider, options);
+      }
+
+      function logout() {
+        auth.logout();
       }
 
       /**
@@ -133,6 +138,7 @@
       <a href='#' onclick='login("github")'>GitHub</a>
       <a href='#' onclick='login("google")'>Google</a>
       <a href='#' onclick='login("twitter")'>Twitter</a>
+      <a href='#' onclick='logout()'>Logout</a>
     </div>
   </body>
 </html>

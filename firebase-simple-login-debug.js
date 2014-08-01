@@ -756,10 +756,10 @@ fb.simplelogin.transports.CordovaInAppBrowser_.prototype.open = function(url, op
       }
       windowRef.close();
       try {
-        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj["hash"]));
+        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(urlObj["hash"]);
         var temporaryResult = {};
         for (var key in urlHashEncoded) {
-          temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
+          temporaryResult[key] = fb.simplelogin.util.json.parse(decodeURIComponent(urlHashEncoded[key]));
         }
         result = temporaryResult;
       } catch (e) {
@@ -770,7 +770,7 @@ fb.simplelogin.transports.CordovaInAppBrowser_.prototype.open = function(url, op
         if (result && result["error"]) {
           callbackHandler(result["error"]);
         } else {
-          callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred."});
+          callbackHandler({code:"RESPONSE_PAYLOAD_ERROR", message:"Unable to parse response payload for PhoneGap."});
         }
       }
     }
@@ -787,7 +787,7 @@ fb.simplelogin.transports.CordovaInAppBrowser_.prototype.open = function(url, op
 fb.simplelogin.transports.CordovaInAppBrowser = new fb.simplelogin.transports.CordovaInAppBrowser_;
 goog.provide("fb.simplelogin.Errors");
 var messagePrefix = "FirebaseSimpleLogin: ";
-var errors = {"UNKNOWN_ERROR":"An unknown error occurred.", "INVALID_EMAIL":"Invalid email specified.", "INVALID_PASSWORD":"Invalid password specified.", "USER_DENIED":"User cancelled the authentication request.", "TRIGGER_IO_TABS":'The "forge.tabs" module required when using Firebase Simple Login and                         Trigger.io. Without this module included and enabled, login attempts to                         OAuth authentication providers will not be able to complete.'};
+var errors = {"UNKNOWN_ERROR":"An unknown error occurred.", "INVALID_EMAIL":"Invalid email specified.", "INVALID_PASSWORD":"Invalid password specified.", "USER_DENIED":"User cancelled the authentication request.", "RESPONSE_PAYLOAD_ERROR":"Unable to parse response payload.", "TRIGGER_IO_TABS":'The "forge.tabs" module required when using Firebase Simple Login and                               Trigger.io. Without this module included and enabled, login attempts to                               OAuth authentication providers will not be able to complete.'};
 fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
   var code = errorCode || "UNKNOWN_ERROR", message = errorMessage || errors[code], data = {}, args = arguments;
   if (args.length === 2) {
@@ -1106,10 +1106,10 @@ fb.simplelogin.transports.TriggerIoTab_.prototype.open = function(url, options, 
     if (data && data["url"]) {
       try {
         var urlObj = fb.simplelogin.util.misc.parseUrl(data["url"]);
-        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj["hash"]));
+        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(urlObj["hash"]);
         var temporaryResult = {};
         for (var key in urlHashEncoded) {
-          temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
+          temporaryResult[key] = fb.simplelogin.util.json.parse(decodeURIComponent(urlHashEncoded[key]));
         }
         result = temporaryResult;
       } catch (e) {
@@ -1121,11 +1121,11 @@ fb.simplelogin.transports.TriggerIoTab_.prototype.open = function(url, options, 
       if (result && result["error"]) {
         callbackHandler(result["error"]);
       } else {
-        callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred."});
+        callbackHandler({code:"RESPONSE_PAYLOAD_ERROR", message:"Unable to parse response payload for Trigger.io."});
       }
     }
   }, function(err) {
-    callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred."});
+    callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred for Trigger.io."});
   });
 };
 fb.simplelogin.transports.TriggerIoTab = new fb.simplelogin.transports.TriggerIoTab_;
@@ -2070,10 +2070,10 @@ fb.simplelogin.transports.WindowsMetroAuthBroker_.prototype.open = function(url,
     if (data && data["responseData"]) {
       try {
         var urlObj = fb.simplelogin.util.misc.parseUrl(data["responseData"]);
-        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(decodeURIComponent(urlObj["hash"]));
+        var urlHashEncoded = fb.simplelogin.util.misc.parseQuerystring(urlObj["hash"]);
         var temporaryResult = {};
         for (var key in urlHashEncoded) {
-          temporaryResult[key] = fb.simplelogin.util.json.parse(urlHashEncoded[key]);
+          temporaryResult[key] = fb.simplelogin.util.json.parse(decodeURIComponent(urlHashEncoded[key]));
         }
         result = temporaryResult;
       } catch (e) {
@@ -2085,11 +2085,11 @@ fb.simplelogin.transports.WindowsMetroAuthBroker_.prototype.open = function(url,
       if (result && result["error"]) {
         callbackHandler(result["error"]);
       } else {
-        callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred."});
+        callbackHandler({code:"RESPONSE_PAYLOAD_ERROR", message:"Unable to parse response payload for Windows."});
       }
     }
   }, function(err) {
-    callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred."});
+    callbackHandler({code:"UNKNOWN_ERROR", message:"An unknown error occurred for Windows."});
   });
 };
 fb.simplelogin.transports.WindowsMetroAuthBroker = new fb.simplelogin.transports.WindowsMetroAuthBroker_;
@@ -2623,7 +2623,7 @@ goog.require("fb.simplelogin.transports.TriggerIoTab");
 goog.require("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
 goog.require("goog.string");
-var CLIENT_VERSION = "1.6.1";
+var CLIENT_VERSION = "1.6.2";
 fb.simplelogin.client = function(ref, callback, context, apiHost) {
   var self = this;
   this.mRef = ref;

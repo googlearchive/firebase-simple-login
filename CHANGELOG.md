@@ -1,3 +1,9 @@
+v1.6.2
+-------------
+Release Date: 2014-07-18
+
+  * Fixed bug in PhoneGap, Trigger.io, and Windows Metro transports which caused response payloads with an "&" in them to be improperly handled, resulting in an "UNKNOWN ERROR".
+
 v1.6.1
 -------------
 Release Date: 2014-06-20
