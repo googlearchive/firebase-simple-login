@@ -51,3 +51,33 @@ TEST_TWITTER_OAUTH_TOKEN_SECRET = null;
  * Valid Google OAuth 2.0 Credentials
  */
 TEST_GOOGLE_ACCESS_TOKEN = null;
+
+
+/* Keeps track of all the current asynchronous tasks being run */
+function Checklist(items, expect, done) {
+  var eventsToComplete = items;
+
+  /* Removes a task from the events list */
+  this.x = function(item) {
+    var index = eventsToComplete.indexOf(item);
+    if (index === -1) {
+      expect("Attempting to delete unexpected item '" + item + "' from Checklist").toBeFalsy();
+    }
+    else {
+      eventsToComplete.splice(index, 1);
+      if (this.isEmpty()) {
+        done();
+      }
+    }
+  };
+
+  /* Returns the length of the events list */
+  this.length = function() {
+    return eventsToComplete.length;
+  };
+
+  /* Returns true if the events list is empty */
+  this.isEmpty = function() {
+    return (this.length() === 0);
+  };
+};
