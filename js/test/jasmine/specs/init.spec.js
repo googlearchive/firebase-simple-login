@@ -81,3 +81,30 @@ function Checklist(items, expect, done) {
     return (this.length() === 0);
   };
 };
+
+
+/*****************************/
+/*  CUSTOM JASMINE MATCHERS  */
+/*****************************/
+var customMatchers = {
+  /* Returns true if the actual object's keys are identical to the expectedKeys */
+  toOnlyHaveTheseKeys: function(util, customEqualityTesters) {
+    return {
+      compare: function(actual, expectedKeys) {
+        var result = {};
+
+        var actualKeys = Object.keys(actual);
+
+        result.pass = (JSON.stringify(actualKeys.sort()) === JSON.stringify(expectedKeys.sort()));
+
+        if (result.pass) {
+          result.message = "Expected actual and expected keys to differ (" + JSON.stringify(actualKeys) + ")";
+        } else {
+          result.message = "Expected actual keys (" + JSON.stringify(actualKeys) + ") and expected keys (" + JSON.stringify(expectedKeys) + ") to be the same";
+        }
+
+        return result;
+      }
+    };
+  }
+};
