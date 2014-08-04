@@ -15,37 +15,15 @@ describe("Firebase Simple Login Tests:", function() {
       new FirebaseSimpleLogin();
     }).toThrow();
 
-    expect(function() {
-      authClient.createUser("testuser");
-    }).toThrow();
 
-    expect(function() {
-      authClient.createUser("testuser", "sdfsdf", 17);
-    }).toThrow();
 
     expect(function() {
       authClient.login("nonexistentprovider");
     }).toThrow();
 
-    expect(function() {
-      authClient.changePassword("testuser");
-    }).toThrow();
 
-    expect(function() {
-      authClient.changePassword("testuser", false, false);
-    }).toThrow();
 
-    authClient.changePassword("testuser", false, false, function(error, token, user) {
-      expect(error.code).toBe('INVALID_EMAIL');
-    });
 
-    expect(function() {
-      authClient.removeUser("testuser", 'test');
-    }).toThrow();
-
-    authClient.removeUser("testuser@domain.com", false, function(error, token, user) {
-      expect(error.code).toBe('INVALID_PASSWORD');
-    });
 
     //createUser
     authClient.createUser("testuser@firebase.com", "password", function() {

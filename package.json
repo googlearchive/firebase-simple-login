@@ -51,5 +51,6 @@
   "scripts": {
     "test": "grunt"
   },
+  "//": "We set 'private: true' since this package is not yet published to npm.",
   "private": true
 }
