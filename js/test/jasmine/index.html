@@ -8,7 +8,7 @@
     <script src='../../../bower_components/jasmine/lib/jasmine-core/jasmine.js'></script>
     <script src='../../../bower_components/jasmine/lib/jasmine-core/jasmine-html.js'></script>
     <script src='../../../bower_components/jasmine/lib/jasmine-core/boot.js'></script>
-    <link rel='stylesheet" href="../../../bower_components/jasmine/lib/jasmine-core/jasmine.css'>
+    <link rel='stylesheet' href='../../../bower_components/jasmine/lib/jasmine-core/jasmine.css'>
 
     <!-- jQuery -->
     <script src='../../../bower_components/jquery/dist/jquery.min.js'></script>
@@ -17,11 +17,11 @@
     <script src='../../../bower_components/firebase/firebase.js'></script>
 
     <!-- Jasmine specs -->
-    <script src='init.spec.js'></script>
-    <script src='simpleLogin.spec.js'></script>
-    <script src='emailPasswordAuth.spec.js'></script>
-    <script src='anonymousAuth.spec.js'></script>
-    <script src='thirdPartyAuth.spec.js'></script>
+    <script src='specs/init.spec.js'></script>
+    <script src='specs/simpleLogin.spec.js'></script>
+    <script src='specs/emailPasswordAuth.spec.js'></script>
+    <script src='specs/anonymousAuth.spec.js'></script>
+    <script src='specs/thirdPartyAuth.spec.js'></script>
 
     <!-- Source files -->
     <script src='../../../firebase-simple-login.js'></script>
@@ -42,40 +42,40 @@
 
     <script type='text/javascript'>
 
-      // Parse any options in the querystring.
-      var qs = {};
-      if ('location' in this) {
-        var search = (this.location.search.substr(1) || '').split('&');
-        for (var i = 0; i < search.length; ++i) {
-          var parts = search[i].split('=');
-          qs[parts[0]] = parts[1] || true;
-        }
-      }
+      // // Parse any options in the querystring.
+      // var qs = {};
+      // if ('location' in this) {
+      //   var search = (this.location.search.substr(1) || '').split('&');
+      //   for (var i = 0; i < search.length; ++i) {
+      //     var parts = search[i].split('=');
+      //     qs[parts[0]] = parts[1] || true;
+      //   }
+      // }
 
-      (function() {
-        var jasmineEnv = jasmine.getEnv();
-        jasmineEnv.updateInterval = 1000;
+      // (function() {
+      //   var jasmineEnv = jasmine.getEnv();
+      //   jasmineEnv.updateInterval = 1000;
 
-        var htmlReporter = new jasmine.HtmlReporter();
-        jasmineEnv.addReporter(htmlReporter);
+      //   var htmlReporter = new jasmine.HtmlReporter();
+      //   jasmineEnv.addReporter(htmlReporter);
 
-        jasmineEnv.specFilter = function(spec) {
-          return htmlReporter.specFilter(spec);
-        };
+      //   jasmineEnv.specFilter = function(spec) {
+      //     return htmlReporter.specFilter(spec);
+      //   };
 
-        var currentWindowOnload = window.onload;
+      //   var currentWindowOnload = window.onload;
 
-        window.onload = function() {
-          if (currentWindowOnload) {
-            currentWindowOnload();
-          }
-          execJasmine();
-        };
+      //   window.onload = function() {
+      //     if (currentWindowOnload) {
+      //       currentWindowOnload();
+      //     }
+      //     execJasmine();
+      //   };
 
-        function execJasmine() {
-          jasmineEnv.execute();
-        }
-      })();
+      //   function execJasmine() {
+      //     jasmineEnv.execute();
+      //   }
+      // })();
 
 
       var $el, ref, auth;

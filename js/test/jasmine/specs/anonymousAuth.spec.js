@@ -1,6 +1,36 @@
 describe("Anonymous Authentication Tests:", function() {
 
-  it("Anonymous authentication works", function(done) {
+  beforeEach(function() {
+    jasmine.addMatchers(customMatchers);
+  });
+
+  /* Validates that the anonymous auth user variable contains the correct payload */
+  var validateAnonymousAuthUserPayload = function(user) {
+    try {
+      expect(user).not.toBeNull();
+      expect(user).toOnlyHaveTheseKeys([
+        "id",
+        "uid",
+        "provider",
+        "displayName",
+        "firebaseAuthToken"
+      ]);
+
+      expect(typeof user.firebaseAuthToken).toBe("string");
+      expect(user.provider).toBe("anonymous");
+      expect(typeof user.id).toBe("string");
+      expect(user.uid).toBe(user.provider + ":" + user.id);
+
+      // TODO: should anonymous auth even have a display name?
+      expect(user.displayName).toBeDefined();
+      // expect(user.displayName).toBe("");
+    }
+    catch (error) {
+      console.log("Anonymous auth payload verification failed.");
+    }
+  };
+
+  it("Anonymous authentication returns correct user payload", function(done) {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
 
@@ -12,18 +42,13 @@ describe("Anonymous Authentication Tests:", function() {
 
         status = "notFirst";
 
+        // Log in anonymously
         authClient.login("anonymous");
       }
       else if (status !== "done") {
         expect(authError).toBeNull();
-        expect(authUser).not.toBeNull();
-        expect(authUser.provider).toBe("anonymous");
-        expect(typeof authUser.id).toBe("string");
-        expect(authUser.uid).toBe(authUser.provider + ":" + authUser.id);
-        expect(authUser.displayName).toBeDefined();
-
+        validateAnonymousAuthUserPayload(authUser);
         status = "done";
-
         done();
       }
     });
@@ -31,7 +56,7 @@ describe("Anonymous Authentication Tests:", function() {
     authClient.logout();
   });
 
-  it("Anonymous authentication works [promisified]", function(done) {
+  it("Anonymous authentication returns correct user payload [promisified]", function(done) {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
 
@@ -43,20 +68,15 @@ describe("Anonymous Authentication Tests:", function() {
 
         status = "notFirst";
 
-        authClient.login("anonymous")
-          .then(function(resUser) {
-            expect(resUser).not.toBeNull();
-            expect(resUser.provider).toBe("anonymous");
-            expect(typeof resUser.id).toBe("string");
-            expect(resUser.uid).toBe(resUser.provider + ":" + resUser.id);
-            expect(resUser.displayName).toBeDefined();
+        // Log in anonymously
+        authClient.login("anonymous").then(function(resUser) {
+          validateAnonymousAuthUserPayload(resUser);
 
-            status = "done";
-
-            done();
-          }, function(resError) {
-            expect("true").toBeFalsy();
-          });
+          status = "done";
+          done();
+        }, function(resError) {
+          expect(true).toBeFalsy();
+        });
       }
     });
     authClient.setApiHost(TEST_AUTH_SERVER);
