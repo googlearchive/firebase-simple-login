@@ -79,7 +79,11 @@ module.exports = function(grunt) {
             'bower_components/jquery/dist/jquery.min.js'
           ],
           specs: [
-            'js/test/jasmine/*.spec.js'
+            'js/test/jasmine/specs/init.spec.js',
+            'js/test/jasmine/specs/simpleLogin.spec.js',
+            'js/test/jasmine/specs/anonymousAuth.spec.js',
+            'js/test/jasmine/specs/emailPasswordAuth.spec.js',
+            'js/test/jasmine/specs/thirdPartyAuth.spec.js'
           ]
         }
       }
