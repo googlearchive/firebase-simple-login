@@ -4,18 +4,23 @@
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Firebase Simple Login Tests</title>
 
-    <!-- test includes... -->
-    <link rel='stylesheet' type='text/css' href='../../../bower_components/jasmine/lib/jasmine-core/jasmine.css'>
-    <script src='../../../bower_components/jasmine/lib/jasmine-core/jasmine.js'></script>
-    <script src='../../../bower_components/jasmine/lib/jasmine-core/jasmine-html.js'></script>
+    <!-- Jasmine -->
+    <script src="../../../bower_components/jasmine/lib/jasmine-core/jasmine.js"></script>
+    <script src="../../../bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
+    <script src="../../../bower_components/jasmine/lib/jasmine-core/boot.js"></script>
+    <link rel="stylesheet" href="../../../bower_components/jasmine/lib/jasmine-core/jasmine.css">
+
+    <!-- jQuery -->
     <script src='../../../bower_components/jquery/dist/jquery.min.js'></script>
+
+    <!-- Firebase -->
     <script src='../../../bower_components/firebase/firebase.js'></script>
 
-    <!-- include spec files here... -->
+    <!-- Jasmine specs -->
     <script src='init.spec.js'></script>
     <script src='webtests.spec.js'></script>
 
-    <!-- include source files here... -->
+    <!-- Source files -->
     <script src='../../../firebase-simple-login.js'></script>
 
     <style>
@@ -83,10 +88,15 @@
           }
         }, /* context */ null, /* apiHost */ TEST_AUTH_SERVER);
       });
+
       function login(provider, options) {
-        auth.logout();
+        logout();
         $el.html('waiting...')
         auth.login(provider, options);
+      }
+
+      function logout() {
+        auth.logout();
       }
 
       /**
@@ -128,6 +138,7 @@
       <a href='#' onclick='login("github")'>GitHub</a>
       <a href='#' onclick='login("google")'>Google</a>
       <a href='#' onclick='login("twitter")'>Twitter</a>
+      <a href='#' onclick='logout()'>Logout</a>
     </div>
   </body>
 </html>

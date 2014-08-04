@@ -73,17 +73,13 @@ module.exports = function(grunt) {
           'firebase-simple-login.js'
         ],
         options: {
-          version: '1.3.1',
+          version: '2.0.0',
           vendor: [
             'bower_components/firebase/firebase.js',
             'bower_components/jquery/dist/jquery.min.js'
           ],
-          helpers: [
-            'js/test/common-tests/init.spec.js'
-          ],
           specs: [
-            'js/test/jasmine/*.spec.js',
-            '!js/test/jasmine/common-tests/init.spec.js'
+            'js/test/jasmine/*.spec.js'
           ]
         }
       }
@@ -92,7 +88,7 @@ module.exports = function(grunt) {
     connect: {
       'casper-server': {
         options: {
-          port: 9001
+          port: 9090
         }
       }
     },
@@ -123,5 +119,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build-concurrent', ['jshint', 'concurrent:closure']);
   grunt.registerTask('test-casper', ['connect:casper-server', 'exec:casper']);
   grunt.registerTask('test', ['jasmine', 'test-casper']);
+  grunt.registerTask('test:jasmine', ['jasmine']);
+  grunt.registerTask('test:casper', ['test-casper']);
   grunt.registerTask('default', ['build-concurrent', 'test']);
 };

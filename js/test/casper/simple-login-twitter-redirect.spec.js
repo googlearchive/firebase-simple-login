@@ -11,7 +11,7 @@ casper.on('remote.message', function(msg) {
   this.log('> ' + msg, 'debug');
 });
 
-var TEST_URL = 'http://localhost:9001/js/test/casper/',
+var TEST_URL = 'http://localhost:9090/js/test/casper/',
     TEST_FIREBASE = 'https://demos.firebaseio.com';
 
 casper.test.begin('Twitter OAuth Redirect Flow', 6, function suite(test) {
