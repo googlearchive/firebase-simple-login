@@ -1,16 +1,46 @@
 {
   "name": "firebase-simple-login",
+  "description": "Firebase Simple Login web client",
   "version": "1.6.2",
-  "description": "Firebase Simple Login Web Client",
-  "author": "Firebase <operations@firebase.com>",
-  "homepage": "http://firebase.github.io/firebase-simple-login",
-  "main": "firebase-simple-login.js",
-  "license": "MIT",
-  "dependencies": {
+  "author": "Firebase <support@firebase.com> (https://www.firebase.com/)",
+  "homepage": "https://github.com/firebase/firebase-simple-login/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/firebase/firebase-simple-login.git"
   },
+  "bugs": {
+    "url": "https://github.com/firebase/firebase-simple-login/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://firebase.mit-license.org/"
+    }
+  ],
+  "keywords": [
+    "login",
+    "email",
+    "password",
+    "realtime",
+    "Firebase",
+    "websocket",
+    "authentication",
+    "synchronization"
+  ],
+  "main": "firebase-simple-login.js",
+  "files": [
+    "firebase-simple-login.js",
+    "firebase-simple-login-debug.js",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md",
+    "package.json"
+  ],
+  "dependencies": {},
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-exec": "^0.4.3",
+    "grunt-cli": "^0.1.13",
     "grunt-concurrent": "^0.5.0",
     "load-grunt-tasks": "^0.6.0",
     "grunt-closure-tools": "^0.9.6",
@@ -18,22 +48,8 @@
     "grunt-contrib-connect": "^0.8.0",
     "grunt-contrib-jasmine": "^0.6.5"
   },
-  "keywords": [
-    "Firebase",
-    "synchronization",
-    "real-time",
-    "websocket",
-    "authentication",
-    "login"
-  ],
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/firebase/firebase-simple-login.git"
-  },
-  "bugs": {
-    "url": "https://github.com/firebase/firebase-simple-login/issues"
-  }
+  "private": true
 }
