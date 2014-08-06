@@ -14,8 +14,9 @@ if ('location' in this) {
 
 FIREBASE_API_KEY = 1234;
 
-TEST_NAMESPACE = qs.namespace || 'https://demos.firebaseio.com';
+TEST_NAMESPACE = qs.namespace || 'https://fb-login-tests.firebaseio.com';
 TEST_AUTH_SERVER = qs.apiHost || 'https://auth.firebase.com';
+
 TEST_TIMEOUT = 5000;
 
 /**
