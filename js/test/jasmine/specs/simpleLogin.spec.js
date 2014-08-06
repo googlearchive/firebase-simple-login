@@ -1,40 +1,49 @@
 describe("Firebase Simple Login Tests:", function() {
 
-  it("Check that invalid parameters throw and correct ones don't", function(done) {
-    //constructor
+  xit("FirebaseSimpleLogin constructor throws error given invalid Firebase reference", function() {
+    // TODO: add checking in client for invalid Firebase references
+    // TODO: what if you send in a Firebase reference with a limit() attached?
+    var invalidFirebaseRefs = [null, undefined, true, false, [], {}, function() {}, 0, 5, "", "test", {test:1}, ["test", 1]];
+
+    invalidFirebaseRefs.forEach(function(invalidFirebaseRef) {
+      expect(function() {
+        new FirebaseSimpleLogin(invalidFirebaseRef, function() {});
+      }).toThrow(new Error("new FirebaseSimpleLogin failed: First argument must be a valid Firebase reference."));
+    });
+  });
+
+  it("FirebaseSimpleLogin constructor throws error given invalid callback function", function() {
+    var invalidCallbacks = [null, undefined, true, false, [], {}, 0, 5, "", "test", {test:1}, ["test", 1]];
+
+    // Get a valid Firebase refence
+    var ctx = new Firebase.Context();
+    var validFirebaseRef = new Firebase(TEST_NAMESPACE, ctx);
+
+    invalidCallbacks.forEach(function(invalidCallback) {
+      expect(function() {
+        new FirebaseSimpleLogin(validFirebaseRef, invalidCallback);
+      }).toThrow(new Error("new FirebaseSimpleLogin failed: Second argument must be a valid function."));
+    });
+  });
+
+  xit("FirebaseSimpleLogin constructor properly uses third scope argument", function() {
+    //TODO
+  });
+
+  it("login() throws an error given invalid provider", function() {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
-    var authClient = new FirebaseSimpleLogin(ref, function(error, user) {});
-    authClient.setApiHost(TEST_AUTH_SERVER);
+    var auth = new FirebaseSimpleLogin(ref, function(error, user) {});
+    auth.setApiHost(TEST_AUTH_SERVER);
 
     expect(function() {
-      new FirebaseSimpleLogin(17);
-    }).toThrow();
+      auth.login("invalid");
+    }).toThrow(new Error("FirebaseSimpleLogin.login(invalid) failed: unrecognized authentication provider"));
+    // TODO: add period to this error message to be consistent with other error messages
+  });
 
-    expect(function() {
-      new FirebaseSimpleLogin();
-    }).toThrow();
-
-
-
-    expect(function() {
-      authClient.login("nonexistentprovider");
-    }).toThrow();
-
-
-
-
-
-    //createUser
-    authClient.createUser("testuser@firebase.com", "password", function() {
-      //changePassword
-      authClient.changePassword("testuser@firebase.com", "password", "newPassword", function() {
-        //removeUser
-        authClient.removeUser("testuser@firebase.com", "newPassword", function() {
-          done();
-        });
-      });
-    });
+  xit("Logging users out works", function() {
+    // TODO
   });
 
   it("Multiple client instances work concurrently", function(done) {

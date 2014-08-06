@@ -1,6 +1,7 @@
 describe("Anonymous Authentication Tests:", function() {
 
   beforeEach(function() {
+    // Add custom Jamine matchers
     jasmine.addMatchers(customMatchers);
   });
 
@@ -25,12 +26,12 @@ describe("Anonymous Authentication Tests:", function() {
     // expect(user.displayName).toBe("");
   };
 
-  it("Anonymous authentication returns correct user payload", function(done) {
+  it("Logging in returns correct user payload", function(done) {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
 
     var status = "first";
-    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+    var auth = new FirebaseSimpleLogin(ref, function(authError, authUser) {
       if (status === "first") {
         expect(authError).toBeNull();
         expect(authUser).toBeNull();
@@ -38,7 +39,7 @@ describe("Anonymous Authentication Tests:", function() {
         status = "notFirst";
 
         // Log in anonymously
-        authClient.login("anonymous");
+        auth.login("anonymous");
       }
       else if (status !== "done") {
         expect(authError).toBeNull();
@@ -47,16 +48,16 @@ describe("Anonymous Authentication Tests:", function() {
         done();
       }
     });
-    authClient.setApiHost(TEST_AUTH_SERVER);
-    authClient.logout();
+    auth.setApiHost(TEST_AUTH_SERVER);
+    auth.logout();
   });
 
-  it("Anonymous authentication returns correct user payload [promisified]", function(done) {
+  it("Logging in returns correct user payload [promisified]", function(done) {
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
 
     var status = "first";
-    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
+    var auth = new FirebaseSimpleLogin(ref, function(authError, authUser) {
       if (status === "first") {
         expect(authError).toBeNull();
         expect(authUser).toBeNull();
@@ -64,7 +65,7 @@ describe("Anonymous Authentication Tests:", function() {
         status = "notFirst";
 
         // Log in anonymously
-        authClient.login("anonymous").then(function(resUser) {
+        auth.login("anonymous").then(function(resUser) {
           validateAnonymousAuthUserPayload(resUser);
 
           status = "done";
@@ -74,8 +75,8 @@ describe("Anonymous Authentication Tests:", function() {
         });
       }
     });
-    authClient.setApiHost(TEST_AUTH_SERVER);
-    authClient.logout();
+    auth.setApiHost(TEST_AUTH_SERVER);
+    auth.logout();
   });
 
 });

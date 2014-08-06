@@ -1,13 +1,14 @@
 describe("Email/Password Authentication Tests:", function() {
 
-  var authClient;
+  // FirebaseSimpleLogin instance
+  var auth;
 
   // Invalid emails
-  var invalidEmails = [undefined, null, 0, [], {}, ["test@test.com"], {a: "test@test.com"}, "", "test", "test@", "@test.com", "test@test", "test@.com", "test@test.7"];
+  var invalidEmails = [undefined, null, 0, [], {}, function() {}, ["test@test.com"], {a: "test@test.com"}, "", "test", "test@", "@test.com", "test@test", "test@.com", "test@test.7"];
   var numInvalidEmails = invalidEmails.length;
 
   // Invalid passwords
-  var invalidPasswords = [undefined, null, 0, [], {}, ["test@test.com"], {a: "test@test.com"}];
+  var invalidPasswords = [undefined, null, 0, [], {}, function() {}, ["test@test.com"], {a: "test@test.com"}];
   var numInvalidPasswords = invalidPasswords.length;
 
   // Default user information
@@ -27,17 +28,15 @@ describe("Email/Password Authentication Tests:", function() {
     // Authentication client constructor
     var ctx = new Firebase.Context();
     var ref = new Firebase(TEST_NAMESPACE, ctx);
-    authClient = new FirebaseSimpleLogin(ref, function(error, user) {});
-    authClient.setApiHost(TEST_AUTH_SERVER);
+    auth = new FirebaseSimpleLogin(ref, function(error, user) {});
+    auth.setApiHost(TEST_AUTH_SERVER);
   });
 
   afterEach(function(done) {
     // Clean up the user created in the test if its password is provided
     if (passwordToDeleteCreatedTestUser !== null) {
-      authClient.removeUser(testUserEmail, passwordToDeleteCreatedTestUser, function(resError, success) {
+      auth.removeUser(testUserEmail, passwordToDeleteCreatedTestUser, function(resError) {
         expect(resError).toBeNull();
-        // TODO: success is undefined but our docs say it should be true or false
-        //expect(success).toBeTruthy();
 
         if (resError !== null) {
           expect("Removing user in afterEach() threw an error.").toBeFalsy();
@@ -53,61 +52,64 @@ describe("Email/Password Authentication Tests:", function() {
   });
 
   /* Validates that the email/password auth user variable contains the correct payload */
-  var validateEmailPasswordAuthUserPayload = function(user) {
+  var validateEmailPasswordAuthUserPayload = function(user, expectUserProperty) {
+    var userSpecificKeys = [
+      "id",
+      "uid",
+      "email",
+      "provider",
+      "md5_hash",
+      "isTemporaryPassword"
+    ];
+
     expect(user).not.toBeNull();
-    expect(user).toOnlyHaveTheseKeys([
-      "user",
-      "id",
-      "uid",
-      "email",
-      "token",
-      "provider",
-      "md5_hash",
-      "sessionKey",
-      "isTemporaryPassword"
-    ]);
-    expect(user.user).toOnlyHaveTheseKeys([
-      "id",
-      "uid",
-      "email",
-      "provider",
-      "md5_hash",
-      "sessionKey",
-      "isTemporaryPassword"
-    ]);
+    if (expectUserProperty) {
+      expect(user).toOnlyHaveTheseKeys(userSpecificKeys.concat(["user", "token", "sessionKey"]));
+      expect(user.user).toOnlyHaveTheseKeys(userSpecificKeys.concat(["sessionKey"]));
+    }
+    else {
+      expect(user).toOnlyHaveTheseKeys(userSpecificKeys.concat(["firebaseAuthToken"]));
+    }
 
     // Root object (TODO: do these checks even matter? only token should matter)
     expect(typeof user.id).toBe("string");
     expect(user.uid).toBe("simplelogin:" + user.id);
     expect(typeof user.email).toBe("string");
     // TODO: validate that it is an email
-    expect(typeof user.token).toBe("string");
     expect(user.provider).toBe("password");
     expect(typeof user.md5_hash).toBe("string");
     // TOOD: more expecations for md5_hash?
-    expect(typeof user.sessionKey).toBe("string");
     expect(typeof user.isTemporaryPassword).toBe("boolean");
 
-    // Nested user object
-    expect(typeof user.user.id).toBe("string");
-    expect(user.user.uid).toBe("simplelogin:" + user.user.id);
-    expect(typeof user.user.email).toBe("string");
-    // TODO: validate that it is an email
-    expect(user.user.provider).toBe("password");
-    expect(typeof user.user.md5_hash).toBe("string");
-    // TOOD: more expecations for md5_hash?
-    expect(typeof user.user.sessionKey).toBe("string");
-    expect(typeof user.user.isTemporaryPassword).toBe("boolean");
+    if (expectUserProperty) {
+      expect(typeof user.token).toBe("string");
+      expect(typeof user.isTemporaryPassword).toBe("boolean");
+
+
+      // Nested user object
+      expect(typeof user.user.id).toBe("string");
+      expect(user.user.uid).toBe("simplelogin:" + user.user.id);
+      expect(typeof user.user.email).toBe("string");
+      // TODO: validate that it is an email
+      expect(user.user.provider).toBe("password");
+      expect(typeof user.user.md5_hash).toBe("string");
+      // TOOD: more expecations for md5_hash?
+      expect(typeof user.user.sessionKey).toBe("string");
+      expect(typeof user.user.isTemporaryPassword).toBe("boolean");
+    } else {
+      expect(typeof user.firebaseAuthToken).toBe("string");
+    }
   };
 
 
   describe("Creating Users:", function() {
+
     // TODO: In src/FirebaseSimpleLogin.js, we require createUser() to have three inputs
     //       However, our docs say the callback is optional; which is probably how it should be...
     // fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
     xit("createUser() does not throw an error given only two inputs", function() {
       expect(function() {
-        authClient.createUser(testUserEmail, testUserPassword);
+        auth.createUser(testUserEmail, testUserPassword);
 
         // TODO: need to sleep until createUser() finishes
 
@@ -118,10 +120,10 @@ describe("Email/Password Authentication Tests:", function() {
 
     it("createUser() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
-        authClient.createUser(invalidEmail, testUserPassword, function(resError, resUser) {
+        auth.createUser(invalidEmail, testUserPassword, function(resError, resUser) {
           expect(resUser).toBeNull();
           expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid email specified."));
-          // TODO: get error type in authClient callback instead
+          // TODO: get error type in auth callback instead
           // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidEmails - 1) {
@@ -133,10 +135,10 @@ describe("Email/Password Authentication Tests:", function() {
 
     it("createUser() throws error given invalid password", function(done) {
       invalidPasswords.forEach(function(invalidPassword, i) {
-        authClient.createUser(testUserEmail, invalidPassword, function(resError, resUser) {
+        auth.createUser(testUserEmail, invalidPassword, function(resError, resUser) {
           expect(resUser).toBeNull();
           expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid password specified."));
-          // TODO: get error type in authClient callback instead
+          // TODO: get error type in auth callback instead
           // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidPasswords - 1) {
@@ -147,9 +149,9 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("Creating a user with a valid email and password does not throw an error", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
         // Set the created test user to be deleted after this test
         passwordToDeleteCreatedTestUser = testUserPassword;
@@ -159,11 +161,11 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("Attempting to create an existing user throws an error", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
-        authClient.createUser(testUserEmail, testUserPassword, function(resError2, resUser2) {
+        auth.createUser(testUserEmail, testUserPassword, function(resError2, resUser2) {
           expect(resUser2).toBeNull();
           expect(resError2).toEqual(new Error("FirebaseSimpleLogin: The specified email address is already in use."));
 
@@ -174,10 +176,29 @@ describe("Email/Password Authentication Tests:", function() {
         });
       });
     });
+
+    it("Attempting to create an existing user with a different case throws an error", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        expect(resError).toBeNull();
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
+
+        auth.createUser(testUserEmail.toUpperCase(), testUserPassword, function(resError2, resUser2) {
+          expect(resUser2).toBeNull();
+          expect(resError2).toEqual(new Error("FirebaseSimpleLogin: The specified email address is already in use."));
+
+          // Set the created test user to be deleted after this test
+          passwordToDeleteCreatedTestUser = testUserPassword;
+
+          done();
+        });
+      });
+    });
+
   });
 
 
   describe("Removing Users:", function() {
+
     // TODO: In src/FirebaseSimpleLogin.js, we require removeUser() to have three inputs
     //       However, our docs say the callback is optional; which is probably how it should be...
     // fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
@@ -187,10 +208,9 @@ describe("Email/Password Authentication Tests:", function() {
 
     it("removeUser() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
-        authClient.removeUser(invalidEmail, testUserPassword, function(resError, success) {
+        auth.removeUser(invalidEmail, testUserPassword, function(resError) {
           expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid email specified."));
-          //expect(succes).toBe(false);
-          // TODO: get error type in authClient callback instead
+          // TODO: get error type in auth callback instead
           // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidEmails - 1) {
@@ -202,10 +222,9 @@ describe("Email/Password Authentication Tests:", function() {
 
     it("removeUser() throws error given invalid password", function(done) {
       invalidPasswords.forEach(function(invalidPassword, i) {
-        authClient.removeUser(testUserEmail, invalidPassword, function(resError, success) {
+        auth.removeUser(testUserEmail, invalidPassword, function(resError) {
           expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid password specified."));
-          //expect(success).toBe(false);
-          // TODO: get error type in authClient callback instead
+          // TODO: get error type in auth callback instead
           // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidPasswords - 1) {
@@ -216,14 +235,13 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("Removing an existing user with the wrong password throws error", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
-        authClient.removeUser(testUserEmail, "wrong", function(resError2, success) {
+        auth.removeUser(testUserEmail, "invalid", function(resError2) {
           expect(resError2).toEqual(new Error("FirebaseSimpleLogin: The specified password is incorrect."));
-          //expect(success).toBe(false);
-          // TODO: get error code INVALID_PASSWORD in authClient callback instead
+          // TODO: get error code INVALID_PASSWORD in auth callback instead
 
           // Set the created test user to be deleted after this test
           passwordToDeleteCreatedTestUser = testUserPassword;
@@ -234,23 +252,34 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("Removing a non-existing user throws error", function(done) {
-      authClient.removeUser(testUserEmail, testUserPassword, function(resError, success) {
+      auth.removeUser(testUserEmail, testUserPassword, function(resError) {
         expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified user does not exist."));
-        //expect(success).toBe(false);
-        // TODO: get error code INVALID_PASSWORD in authClient callback instead
+        // TODO: get error code INVALID_PASSWORD in auth callback instead
 
         done();
       });
     });
 
     it("Removing an existing user with the correct password removes the user", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
-        authClient.removeUser(testUserEmail, testUserPassword, function(resError2, success) {
+        auth.removeUser(testUserEmail, testUserPassword, function(resError2) {
           expect(resError2).toBeNull();
-          //expect(success).toBe(false);
+
+          done();
+        });
+      });
+    });
+
+    it("Removing an existing user with the correct password but different email case removes the user", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        expect(resError).toBeNull();
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
+
+        auth.removeUser(testUserEmail.toUpperCase(), testUserPassword, function(resError2) {
+          expect(resError2).toBeNull();
 
           done();
         });
@@ -260,10 +289,12 @@ describe("Email/Password Authentication Tests:", function() {
     xit("Removing a user logs them out of their existing session", function(done) {
       // TODO
     });
+
   });
 
 
   describe("Changing Passwords:", function() {
+
     // TODO: In src/FirebaseSimpleLogin.js, we require changePassword() to have four inputs
     //       However, our docs say the callback is optional; which is probably how it should be...
     // fb.simplelogin.util.validation.validateArgCount(method, 4, 4, arguments.length);
@@ -273,10 +304,9 @@ describe("Email/Password Authentication Tests:", function() {
 
     it("changePassword() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
-        authClient.changePassword(invalidEmail, testUserPassword, testUserNewPassword, function(resError, success) {
+        auth.changePassword(invalidEmail, testUserPassword, testUserNewPassword, function(resError) {
           expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid email specified."));
-          //expect(succes).toBe(false);
-          // TODO: get error type in authClient callback instead
+          // TODO: get error type in auth callback instead
           // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidEmails - 1) {
@@ -287,16 +317,15 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     xit("changePassword() throws error given invalid old password", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
         invalidPasswords.forEach(function(invalidPassword, i) {
-          authClient.changePassword(testUserEmail, invalidPassword, testUserNewPassword, function(resError, success) {
+          auth.changePassword(testUserEmail, invalidPassword, testUserNewPassword, function(resError) {
             // TODO: this test actually throws this error: "FirebaseSimpleLogin: The specified password is incorrect."
             expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid password specified."));
-            //expect(success).toBe(false);
-            // TODO: get error type in authClient callback instead
+            // TODO: get error type in auth callback instead
             // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
             if (i === numInvalidPasswords - 1) {
@@ -311,15 +340,14 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("changePassword() throws error given invalid new password", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
         invalidPasswords.forEach(function(invalidPassword, i) {
-          authClient.changePassword(testUserEmail, testUserPassword, invalidPassword, function(resError2, success) {
+          auth.changePassword(testUserEmail, testUserPassword, invalidPassword, function(resError2) {
             expect(resError2).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid password specified."));
-            //expect(success).toBe(false);
-            // TODO: get error type in authClient callback instead
+            // TODO: get error type in auth callback instead
             // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
             if (i === numInvalidPasswords - 1) {
@@ -334,14 +362,13 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("Changing the password of an existing user with the wrong old password throws error", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
-        authClient.changePassword(testUserEmail, "wrong", testUserNewPassword, function(resError2, success) {
+        auth.changePassword(testUserEmail, "invalid", testUserNewPassword, function(resError2) {
           expect(resError2).toEqual(new Error("FirebaseSimpleLogin: The specified password is incorrect."));
-          //expect(success).toBe(false);
-          // TODO: get error code INVALID_PASSWORD in authClient callback instead
+          // TODO: get error code INVALID_PASSWORD in auth callback instead
 
           // Set the created test user to be deleted after this test
           passwordToDeleteCreatedTestUser = testUserPassword;
@@ -352,23 +379,37 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("Changing the password of a non-existing user throws error", function(done) {
-      authClient.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError, success) {
+      auth.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError) {
         expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified user does not exist."));
-        //expect(success).toBe(false);
-        // TODO: get error code INVALID_PASSWORD in authClient callback instead
+        // TODO: get error code INVALID_PASSWORD in auth callback instead
 
         done();
       });
     });
 
     it("Changing the password of an existing user with the correct password changes their password", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
-        authClient.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError2, success) {
+        auth.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError2) {
           expect(resError2).toBeNull();
-          //expect(success).toBe(true);
+
+          // Set the created test user to be deleted after this test
+          passwordToDeleteCreatedTestUser = testUserNewPassword;
+
+          done();
+        });
+      });
+    });
+
+    it("Changing the password of an existing user with the correct password changes their password even if the email used has different case", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        expect(resError).toBeNull();
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
+
+        auth.changePassword(testUserEmail.toUpperCase(), testUserPassword, testUserNewPassword, function(resError2) {
+          expect(resError2).toBeNull();
 
           // Set the created test user to be deleted after this test
           passwordToDeleteCreatedTestUser = testUserNewPassword;
@@ -379,13 +420,12 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("Changing the password of an existing user to the same password does not throw an error", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
-        authClient.changePassword(testUserEmail, testUserPassword, testUserPassword, function(resError2, success) {
+        auth.changePassword(testUserEmail, testUserPassword, testUserPassword, function(resError2) {
           expect(resError2).toBeNull();
-          //expect(success).toBe(true);
 
           // Set the created test user to be deleted after this test
           passwordToDeleteCreatedTestUser = testUserPassword;
@@ -396,17 +436,15 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("Changing the password of an existing user to a new password and then back to the original one works", function(done) {
-      authClient.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
         expect(resError).toBeNull();
-        validateEmailPasswordAuthUserPayload(resUser);
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
 
-        authClient.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError2, success2) {
+        auth.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError2) {
           expect(resError2).toBeNull();
-          //expect(success2).toBe(true);
 
-          authClient.changePassword(testUserEmail, testUserNewPassword, testUserPassword, function(resError3, success3) {
+          auth.changePassword(testUserEmail, testUserNewPassword, testUserPassword, function(resError3) {
             expect(resError3).toBeNull();
-            //expect(success3).toBe(true);
 
             // Set the created test user to be deleted after this test
             passwordToDeleteCreatedTestUser = testUserPassword;
@@ -416,16 +454,54 @@ describe("Email/Password Authentication Tests:", function() {
         });
       });
     });
+
+    it("Changing the password of an existing user prevents you from removing that user with the old password", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        expect(resError).toBeNull();
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
+
+        auth.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError2) {
+          expect(resError2).toBeNull();
+
+          auth.removeUser(testUserEmail, testUserPassword, function(resError3) {
+            expect(resError3).toEqual(new Error("FirebaseSimpleLogin: The specified password is incorrect."));
+
+            // Set the created test user to be deleted after this test
+            passwordToDeleteCreatedTestUser = testUserNewPassword;
+
+            done();
+          });
+        });
+      });
+    });
+
+    it("Changing the password of an existing user allows you to remove that user with the new password", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        expect(resError).toBeNull();
+        validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
+
+        auth.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError2) {
+          expect(resError2).toBeNull();
+
+          auth.removeUser(testUserEmail, testUserNewPassword, function(resError3) {
+            expect(resError3).toBeNull();
+
+            done();
+          });
+        });
+      });
+    });
+
   });
 
 
   describe("Sending Password Reset Emails:", function() {
+
     it("sendPasswordResetEmail() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
-        authClient.sendPasswordResetEmail(invalidEmail, function(resError, success) {
+        auth.sendPasswordResetEmail(invalidEmail, function(resError) {
           expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid email specified."));
-          //expect(succes).toBe(false);
-          // TODO: get error type in authClient callback instead
+          // TODO: get error type in auth callback instead
           // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidEmails - 1) {
@@ -436,10 +512,9 @@ describe("Email/Password Authentication Tests:", function() {
     });
 
     it("sendPasswordResetEmail() throws error when passed non-existent user", function(done) {
-      authClient.sendPasswordResetEmail(testUserEmail, function(resError, success) {
+      auth.sendPasswordResetEmail(testUserEmail, function(resError) {
         expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified user does not exist."));
-        //expect(succes).toBe(false);
-        // TODO: get error type in authClient callback instead
+        // TODO: get error type in auth callback instead
         // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
         done();
@@ -453,155 +528,196 @@ describe("Email/Password Authentication Tests:", function() {
     xit("Temporary password in password reset email works", function(done) {
       //TODO
     });
-  });
-
-
-  xdescribe("login():", function() {
 
   });
 
 
-  xit("Attempt Login With Incorrect Password", function(done) {
-    var ctx = new Firebase.Context();
-    var ref = new Firebase(TEST_NAMESPACE, ctx);
+  describe("Logging Users In:", function() {
 
-    var status = "first";
-    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
-      if (status === "first") {
-        expect(authError).toBeNull();
-        expect(authUser).toBeNull();
-
-        status = "notFirst";
-
-        authClient.login("password", { email: "person@firebase.com", password: "blah" });
-      }
-      else if (status !== "done") {
-        expect(authError.code).toBe("INVALID_PASSWORD");
-        expect(authUser).toBeNull();
-
-        status = "done";
-
+    // TODO: In src/FirebaseSimpleLogin.js, we require removeUser() to have three inputs
+    //       However, our docs say the callback is optional; which is probably how it should be...
+    // fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
+    xit("login() throws error given only one argument", function(done) {
+      auth.login("password").then(function(resUser) {
+        expect("Should not be here").toBeFalsy();
+      }).catch(function(resError) {
+        // TODO: improve the error message in the client here
+        // current returns "FirebaseSimpleLogin: The specified user does not exist."
+        expect(resError).toEqual(new Error("TODO"));
         done();
-      }
+      });
     });
-    authClient.setApiHost(TEST_AUTH_SERVER);
-    authClient.logout();
-  });
 
-  xit("Attempt Login With Incorrect Password - With Promise", function(done) {
-    var ctx = new Firebase.Context();
-    var ref = new Firebase(TEST_NAMESPACE, ctx);
+    xit("login() throws error given invalid email", function(done) {
+      // TODO: some emails are invalid but do not throw the correct error
+      // Instead, we get this error: "FirebaseSimpleLogin: The specified user does not exist."
+      invalidEmails.forEach(function(invalidEmail, i) {
+        auth.login("password", {
+          email: invalidEmail,
+          password: testUserPassword
+        }).then(function(resUser) {
+          expect("Should not be here").toBeFalsy();
+        }).catch(function(resError) {
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified email address is incorrect."));
 
-    var status = "first";
-    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
-      if (status === "first") {
-        expect(authError).toBeNull();
-        expect(authUser).toBeNull();
-
-        status = "notFirst";
-
-        authClient.login("password", { email: "person@firebase.com", password: "blah" })
-          .then(function(resUser) {
-            expect(true).toBeFalsy();
-          }, function(resError) {
-            expect(resError.code).toBe("INVALID_PASSWORD");
-
-            status = "done";
-
+          if (i === numInvalidEmails - 1) {
             done();
-          });
-      }
+          }
+        });
+      });
     });
-    authClient.setApiHost(TEST_AUTH_SERVER);
-    authClient.logout();
-  });
 
-  xit("Attempt Login With Correct Password And Different Case", function(done) {
-    var ctx = new Firebase.Context();
-    var ref = new Firebase(TEST_NAMESPACE, ctx);
+    it("login() throws error given invalid password", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        invalidPasswords.forEach(function(invalidPassword, i) {
+          auth.login("password", {
+            email: testUserEmail,
+            password: invalidPassword
+          }).then(function(resUser) {
+            expect("Should not be here").toBeFalsy();
+          }).catch(function(resError) {
+            expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified password is incorrect."));
 
-    var status = "first";
-    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
-      if (status === "first") {
-        expect(authError).toBeNull();
-        expect(authUser).toBeNull();
+            if (i === numInvalidPasswords - 1) {
+              // Set the created test user to be deleted after this test
+              passwordToDeleteCreatedTestUser = testUserPassword;
 
-        status = "notFirst";
-
-        authClient.login("password", { email: "PeRsOn@firebase.com", password: "pw" });
-      }
-      else if (status !== "done") {
-        expect(authError).toBeNull();
-        expect(authUser).not.toBeNull();
-
-        status = "done";
-
-        done();
-      }
-    });
-    authClient.setApiHost(TEST_AUTH_SERVER);
-    authClient.logout();
-  });
-
-  xit("Attempt Login With Correct Password And Different Case - With Promise", function(done) {
-    var ctx = new Firebase.Context();
-    var ref = new Firebase(TEST_NAMESPACE, ctx);
-
-    var status = "first";
-    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
-      if (status === "first") {
-        expect(authError).toBeNull();
-        expect(authUser).toBeNull();
-
-        status = "notFirst";
-
-        authClient.login("password", { email: "PeRsOn@firebase.com", password: "pw" })
-          .then(function(resUser) {
-            expect(resUser).not.toBeNull();
-
-            status = "done";
-
-            done();
-          }, function(resError) {
-            expect(true).toBeFalsy();
-          });
-      }
-    });
-    authClient.setApiHost(TEST_AUTH_SERVER);
-    authClient.logout();
-  });
-
-  xit("Set Password", function(done) {
-    var ctx = new Firebase.Context();
-    var ref = new Firebase(TEST_NAMESPACE, ctx);
-    var uid = "person+" + (2<<29 * Math.random()) + "@firebase.com";
-
-    var status = "first";
-    var authClient = new FirebaseSimpleLogin(ref, function(authError, authUser) {
-      if (status === "first") {
-        status = "notFirst";
-
-        authClient.createUser(uid, "pw", function(error, user) {
-          expect(error).toBeNull();
-          expect(user).not.toBeNull();
-
-          authClient.changePassword(uid, "pw", "blah", function(error) {
-            expect(error).toBeNull();
-
-            authClient.login("password", { email: uid, password: "blah" }).then(function(resUser) {
-              expect(resUser).not.toBeNull();
-
-              status = "done";
               done();
-            }, function(resError) {
-              expect(true).toBeFalsy();
-            });
+            }
           });
         });
-      }
+      });
     });
-    authClient.setApiHost(TEST_AUTH_SERVER);
-    authClient.logout();
+
+    it("login() throws error given email for non-existent user", function(done) {
+      auth.login("password", {
+        email: testUserEmail,
+        password: testUserPassword
+      }).then(function(resUser) {
+        expect("Should not be here").toBeFalsy();
+      }).catch(function(resError) {
+        expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified user does not exist."));
+
+        done();
+      });
+    });
+
+    it("login() throws error given incorrect password for existing user", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        auth.login("password", {
+          email: testUserEmail,
+          password: "invalid"
+        }).then(function(resUser) {
+          expect("Should not be here").toBeFalsy();
+        }).catch(function(resError) {
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified password is incorrect."));
+
+          // Set the created test user to be deleted after this test
+          passwordToDeleteCreatedTestUser = testUserPassword;
+
+          done();
+        });
+      });
+    });
+
+    it("login() throws error given password different case (but otherwise correct) for existing user", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        auth.login("password", {
+          email: testUserEmail,
+          password: testUserPassword.toUpperCase()
+        }).then(function(resUser) {
+          expect("Should not be here").toBeFalsy();
+        }).catch(function(resError) {
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified password is incorrect."));
+
+          // Set the created test user to be deleted after this test
+          passwordToDeleteCreatedTestUser = testUserPassword;
+
+          done();
+        });
+      });
+    });
+
+    it("Logging in returns correct user payload", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        auth.login("password", {
+          email: testUserEmail,
+          password: testUserPassword
+        }).then(function(resUser) {
+          validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ false);
+
+          // Set the created test user to be deleted after this test
+          passwordToDeleteCreatedTestUser = testUserPassword;
+
+          done();
+        }).catch(function(resError) {
+          expect("Should not be here").toBeFalsy();
+        });
+      });
+    });
+
+    it("Logging in works even if email has wrong case", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        auth.login("password", {
+          email: testUserEmail.toUpperCase(),
+          password: testUserPassword
+        }).then(function(resUser) {
+          validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ false);
+
+          // Set the created test user to be deleted after this test
+          passwordToDeleteCreatedTestUser = testUserPassword;
+
+          done();
+        }).catch(function(resError) {
+          expect("Should not be here").toBeFalsy();
+        });
+      });
+    });
+
+    it("Logging in with old, incorrect password throws error", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        auth.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError2) {
+          expect(resError2).toBeNull();
+
+          auth.login("password", {
+            email: testUserEmail,
+            password: testUserPassword
+          }).then(function(resUser) {
+            expect("Should not be here").toBeFalsy();
+          }).catch(function(resError) {
+            expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified password is incorrect."));
+
+            // Set the created test user to be deleted after this test
+            passwordToDeleteCreatedTestUser = testUserNewPassword;
+
+            done();
+          });
+        });
+      });
+    });
+
+    it("Logging in with new, changed password does not throw error", function(done) {
+      auth.createUser(testUserEmail, testUserPassword, function(resError, resUser) {
+        auth.changePassword(testUserEmail, testUserPassword, testUserNewPassword, function(resError2) {
+          expect(resError2).toBeNull();
+
+          auth.login("password", {
+            email: testUserEmail,
+            password: testUserNewPassword
+          }).then(function(resUser) {
+            validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ false);
+
+            // Set the created test user to be deleted after this test
+            passwordToDeleteCreatedTestUser = testUserNewPassword;
+
+            done();
+          }).catch(function(resError) {
+            expect("Should not be here").toBeFalsy();
+          });
+        });
+      });
+    });
+
   });
 
 });
