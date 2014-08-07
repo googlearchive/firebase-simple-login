@@ -41,43 +41,6 @@
     </style>
 
     <script type='text/javascript'>
-
-      // // Parse any options in the querystring.
-      // var qs = {};
-      // if ('location' in this) {
-      //   var search = (this.location.search.substr(1) || '').split('&');
-      //   for (var i = 0; i < search.length; ++i) {
-      //     var parts = search[i].split('=');
-      //     qs[parts[0]] = parts[1] || true;
-      //   }
-      // }
-
-      // (function() {
-      //   var jasmineEnv = jasmine.getEnv();
-      //   jasmineEnv.updateInterval = 1000;
-
-      //   var htmlReporter = new jasmine.HtmlReporter();
-      //   jasmineEnv.addReporter(htmlReporter);
-
-      //   jasmineEnv.specFilter = function(spec) {
-      //     return htmlReporter.specFilter(spec);
-      //   };
-
-      //   var currentWindowOnload = window.onload;
-
-      //   window.onload = function() {
-      //     if (currentWindowOnload) {
-      //       currentWindowOnload();
-      //     }
-      //     execJasmine();
-      //   };
-
-      //   function execJasmine() {
-      //     jasmineEnv.execute();
-      //   }
-      // })();
-
-
       var $el, ref, auth;
       $(function() {
         $el = $('#login-response');
@@ -101,33 +64,6 @@
       function logout() {
         auth.logout();
       }
-
-      /**
-       * Switch between the compiled + minified, compiled + unminified, and uncompiled versions of
-       * the Simple Login library based upon querystring. By default, pull in uncompiled.
-      (function() {
-        // Default local include following the Google Closure dependency chain.
-        var sourcePath;
-
-        qs.sourceVersion = qs.sourceVersion || 'dev';
-        if (qs.sourceVersion === 'prod') {
-          sourcePath = '/firebase-simple-login.js'
-        } else if (qs.sourceVersion === 'debug') {
-          sourcePath = '/firebase-simple-login-debug.js'
-        } else {
-          sourcePath = '../../src/firebase-simple-login-local.js';
-        }
-
-        var head= document.getElementsByTagName('head')[0];
-        js = document.createElement('script');
-        js.onreadystatechange= function () {
-          if (this.readyState == 'complete') initializeJasmine();
-        }
-        js.onload = initializeJasmine;
-        js.src = sourcePath;
-        head.appendChild(js);
-      }());
-      */
     </script>
   </head>
   <body>
