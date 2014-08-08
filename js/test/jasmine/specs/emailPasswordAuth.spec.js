@@ -198,7 +198,7 @@ describe("Email/Password Authentication Tests:", function() {
 
   describe("Removing Users:", function() {
 
-    it("removeUser() does not throw an error given only two inputs", function(done) {
+    xit("removeUser() does not throw an error given only two inputs", function(done) {
       var email = generateRandomEmail();
       expect(function() {
         auth.createUser(email, testUserPassword, function(resError, resUser) {
@@ -301,7 +301,7 @@ describe("Email/Password Authentication Tests:", function() {
 
   describe("Changing Passwords:", function() {
 
-    it("changePassword() does not throw an error given only three inputs", function(done) {
+    xit("changePassword() does not throw an error given only three inputs", function(done) {
       var email = generateRandomEmail();
       expect(function() {
         auth.createUser(email, testUserPassword, function(resError, resUser) {
@@ -510,7 +510,7 @@ describe("Email/Password Authentication Tests:", function() {
 
   describe("Sending Password Reset Emails:", function() {
 
-    it("sendPasswordResetEmail() does not throw an error given only one input", function(done) {
+    xit("sendPasswordResetEmail() does not throw an error given only one input", function(done) {
       var email = generateRandomEmail();
       expect(function() {
         auth.createUser(email, testUserPassword, function(resError, resUser) {
