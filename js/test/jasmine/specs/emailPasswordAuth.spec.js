@@ -33,6 +33,9 @@ describe("Email/Password Authentication Tests:", function() {
   });
 
   afterEach(function(done) {
+    // Log out the currently logged in user (if any)
+    auth.logout();
+
     // Clean up the user created in the test if its password is provided
     if (passwordToDeleteCreatedTestUser !== null) {
       auth.removeUser(testUserEmail, passwordToDeleteCreatedTestUser, function(resError) {
@@ -104,17 +107,13 @@ describe("Email/Password Authentication Tests:", function() {
 
   describe("Creating Users:", function() {
 
-    // TODO: In src/FirebaseSimpleLogin.js, we require createUser() to have three inputs
-    //       However, our docs say the callback is optional; which is probably how it should be...
-    // fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
-    xit("createUser() does not throw an error given only two inputs", function() {
+    xit("createUser() does not throw an error given only two inputs", function(done) {
       expect(function() {
-        auth.createUser(testUserEmail, testUserPassword);
-
-        // TODO: need to sleep until createUser() finishes
-
-        // Set the created test user to be deleted after this test
-        passwordToDeleteCreatedTestUser = testUserPassword;
+        auth.createUser(generateRandomEmail(), testUserPassword);
+        // TODO: remove this hack and get this passing in Travis
+        // Creating two users at the same time causes issues, so we should either fix that
+        // issue or wait a fair amount of time until this request has probably succeeded
+        setTimeout(done, 3000);
       }).not.toThrow();
     });
 
@@ -199,11 +198,18 @@ describe("Email/Password Authentication Tests:", function() {
 
   describe("Removing Users:", function() {
 
-    // TODO: In src/FirebaseSimpleLogin.js, we require removeUser() to have three inputs
-    //       However, our docs say the callback is optional; which is probably how it should be...
-    // fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
     xit("removeUser() does not throw an error given only two inputs", function(done) {
-      // TODO
+      var email = generateRandomEmail();
+      expect(function() {
+        auth.createUser(email, testUserPassword, function(resError, resUser) {
+          expect(resError).toBeNull();
+          validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
+
+          auth.removeUser(email, testUserPassword);
+
+          done();
+        });
+      }).not.toThrow();
     });
 
     it("removeUser() throws error given invalid email", function(done) {
@@ -295,11 +301,18 @@ describe("Email/Password Authentication Tests:", function() {
 
   describe("Changing Passwords:", function() {
 
-    // TODO: In src/FirebaseSimpleLogin.js, we require changePassword() to have four inputs
-    //       However, our docs say the callback is optional; which is probably how it should be...
-    // fb.simplelogin.util.validation.validateArgCount(method, 4, 4, arguments.length);
     xit("changePassword() does not throw an error given only three inputs", function(done) {
-      // TODO
+      var email = generateRandomEmail();
+      expect(function() {
+        auth.createUser(email, testUserPassword, function(resError, resUser) {
+          expect(resError).toBeNull();
+          validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
+
+          auth.changePassword(email, testUserPassword, testUserNewPassword);
+
+          done();
+        });
+      }).not.toThrow();
     });
 
     it("changePassword() throws error given invalid email", function(done) {
@@ -496,6 +509,20 @@ describe("Email/Password Authentication Tests:", function() {
 
 
   describe("Sending Password Reset Emails:", function() {
+
+    xit("sendPasswordResetEmail() does not throw an error given only one input", function(done) {
+      var email = generateRandomEmail();
+      expect(function() {
+        auth.createUser(email, testUserPassword, function(resError, resUser) {
+          expect(resError).toBeNull();
+          validateEmailPasswordAuthUserPayload(resUser, /* expectUserProperty */ true);
+
+          auth.sendPasswordResetEmail(email);
+
+          done();
+        });
+      }).not.toThrow();
+    });
 
     it("sendPasswordResetEmail() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {

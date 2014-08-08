@@ -17,7 +17,7 @@ FIREBASE_API_KEY = 1234;
 TEST_NAMESPACE = qs.namespace || 'https://fb-login-tests.firebaseio.com';
 TEST_AUTH_SERVER = qs.apiHost || 'https://auth.firebase.com';
 
-TEST_TIMEOUT = 5000;
+TEST_TIMEOUT = 10000;
 
 /**
  * Valid Facebook OAuth 2.0 Credentials
@@ -83,6 +83,23 @@ function Checklist(items, expect, done) {
   };
 };
 
+/* Returns a random email address */
+function generateRandomEmail() {
+  var possibleCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var numPossibleCharacters = possibleCharacters.length;
+
+  var text = "";
+  for (var i = 0; i < 10; i++) {
+    text += possibleCharacters.charAt(Math.floor(Math.random() * numPossibleCharacters));
+  }
+  text += "@";
+  for (var i = 0; i < 10; i++) {
+    text += possibleCharacters.charAt(Math.floor(Math.random() * numPossibleCharacters));
+  }
+  text += ".com";
+
+  return text;
+}
 
 /*****************************/
 /*  CUSTOM JASMINE MATCHERS  */

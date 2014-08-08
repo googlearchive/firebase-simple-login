@@ -2623,7 +2623,7 @@ goog.require("fb.simplelogin.transports.TriggerIoTab");
 goog.require("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.WindowsMetroAuthBroker");
 goog.require("goog.string");
-var CLIENT_VERSION = "1.6.2";
+var CLIENT_VERSION = "1.6.3";
 fb.simplelogin.client = function(ref, callback, context, apiHost) {
   var self = this;
   this.mRef = ref;
@@ -3020,23 +3020,23 @@ FirebaseSimpleLogin = function(ref, cb, context, apiHost) {
     return client_.logout();
   }, "createUser":function(email, password, cb) {
     var method = "FirebaseSimpleLogin.createUser";
-    fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
-    fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
+    fb.simplelogin.util.validation.validateArgCount(method, 2, 3, arguments.length);
+    fb.simplelogin.util.validation.validateCallback(method, 3, cb, true);
     return client_.createUser(email, password, cb);
   }, "changePassword":function(email, oldPassword, newPassword, cb) {
     var method = "FirebaseSimpleLogin.changePassword";
-    fb.simplelogin.util.validation.validateArgCount(method, 4, 4, arguments.length);
-    fb.simplelogin.util.validation.validateCallback(method, 4, cb, false);
+    fb.simplelogin.util.validation.validateArgCount(method, 3, 4, arguments.length);
+    fb.simplelogin.util.validation.validateCallback(method, 4, cb, true);
     return client_.changePassword(email, oldPassword, newPassword, cb);
   }, "removeUser":function(email, password, cb) {
     var method = "FirebaseSimpleLogin.removeUser";
-    fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
-    fb.simplelogin.util.validation.validateCallback(method, 3, cb, false);
+    fb.simplelogin.util.validation.validateArgCount(method, 2, 3, arguments.length);
+    fb.simplelogin.util.validation.validateCallback(method, 3, cb, true);
     return client_.removeUser(email, password, cb);
   }, "sendPasswordResetEmail":function(email, cb) {
     var method = "FirebaseSimpleLogin.sendPasswordResetEmail";
-    fb.simplelogin.util.validation.validateArgCount(method, 2, 2, arguments.length);
-    fb.simplelogin.util.validation.validateCallback(method, 2, cb, false);
+    fb.simplelogin.util.validation.validateArgCount(method, 1, 2, arguments.length);
+    fb.simplelogin.util.validation.validateCallback(method, 2, cb, true);
     return client_.sendPasswordResetEmail(email, cb);
   }};
 };

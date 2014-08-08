@@ -1,3 +1,9 @@
+v1.6.3
+-------------
+Release Date: 2014-08-07
+
+  * The callback argument for createUser(), changePassword(), sendPasswordResetEmail(), and removeUser() are now optional.
+
 v1.6.2
 -------------
 Release Date: 2014-07-18
