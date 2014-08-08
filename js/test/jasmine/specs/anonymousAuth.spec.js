@@ -44,6 +44,9 @@ describe("Anonymous Authentication Tests:", function() {
       else if (status !== "done") {
         expect(authError).toBeNull();
         validateAnonymousAuthUserPayload(authUser);
+
+        auth.logout();
+
         status = "done";
         done();
       }
@@ -67,6 +70,8 @@ describe("Anonymous Authentication Tests:", function() {
         // Log in anonymously
         auth.login("anonymous").then(function(resUser) {
           validateAnonymousAuthUserPayload(resUser);
+
+          auth.logout();
 
           status = "done";
           done();

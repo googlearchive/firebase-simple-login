@@ -83,6 +83,23 @@ function Checklist(items, expect, done) {
   };
 };
 
+/* Returns a random email address */
+function generateRandomEmail() {
+  var possibleCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var numPossibleCharacters = possibleCharacters.length;
+
+  var text = "";
+  for (var i = 0; i < 10; i++) {
+    text += possibleCharacters.charAt(Math.floor(Math.random() * numPossibleCharacters));
+  }
+  text += "@";
+  for (var i = 0; i < 10; i++) {
+    text += possibleCharacters.charAt(Math.floor(Math.random() * numPossibleCharacters));
+  }
+  text += ".com";
+
+  return text;
+}
 
 /*****************************/
 /*  CUSTOM JASMINE MATCHERS  */
