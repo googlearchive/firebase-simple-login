@@ -17,7 +17,7 @@ FIREBASE_API_KEY = 1234;
 TEST_NAMESPACE = qs.namespace || 'https://fb-login-tests.firebaseio.com';
 TEST_AUTH_SERVER = qs.apiHost || 'https://auth.firebase.com';
 
-TEST_TIMEOUT = 5000;
+TEST_TIMEOUT = 10000;
 
 /**
  * Valid Facebook OAuth 2.0 Credentials
