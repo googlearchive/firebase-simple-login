@@ -121,7 +121,7 @@ describe("Email/Password Authentication Tests:", function() {
       invalidEmails.forEach(function(invalidEmail, i) {
         auth.createUser(invalidEmail, testUserPassword, function(resError, resUser) {
           expect(resUser).toBeNull();
-          expect(resError).toEqual(new Error("FirebaseSimpleL Invalid email specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid email specified."));
           // TODO: get error type in auth callback instead
 
           if (i === numInvalidEmails - 1) {
@@ -135,7 +135,7 @@ describe("Email/Password Authentication Tests:", function() {
       invalidPasswords.forEach(function(invalidPassword, i) {
         auth.createUser(testUserEmail, invalidPassword, function(resError, resUser) {
           expect(resUser).toBeNull();
-          expect(resError).toEqual(new Error("FirebaseSimpleL Invalid password specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid password specified."));
           // TODO: get error type in auth callback instead
 
           if (i === numInvalidPasswords - 1) {
@@ -213,7 +213,7 @@ describe("Email/Password Authentication Tests:", function() {
     it("removeUser() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
         auth.removeUser(invalidEmail, testUserPassword, function(resError) {
-          expect(resError).toEqual(new Error("FirebaseSimpleL Invalid email specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid email specified."));
           // TODO: get error type in auth callback instead
 
           if (i === numInvalidEmails - 1) {
@@ -226,7 +226,7 @@ describe("Email/Password Authentication Tests:", function() {
     it("removeUser() throws error given invalid password", function(done) {
       invalidPasswords.forEach(function(invalidPassword, i) {
         auth.removeUser(testUserEmail, invalidPassword, function(resError) {
-          expect(resError).toEqual(new Error("FirebaseSimpleL Invalid password specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid password specified."));
           // TODO: get error type in auth callback instead
 
           if (i === numInvalidPasswords - 1) {
@@ -314,7 +314,7 @@ describe("Email/Password Authentication Tests:", function() {
     it("changePassword() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
         auth.changePassword(invalidEmail, testUserPassword, testUserNewPassword, function(resError) {
-          expect(resError).toEqual(new Error("FirebaseSimpleL Invalid email specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid email specified."));
           // TODO: get error type in auth callback instead
 
           if (i === numInvalidEmails - 1) {
@@ -332,7 +332,7 @@ describe("Email/Password Authentication Tests:", function() {
         invalidPasswords.forEach(function(invalidPassword, i) {
           auth.changePassword(testUserEmail, invalidPassword, testUserNewPassword, function(resError) {
             // TODO: this test actually throws this error: "FirebaseSimpleLogin: The specified password is incorrect."
-            expect(resError).toEqual(new Error("FirebaseSimpleL Invalid password specified."));
+            expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid password specified."));
             // TODO: get error type in auth callback instead
 
             if (i === numInvalidPasswords - 1) {
@@ -353,7 +353,7 @@ describe("Email/Password Authentication Tests:", function() {
 
         invalidPasswords.forEach(function(invalidPassword, i) {
           auth.changePassword(testUserEmail, testUserPassword, invalidPassword, function(resError2) {
-            expect(resError2).toEqual(new Error("FirebaseSimpleL Invalid password specified."));
+            expect(resError2).toEqual(new Error("FirebaseSimpleLogin: Invalid password specified."));
             // TODO: get error type in auth callback instead
 
             if (i === numInvalidPasswords - 1) {
@@ -520,7 +520,7 @@ describe("Email/Password Authentication Tests:", function() {
     it("sendPasswordResetEmail() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
         auth.sendPasswordResetEmail(invalidEmail, function(resError) {
-          expect(resError).toEqual(new Error("FirebaseSimpleL Invalid email specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid email specified."));
           // TODO: get error type in auth callback instead
 
           if (i === numInvalidEmails - 1) {
