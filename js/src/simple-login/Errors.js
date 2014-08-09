@@ -51,7 +51,7 @@ fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
   return error;
 };
 
-fb.simplelogin.Errors.get = function(code) {
+fb.simplelogin.Errors.getMessageFromCode = function(code) {
   if (!errors[code]) code = 'UNKNOWN_ERROR';
-  return fb.simplelogin.Errors.format(code, errors[code]);
+  return errors[code];
 };

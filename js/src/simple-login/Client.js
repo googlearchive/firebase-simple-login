@@ -277,7 +277,12 @@ fb.simplelogin.client.prototype.loginWithPassword = function(options) {
     options.v = CLIENT_VERSION;
     fb.simplelogin.providers.Password.login(options, function(error, response) {
       if (error || !response['token']) {
-        var errorObj = fb.simplelogin.Errors.format(error);
+        var errorObj;
+        if (typeof error === 'string') {
+          errorObj = fb.simplelogin.Errors.format(error, fb.simplelogin.Errors.getMessageFromCode(error));
+        } else {
+          errorObj = fb.simplelogin.Errors.format(error);
+        }
         self.mLoginStateChange(errorObj, null);
         reject(errorObj);
       } else {
@@ -492,7 +497,12 @@ fb.simplelogin.client.prototype.manageFirebaseUsers = function(method, data, cb)
   var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
     fb.simplelogin.providers.Password[method](data, function(error, result) {
       if (error) {
-        var errorObj = fb.simplelogin.Errors.format(error);
+        var errorObj;
+        if (typeof error === 'string') {
+          errorObj = fb.simplelogin.Errors.format(error, fb.simplelogin.Errors.getMessageFromCode(error));
+        } else {
+          errorObj = fb.simplelogin.Errors.format(error);
+        }
         reject(errorObj);
         return cb && cb(errorObj, null);
       } else {

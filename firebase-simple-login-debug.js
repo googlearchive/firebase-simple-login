@@ -814,11 +814,11 @@ fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
   }
   return error;
 };
-fb.simplelogin.Errors.get = function(code) {
+fb.simplelogin.Errors.getMessageFromCode = function(code) {
   if (!errors[code]) {
     code = "UNKNOWN_ERROR";
   }
-  return fb.simplelogin.Errors.format(code, errors[code]);
+  return errors[code];
 };
 goog.provide("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.Transport");
@@ -1983,56 +1983,56 @@ fb.simplelogin.providers.Password_.prototype.getTransport_ = function() {
 fb.simplelogin.providers.Password_.prototype.login = function(data, onComplete) {
   var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase";
   if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+    return onComplete && onComplete("INVALID_FIREBASE");
   }
   this.getTransport_().open(url, data, onComplete);
 };
 fb.simplelogin.providers.Password_.prototype.createUser = function(data, onComplete) {
   var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/create";
   if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+    return onComplete && onComplete("INVALID_FIREBASE");
   }
   if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
+    return onComplete && onComplete("INVALID_EMAIL");
   }
   if (!fb.simplelogin.util.validation.isValidPassword(data["password"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_PASSWORD"));
+    return onComplete && onComplete("INVALID_PASSWORD");
   }
   this.getTransport_().open(url, data, onComplete);
 };
 fb.simplelogin.providers.Password_.prototype.changePassword = function(data, onComplete) {
   var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/update";
   if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+    return onComplete && onComplete("INVALID_FIREBASE");
   }
   if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
+    return onComplete && onComplete("INVALID_EMAIL");
   }
   if (!fb.simplelogin.util.validation.isValidPassword(data["newPassword"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_PASSWORD"));
+    return onComplete && onComplete("INVALID_PASSWORD");
   }
   this.getTransport_().open(url, data, onComplete);
 };
 fb.simplelogin.providers.Password_.prototype.removeUser = function(data, onComplete) {
   var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/remove";
   if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+    return onComplete && onComplete("INVALID_FIREBASE");
   }
   if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
+    return onComplete && onComplete("INVALID_EMAIL");
   }
   if (!fb.simplelogin.util.validation.isValidPassword(data["password"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_PASSWORD"));
+    return onComplete && onComplete("INVALID_PASSWORD");
   }
   this.getTransport_().open(url, data, onComplete);
 };
 fb.simplelogin.providers.Password_.prototype.sendPasswordResetEmail = function(data, onComplete) {
   var url = fb.simplelogin.Vars.getApiHost() + "/auth/firebase/reset_password";
   if (!fb.simplelogin.util.validation.isValidNamespace(data["firebase"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_FIREBASE"));
+    return onComplete && onComplete("INVALID_FIREBASE");
   }
   if (!fb.simplelogin.util.validation.isValidEmail(data["email"])) {
-    return onComplete && onComplete(fb.simplelogin.Errors.get("INVALID_EMAIL"));
+    return onComplete && onComplete("INVALID_EMAIL");
   }
   this.getTransport_().open(url, data, onComplete);
 };
@@ -2804,7 +2804,12 @@ fb.simplelogin.client.prototype.loginWithPassword = function(options) {
     options.v = CLIENT_VERSION;
     fb.simplelogin.providers.Password.login(options, function(error, response) {
       if (error || !response["token"]) {
-        var errorObj = fb.simplelogin.Errors.format(error);
+        var errorObj;
+        if (typeof error === "string") {
+          errorObj = fb.simplelogin.Errors.format(error, fb.simplelogin.Errors.getMessageFromCode(error));
+        } else {
+          errorObj = fb.simplelogin.Errors.format(error);
+        }
         self.mLoginStateChange(errorObj, null);
         reject(errorObj);
       } else {
@@ -2958,7 +2963,12 @@ fb.simplelogin.client.prototype.manageFirebaseUsers = function(method, data, cb)
   var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
     fb.simplelogin.providers.Password[method](data, function(error, result) {
       if (error) {
-        var errorObj = fb.simplelogin.Errors.format(error);
+        var errorObj;
+        if (typeof error === "string") {
+          errorObj = fb.simplelogin.Errors.format(error, fb.simplelogin.Errors.getMessageFromCode(error));
+        } else {
+          errorObj = fb.simplelogin.Errors.format(error);
+        }
         reject(errorObj);
         return cb && cb(errorObj, null);
       } else {

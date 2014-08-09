@@ -26,7 +26,7 @@ fb.simplelogin.providers.Password_.prototype.login = function(data, onComplete) 
   var url = fb.simplelogin.Vars.getApiHost() + '/auth/firebase';
 
   if (!fb.simplelogin.util.validation.isValidNamespace(data['firebase']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_FIREBASE'));
+    return onComplete && onComplete('INVALID_FIREBASE');
 
   this.getTransport_().open(url, data, onComplete);
 };
@@ -35,13 +35,13 @@ fb.simplelogin.providers.Password_.prototype.createUser = function(data, onCompl
   var url = fb.simplelogin.Vars.getApiHost() + '/auth/firebase/create';
 
   if (!fb.simplelogin.util.validation.isValidNamespace(data['firebase']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_FIREBASE'));
+    return onComplete && onComplete('INVALID_FIREBASE');
 
   if (!fb.simplelogin.util.validation.isValidEmail(data['email']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_EMAIL'));
+    return onComplete && onComplete('INVALID_EMAIL');
 
   if (!fb.simplelogin.util.validation.isValidPassword(data['password']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_PASSWORD'));
+    return onComplete && onComplete('INVALID_PASSWORD');
 
   this.getTransport_().open(url, data, onComplete);
 };
@@ -50,13 +50,13 @@ fb.simplelogin.providers.Password_.prototype.changePassword = function(data, onC
   var url = fb.simplelogin.Vars.getApiHost() + '/auth/firebase/update';
 
   if (!fb.simplelogin.util.validation.isValidNamespace(data['firebase']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_FIREBASE'));
+    return onComplete && onComplete('INVALID_FIREBASE');
 
   if (!fb.simplelogin.util.validation.isValidEmail(data['email']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_EMAIL'));
+    return onComplete && onComplete('INVALID_EMAIL');
 
   if (!fb.simplelogin.util.validation.isValidPassword(data['newPassword']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_PASSWORD'));
+    return onComplete && onComplete('INVALID_PASSWORD');
 
   this.getTransport_().open(url, data, onComplete);
 };
@@ -65,13 +65,13 @@ fb.simplelogin.providers.Password_.prototype.removeUser = function(data, onCompl
   var url = fb.simplelogin.Vars.getApiHost() + '/auth/firebase/remove';
 
   if (!fb.simplelogin.util.validation.isValidNamespace(data['firebase']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_FIREBASE'));
+    return onComplete && onComplete('INVALID_FIREBASE');
 
   if (!fb.simplelogin.util.validation.isValidEmail(data['email']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_EMAIL'));
+    return onComplete && onComplete('INVALID_EMAIL');
 
   if (!fb.simplelogin.util.validation.isValidPassword(data['password']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_PASSWORD'));
+    return onComplete && onComplete('INVALID_PASSWORD');
 
   this.getTransport_().open(url, data, onComplete);
 };
@@ -80,10 +80,10 @@ fb.simplelogin.providers.Password_.prototype.sendPasswordResetEmail = function(d
   var url = fb.simplelogin.Vars.getApiHost() + '/auth/firebase/reset_password';
 
   if (!fb.simplelogin.util.validation.isValidNamespace(data['firebase']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_FIREBASE'));
+    return onComplete && onComplete('INVALID_FIREBASE');
 
   if (!fb.simplelogin.util.validation.isValidEmail(data['email']))
-    return onComplete && onComplete(fb.simplelogin.Errors.get('INVALID_EMAIL'));
+    return onComplete && onComplete('INVALID_EMAIL');
 
   this.getTransport_().open(url, data, onComplete);
 };
