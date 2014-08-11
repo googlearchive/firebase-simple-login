@@ -97,8 +97,7 @@ fb.simplelogin.transports.JSONP_.prototype.writeScriptTag_ = function(id, url, c
         }
         cb && cb(self.formatError_({ code: 'SERVER_ERROR', message: 'An unknown server error occurred.' }));
       };
-      var ref = document.getElementsByTagName('script')[0];
-      ref.parentNode.insertBefore(js, ref);
+      document.getElementsByTagName('head')[0].appendChild(js);
     } catch (e) {
       cb && cb(self.formatError_({ code: 'SERVER_ERROR', message: 'An unknown server error occurred.' }));
     }
