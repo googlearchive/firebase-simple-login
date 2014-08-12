@@ -789,22 +789,28 @@ goog.provide("fb.simplelogin.Errors");
 var messagePrefix = "FirebaseSimpleLogin: ";
 var errors = {"UNKNOWN_ERROR":"An unknown error occurred.", "INVALID_EMAIL":"Invalid email specified.", "INVALID_PASSWORD":"Invalid password specified.", "USER_DENIED":"User cancelled the authentication request.", "RESPONSE_PAYLOAD_ERROR":"Unable to parse response payload.", "TRIGGER_IO_TABS":'The "forge.tabs" module required when using Firebase Simple Login and                               Trigger.io. Without this module included and enabled, login attempts to                               OAuth authentication providers will not be able to complete.'};
 fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
-  var code = errorCode || "UNKNOWN_ERROR", message = errorMessage || errors[code], data = {}, args = arguments;
+  var code, message, data = {}, args = arguments;
   if (args.length === 2) {
     code = args[0];
     message = args[1];
   } else {
     if (args.length === 1) {
       if (typeof args[0] === "object" && (args[0].code && args[0].message)) {
+        if (args[0].message.indexOf(messagePrefix) === 0) {
+          return args[0];
+        }
         code = args[0].code;
         message = args[0].message;
         data = args[0].data;
       } else {
         if (typeof args[0] === "string") {
           code = args[0];
-          message = "";
+          message = errors[code];
         }
       }
+    } else {
+      code = "UNKNOWN_ERROR";
+      message = errors[code];
     }
   }
   var error = new Error(messagePrefix + message);
@@ -813,12 +819,6 @@ fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
     error.data = data;
   }
   return error;
-};
-fb.simplelogin.Errors.getMessageFromCode = function(code) {
-  if (!errors[code]) {
-    code = "UNKNOWN_ERROR";
-  }
-  return errors[code];
 };
 goog.provide("fb.simplelogin.transports.WinChan");
 goog.require("fb.simplelogin.transports.Transport");
@@ -2803,12 +2803,7 @@ fb.simplelogin.client.prototype.loginWithPassword = function(options) {
     options.v = CLIENT_VERSION;
     fb.simplelogin.providers.Password.login(options, function(error, response) {
       if (error || !response["token"]) {
-        var errorObj;
-        if (typeof error === "string") {
-          errorObj = fb.simplelogin.Errors.format(error, fb.simplelogin.Errors.getMessageFromCode(error));
-        } else {
-          errorObj = fb.simplelogin.Errors.format(error);
-        }
+        var errorObj = fb.simplelogin.Errors.format(error);
         self.mLoginStateChange(errorObj, null);
         reject(errorObj);
       } else {
@@ -2857,9 +2852,9 @@ fb.simplelogin.client.prototype.loginViaToken = function(provider, options, cb) 
   options.v = CLIENT_VERSION;
   var self = this, url = fb.simplelogin.Vars.getApiHost() + "/auth/" + provider + "/token?firebase=" + self.mNamespace;
   var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
-    fb.simplelogin.transports.JSONP.open(url, options, function(err, res) {
-      if (err || (!res["token"] || !res["user"])) {
-        var errorObj = fb.simplelogin.Errors.format(err);
+    fb.simplelogin.transports.JSONP.open(url, options, function(error, res) {
+      if (error || (!res["token"] || !res["user"])) {
+        var errorObj = fb.simplelogin.Errors.format(error);
         self.mLoginStateChange(errorObj);
         reject(errorObj);
       } else {
@@ -2941,15 +2936,15 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
       if (res && (res.token && res.user)) {
         self.attemptAuth(res.token, res.user, true, resolve, reject);
       } else {
-        var errObj = error || {code:"UNKNOWN_ERROR", message:"An unknown error occurred."};
+        var errorObj = error || {code:"UNKNOWN_ERROR", message:"An unknown error occurred."};
         if (error === "unknown closed window") {
-          errObj = {code:"USER_DENIED", message:"User cancelled the authentication request."};
+          errorObj = {code:"USER_DENIED", message:"User cancelled the authentication request."};
         } else {
           if (res && res.error) {
-            errObj = res.error;
+            errorObj = res.error;
           }
         }
-        var errorObj = fb.simplelogin.Errors.format(errObj);
+        errorObj = fb.simplelogin.Errors.format(errorObj);
         self.mLoginStateChange(errorObj);
         reject(errorObj);
       }
@@ -2962,12 +2957,7 @@ fb.simplelogin.client.prototype.manageFirebaseUsers = function(method, data, cb)
   var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
     fb.simplelogin.providers.Password[method](data, function(error, result) {
       if (error) {
-        var errorObj;
-        if (typeof error === "string") {
-          errorObj = fb.simplelogin.Errors.format(error, fb.simplelogin.Errors.getMessageFromCode(error));
-        } else {
-          errorObj = fb.simplelogin.Errors.format(error);
-        }
+        var errorObj = fb.simplelogin.Errors.format(error);
         reject(errorObj);
         return cb && cb(errorObj, null);
       } else {

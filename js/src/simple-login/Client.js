@@ -277,12 +277,7 @@ fb.simplelogin.client.prototype.loginWithPassword = function(options) {
     options.v = CLIENT_VERSION;
     fb.simplelogin.providers.Password.login(options, function(error, response) {
       if (error || !response['token']) {
-        var errorObj;
-        if (typeof error === 'string') {
-          errorObj = fb.simplelogin.Errors.format(error, fb.simplelogin.Errors.getMessageFromCode(error));
-        } else {
-          errorObj = fb.simplelogin.Errors.format(error);
-        }
+        var errorObj = fb.simplelogin.Errors.format(error);
         self.mLoginStateChange(errorObj, null);
         reject(errorObj);
       } else {
@@ -371,9 +366,9 @@ fb.simplelogin.client.prototype.loginViaToken = function(provider, options, cb) 
 
   var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
     fb.simplelogin.transports.JSONP.open(url, options,
-      function(err, res) {
-        if (err || !res['token'] || !res['user']) {
-          var errorObj = fb.simplelogin.Errors.format(err);
+      function(error, res) {
+        if (error || !res['token'] || !res['user']) {
+          var errorObj = fb.simplelogin.Errors.format(error);
           self.mLoginStateChange(errorObj);
           reject(errorObj);
         } else {
@@ -473,13 +468,13 @@ fb.simplelogin.client.prototype.loginViaOAuth = function(provider, options, cb) 
       if (res && res.token && res.user) {
         self.attemptAuth(res.token, res.user, /* saveSession */ true, resolve, reject);
       } else {
-        var errObj = error || { code: 'UNKNOWN_ERROR', message: 'An unknown error occurred.' };
+        var errorObj = error || { code: 'UNKNOWN_ERROR', message: 'An unknown error occurred.' };
         if (error === 'unknown closed window') {
-          errObj = { code: 'USER_DENIED', message: 'User cancelled the authentication request.' };
+          errorObj = { code: 'USER_DENIED', message: 'User cancelled the authentication request.' };
         } else if (res && res.error) {
-          errObj = res.error;
+          errorObj = res.error;
         }
-        var errorObj = fb.simplelogin.Errors.format(errObj);
+        errorObj = fb.simplelogin.Errors.format(errorObj);
         self.mLoginStateChange(errorObj);
         reject(errorObj);
       }
@@ -497,12 +492,7 @@ fb.simplelogin.client.prototype.manageFirebaseUsers = function(method, data, cb)
   var promise = new fb.simplelogin.util.RSVP.Promise(function(resolve, reject) {
     fb.simplelogin.providers.Password[method](data, function(error, result) {
       if (error) {
-        var errorObj;
-        if (typeof error === 'string') {
-          errorObj = fb.simplelogin.Errors.format(error, fb.simplelogin.Errors.getMessageFromCode(error));
-        } else {
-          errorObj = fb.simplelogin.Errors.format(error);
-        }
+        var errorObj = fb.simplelogin.Errors.format(error);
         reject(errorObj);
         return cb && cb(errorObj, null);
       } else {
