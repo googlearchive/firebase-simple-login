@@ -19,3 +19,7 @@ bower_components
 
 # Python
 *.pyc
+
+#IntelliJ
+.idea
+*.iml
