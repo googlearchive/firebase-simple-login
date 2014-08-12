@@ -121,9 +121,8 @@ describe("Email/Password Authentication Tests:", function() {
       invalidEmails.forEach(function(invalidEmail, i) {
         auth.createUser(invalidEmail, testUserPassword, function(resError, resUser) {
           expect(resUser).toBeNull();
-          expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid email specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid email specified."));
           // TODO: get error type in auth callback instead
-          // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidEmails - 1) {
             done();
@@ -136,9 +135,8 @@ describe("Email/Password Authentication Tests:", function() {
       invalidPasswords.forEach(function(invalidPassword, i) {
         auth.createUser(testUserEmail, invalidPassword, function(resError, resUser) {
           expect(resUser).toBeNull();
-          expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid password specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid password specified."));
           // TODO: get error type in auth callback instead
-          // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidPasswords - 1) {
             done();
@@ -215,9 +213,8 @@ describe("Email/Password Authentication Tests:", function() {
     it("removeUser() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
         auth.removeUser(invalidEmail, testUserPassword, function(resError) {
-          expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid email specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid email specified."));
           // TODO: get error type in auth callback instead
-          // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidEmails - 1) {
             done();
@@ -229,9 +226,8 @@ describe("Email/Password Authentication Tests:", function() {
     it("removeUser() throws error given invalid password", function(done) {
       invalidPasswords.forEach(function(invalidPassword, i) {
         auth.removeUser(testUserEmail, invalidPassword, function(resError) {
-          expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid password specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid password specified."));
           // TODO: get error type in auth callback instead
-          // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidPasswords - 1) {
             done();
@@ -318,9 +314,8 @@ describe("Email/Password Authentication Tests:", function() {
     it("changePassword() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
         auth.changePassword(invalidEmail, testUserPassword, testUserNewPassword, function(resError) {
-          expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid email specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid email specified."));
           // TODO: get error type in auth callback instead
-          // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidEmails - 1) {
             done();
@@ -337,9 +332,8 @@ describe("Email/Password Authentication Tests:", function() {
         invalidPasswords.forEach(function(invalidPassword, i) {
           auth.changePassword(testUserEmail, invalidPassword, testUserNewPassword, function(resError) {
             // TODO: this test actually throws this error: "FirebaseSimpleLogin: The specified password is incorrect."
-            expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid password specified."));
+            expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid password specified."));
             // TODO: get error type in auth callback instead
-            // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
             if (i === numInvalidPasswords - 1) {
               // Set the created test user to be deleted after this test
@@ -359,9 +353,8 @@ describe("Email/Password Authentication Tests:", function() {
 
         invalidPasswords.forEach(function(invalidPassword, i) {
           auth.changePassword(testUserEmail, testUserPassword, invalidPassword, function(resError2) {
-            expect(resError2).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid password specified."));
+            expect(resError2).toEqual(new Error("FirebaseSimpleLogin: Invalid password specified."));
             // TODO: get error type in auth callback instead
-            // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
             if (i === numInvalidPasswords - 1) {
               // Set the created test user to be deleted after this test
@@ -527,9 +520,8 @@ describe("Email/Password Authentication Tests:", function() {
     it("sendPasswordResetEmail() throws error given invalid email", function(done) {
       invalidEmails.forEach(function(invalidEmail, i) {
         auth.sendPasswordResetEmail(invalidEmail, function(resError) {
-          expect(resError).toEqual(new Error("FirebaseSimpleLogin: FirebaseSimpleLogin: Invalid email specified."));
+          expect(resError).toEqual(new Error("FirebaseSimpleLogin: Invalid email specified."));
           // TODO: get error type in auth callback instead
-          // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
           if (i === numInvalidEmails - 1) {
             done();
@@ -542,7 +534,6 @@ describe("Email/Password Authentication Tests:", function() {
       auth.sendPasswordResetEmail(testUserEmail, function(resError) {
         expect(resError).toEqual(new Error("FirebaseSimpleLogin: The specified user does not exist."));
         // TODO: get error type in auth callback instead
-        // TODO: remove double "FirebaseSimpleLogin:" prefixes
 
         done();
       });
@@ -561,9 +552,6 @@ describe("Email/Password Authentication Tests:", function() {
 
   describe("Logging Users In:", function() {
 
-    // TODO: In src/FirebaseSimpleLogin.js, we require removeUser() to have three inputs
-    //       However, our docs say the callback is optional; which is probably how it should be...
-    // fb.simplelogin.util.validation.validateArgCount(method, 3, 3, arguments.length);
     xit("login() throws error given only one argument", function(done) {
       auth.login("password").then(function(resUser) {
         expect("Should not be here").toBeFalsy();

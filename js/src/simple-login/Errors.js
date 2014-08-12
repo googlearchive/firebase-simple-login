@@ -24,23 +24,34 @@ var errors = {
 };
 
 fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
-  var code = errorCode || 'UNKNOWN_ERROR',
-      message = errorMessage || errors[code],
+  var code,
+      message,
       data = {},
       args = arguments;
 
   if (args.length === 2) {
+    // If we got an error code and message, use both of them
     code = args[0];
     message = args[1];
   } else if (args.length === 1) {
     if (typeof args[0] === 'object' && args[0].code && args[0].message) {
+      // If we got an actual error object, use the data it contains
+      if (args[0].message.indexOf(messagePrefix) === 0) {
+        // If this error has already previously been formatted, just return it
+        return args[0];
+      }
       code = args[0].code;
       message = args[0].message;
       data = args[0].data;
     } else if (typeof args[0] === 'string') {
+      // If we just got an error code as a string, look up its corresponding message
       code = args[0];
-      message = '';
+      message = errors[code];
     }
+  } else {
+    // If we got nothing, set the error as unknown
+    code = 'UNKNOWN_ERROR';
+    message = errors[code];
   }
 
   var error = new Error(messagePrefix + message);
@@ -49,9 +60,4 @@ fb.simplelogin.Errors.format = function(errorCode, errorMessage) {
     error.data = data;
   }
   return error;
-};
-
-fb.simplelogin.Errors.get = function(code) {
-  if (!errors[code]) code = 'UNKNOWN_ERROR';
-  return fb.simplelogin.Errors.format(code, errors[code]);
 };

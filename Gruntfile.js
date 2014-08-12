@@ -70,7 +70,7 @@ module.exports = function(grunt) {
     jasmine: {
       src: {
         src: [
-          'firebase-simple-login.js'
+          'firebase-simple-login-debug.js'
         ],
         options: {
           version: '2.0.0',
