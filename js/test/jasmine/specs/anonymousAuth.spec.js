@@ -12,7 +12,6 @@ describe("Anonymous Authentication Tests:", function() {
       "id",
       "uid",
       "provider",
-      "displayName",
       "firebaseAuthToken"
     ]);
 
@@ -20,10 +19,6 @@ describe("Anonymous Authentication Tests:", function() {
     expect(user.uid).toBe(user.provider + ":" + user.id);
     expect(user.provider).toBe("anonymous");
     expect(typeof user.firebaseAuthToken).toBe("string");
-
-    // TODO: should anonymous auth even have a display name?
-    expect(user.displayName).toBeDefined();
-    // expect(user.displayName).toBe("");
   };
 
   it("Logging in returns correct user payload", function(done) {
