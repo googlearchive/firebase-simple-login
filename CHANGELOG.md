@@ -1,8 +1,11 @@
 v1.6.3
 -------------
-Release Date: 2014-08-07
+Release Date: 2014-08-15
 
-  * The callback argument for createUser(), changePassword(), sendPasswordResetEmail(), and removeUser() are now optional.
+  * The callback argument for `createUser()`, `changePassword()`, `sendPasswordResetEmail()`, and `removeUser()` is now optional.
+  * Fixed issue where we accidentally formatted error messages twice resulting in wrong error messages.
+  * Fixed bug where we assumed a script tag existed for the JSONP transport.
+  * Removed `displayName` from the anonymous authentication user payload.
 
 v1.6.2
 -------------
