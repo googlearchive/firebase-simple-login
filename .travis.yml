@@ -12,4 +12,5 @@ before_script:
   - phantomjs --version
   - casperjs --version
 script:
+  - mkdir dist
   - npm run travis
