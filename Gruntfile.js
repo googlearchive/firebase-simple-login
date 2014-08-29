@@ -34,7 +34,7 @@ module.exports = function(grunt) {
       },
       'js-simple-login': {
         src     : src,
-        dest    : 'firebase-simple-login.js',
+        dest    : 'dist/firebase-simple-login.js',
         options : {
           compilerOpts: {
             'generate_exports'  : true,
@@ -45,7 +45,7 @@ module.exports = function(grunt) {
       },
       'js-simple-login-debug': {
         src     : src,
-        dest    : 'firebase-simple-login-debug.js',
+        dest    : 'dist/firebase-simple-login-debug.js',
         options : {
           compilerOpts: {
             'generate_exports'  : true,
@@ -70,7 +70,7 @@ module.exports = function(grunt) {
     jasmine: {
       src: {
         src: [
-          'firebase-simple-login-debug.js'
+          'dist/firebase-simple-login-debug.js'
         ],
         options: {
           version: '2.0.0',

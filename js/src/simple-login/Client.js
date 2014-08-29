@@ -23,7 +23,7 @@ goog.require('goog.string');
  * @const
  * @type {string}
  */
-var CLIENT_VERSION = '1.6.3';
+var CLIENT_VERSION = '0.0.0';
 
 /**
  * @constructor

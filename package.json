@@ -1,7 +1,7 @@
 {
   "name": "firebase-simple-login",
   "description": "Firebase Simple Login web client",
-  "version": "1.6.3",
+  "version": "0.0.0",
   "author": "Firebase <support@firebase.com> (https://www.firebase.com/)",
   "homepage": "https://github.com/firebase/firebase-simple-login/",
   "repository": {
@@ -27,13 +27,11 @@
     "authentication",
     "synchronization"
   ],
-  "main": "firebase-simple-login.js",
+  "main": "dist/firebase-simple-login.js",
   "files": [
-    "firebase-simple-login.js",
-    "firebase-simple-login-debug.js",
+    "dist/*.js",
     "LICENSE",
     "README.md",
-    "CHANGELOG.md",
     "package.json"
   ],
   "dependencies": {},
@@ -49,7 +47,8 @@
     "grunt-contrib-jasmine": "^0.6.5"
   },
   "scripts": {
-    "test": "grunt"
+    "test": "grunt test",
+    "travis": "grunt"
   },
   "//": "We set 'private: true' since this package is not yet published to npm.",
   "private": true

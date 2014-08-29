@@ -1,4 +1,7 @@
-# building
+# Distribution files
+dist/
+
+# Building
 deps.js
 
 # Mac OS-X
@@ -12,14 +15,14 @@ deps.js
 
 # Node / NPM
 npm-debug.log
-node_modules
+node_modules/
 
 # Bower
-bower_components
+bower_components/
 
 # Python
 *.pyc
 
-#IntelliJ
+# IntelliJ
 .idea
 *.iml
