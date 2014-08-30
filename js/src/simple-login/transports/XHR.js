@@ -32,15 +32,19 @@ fb.simplelogin.transports.XHR_.prototype.open = function(url, data, onComplete) 
 
   var callbackHandler = function() {
     if (!callbackInvoked && xhr.readyState === 4) {
-      callbackInvoked = true;
-
       var data, error;
-      try {
-        data = fb.simplelogin.util.json.parse(xhr.responseText);
-        error = data['error'] || null;
-        delete data['error'];
-      } catch(e) {}
-
+      callbackInvoked = true;
+      if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304 || xhr.status == 1223) {
+        try {
+          data = fb.simplelogin.util.json.parse(xhr.responseText);
+          error = data["error"] || null;
+          delete data["error"];
+        } catch (e) {
+          error = "UNKNOWN_ERROR"
+        }
+      } else {
+        error = "RESPONSE_PAYLOAD_ERROR";
+      }
       return onComplete && onComplete(error, data);
     }
   };
