@@ -5,7 +5,7 @@
 [![Dependency Status](https://gemnasium.com/firebase/firebase-simple-login.png)](https://gemnasium.com/firebase/firebase-simple-login)
 
 Firebase Simple Login is a simple, easy-to-use authentication service built on top of
-[Firebase Custom Login](https://www.firebase.com/docs/web/guide/simple-login/custom.html),
+[Firebase Custom Login](https://www.firebase.com/docs/web/guide/simple-login/custom.html?utm_source=login-js),
 allowing you to authenticate users without any server-side code.
 
 Firebase Simple Login offers several types of authentication: email/password, anonymous, and
@@ -20,7 +20,7 @@ in your HTML:
 
 ```html
 <!-- Firebase -->
-<script src="https://cdn.firebase.com/js/client/1.0.18/firebase.js"></script>
+<script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
 
 <!-- Firebase Simple Login -->
 <script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
@@ -28,10 +28,12 @@ in your HTML:
 
 Use the URL above to download both the minified (`firebase-simple-login.js`) and non-minified
 (`firebase-simple-login-debug.js`) versions of Firebase Simple Login from the Firebase CDN.
+You can also download them from the
+[releases page of this GitHub repository](https://github.com/firebase/firebase-simple-login/releases).
 
-The only dependency is the Firebase web client, which is also available on the Firebase CDN
-using the above URL. Alternatively, you can download the latest client version from the
-[Firebase developer documentation](https://www.firebase.com/docs/web/).
+Simple Login's only dependency is the Firebase web client, which is also available on the Firebase
+CDN using the above URL. Alternatively, you can download the latest client version from the
+[Firebase developer documentation](https://www.firebase.com/docs/web/quickstart?utm_source=login-js).
 
 You can also install Firebase Simple Login via Bower and its dependencies will be downloaded
 automatically:
@@ -43,13 +45,13 @@ $ bower install firebase-simple-login --save
 ## Getting Started with Firebase
 
 Firebase Simple Login requires Firebase in order to authenticate your users. You can
-[sign up here for a free account](https://www.firebase.com/signup/).
+[sign up here for a free account](https://www.firebase.com/signup/?utm_source=login-js).
 
 
 ## Documentation & API Reference
 
-You can read through [the complete documentation](https://www.firebase.com/docs/web/guide/user-auth.html)
-as well as [the full API reference](https://www.firebase.com/docs/web/api/firebasesimplelogin/)
+You can read through [the complete documentation](https://www.firebase.com/docs/web/guide/user-auth.html?utm_source=login-js)
+as well as [the full API reference](https://www.firebase.com/docs/web/api/firebasesimplelogin/?utm_source=login-js)
 in the Firebase developer documentation.
 
 
@@ -61,7 +63,7 @@ you want to use. You can do this from the "Simple Login" tab in your Firebase's 
 providers, setup OAuth credentials, and configure valid OAuth request origins.
 
 Our developer documentation contains more information about how to
-[configure each of the authentication providers](https://www.firebase.com/docs/web/guide/user-auth.html#section-providers).
+[configure each of the authentication providers](https://www.firebase.com/docs/web/guide/user-auth.html#section-providers?utm_source=login-js).
 
 
 ## Usage
@@ -91,8 +93,8 @@ If the user is logged out, try authenticating using the provider of your choice:
 auth.login('<provider>'); // 'password', 'anonymous', 'facebook', 'github', etc.
 ```
 
-You can read through [the complete documentation](https://www.firebase.com/docs/web/guide/user-auth.html)
-as well as [the full API reference](https://www.firebase.com/docs/web/api/firebasesimplelogin/)
+You can read through [the complete documentation](https://www.firebase.com/docs/web/guide/user-auth.html?utm_source=login-js)
+as well as [the full API reference](https://www.firebase.com/docs/web/api/firebasesimplelogin/?utm_source=login-js)
 in the Firebase developer documentation.
 
 
@@ -118,8 +120,8 @@ $ bower install                      # install local JavaScript dependencies
 ```
 
 The source files are located at `/js/src/simple-login/`. Once you've made a change in one of
-those files, run `grunt build` to generate the distribution files `firebase-simple-login.js`
-and `firebase-simple-login-debug.js` which can be found at the root of this repository.
+those files, run `grunt build` to generate the distribution files - `firebase-simple-login.js`
+and `firebase-simple-login-debug.js` - which are written to the root directory.
 
 You can run the test suite via the command line by running `grunt test`. This will run both
 the Jasmine and Casper test suites. If you just want to run one, use `grunt test:jasmine` or
