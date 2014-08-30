@@ -27,9 +27,10 @@
     "authentication",
     "synchronization"
   ],
-  "main": "dist/firebase-simple-login.js",
+  "main": "firebase-simple-login.js",
   "files": [
-    "dist/*.js",
+    "firebase-simple-login.js",
+    "firebase-simple-login-debug.js",
     "LICENSE",
     "README.md",
     "package.json"

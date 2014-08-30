@@ -121,7 +121,7 @@ $ bower install                      # install local JavaScript dependencies
 
 The source files are located at `/js/src/simple-login/`. Once you've made a change in one of
 those files, run `grunt build` to generate the distribution files - `firebase-simple-login.js`
-and `firebase-simple-login-debug.js` - which are written to the `/dist/` directory.
+and `firebase-simple-login-debug.js` - which are written to the root directory.
 
 You can run the test suite via the command line by running `grunt test`. This will run both
 the Jasmine and Casper test suites. If you just want to run one, use `grunt test:jasmine` or

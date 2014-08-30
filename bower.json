@@ -21,7 +21,7 @@
     "authentication",
     "synchronization"
   ],
-  "main": "dist/firebase-simple-login.js",
+  "main": "firebase-simple-login.js",
   "ignore": [
     "**/.*",
     "js/",
