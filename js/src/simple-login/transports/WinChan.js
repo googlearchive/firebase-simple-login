@@ -152,13 +152,13 @@ fb.simplelogin.transports.WinChan_.prototype.open = function(url, opts, cb) {
   var req = fb.simplelogin.util.json.stringify({a: 'request', d: opts.params});
 
   // cleanup on unload
-  function cleanup() {
+  function cleanup(forceKeepWindowOpen) {
     if (iframe) document.body.removeChild(iframe);
     iframe = undefined;
     if (closeInterval) closeInterval = clearInterval(closeInterval);
     removeListener(window, 'message', onMessage);
     removeListener(window, 'unload', cleanup);
-    if (w) {
+    if (w && !forceKeepWindowOpen) {
       try {
         w.close();
       } catch (securityViolation) {
@@ -184,7 +184,7 @@ fb.simplelogin.transports.WinChan_.prototype.open = function(url, opts, cb) {
           cb = null;
         }
       } else if (d.a === 'response') {
-        cleanup();
+        cleanup(d.forceKeepWindowOpen);
         if (cb) {
           cb(null, d.d);
           cb = null;
@@ -244,7 +244,7 @@ fb.simplelogin.transports.WinChan_.prototype.onOpen = function(cb) {
         cb(o, d.d, function(r, forceKeepWindowOpen) {
           autoClose = !forceKeepWindowOpen;
           cb = undefined;
-          doPost({a: 'response', d: r});
+          doPost({a: 'response', d: r, forceKeepWindowOpen: forceKeepWindowOpen});
         });
       }, 0);
     }
