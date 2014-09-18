@@ -1,7 +1,7 @@
 {
   "name": "firebase-simple-login",
   "description": "Firebase Simple Login web client",
-  "version": "0.0.0",
+  "version": "1.6.4",
   "author": "Firebase <support@firebase.com> (https://www.firebase.com/)",
   "homepage": "https://github.com/firebase/firebase-simple-login/",
   "repository": {

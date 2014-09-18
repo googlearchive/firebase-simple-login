@@ -23,7 +23,7 @@ in your HTML:
 <script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
 
 <!-- Firebase Simple Login -->
-<script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
+<script src="https://cdn.firebase.com/js/simple-login/1.6.4/firebase-simple-login.js"></script>
 ```
 
 Use the URL above to download both the minified (`firebase-simple-login.js`) and non-minified
