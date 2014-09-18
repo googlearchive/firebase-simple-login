@@ -1,2 +1,0 @@
-fixed - Improved error handling for XHR requests, including in the case of a lost network connection (thanks to @theSmaw for the contribution).
-fixed - Fixed race condition which caused error message popups to close immediately.
