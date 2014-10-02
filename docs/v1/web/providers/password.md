@@ -9,7 +9,7 @@ This separates sensitive user credentials from your application data, and lets y
 
 Firebase exposes a number of JavaScript convenience methods for account creation and management, letting you have full control over the interface for your application. Create new user accounts with the following snippet:
 
-``javascript
+```javascript
 var authClient = new FirebaseSimpleLogin(myRef, function(error, user) { ... });
 authClient.createUser(email, password, function(error, user) {
   if (error === null) {
