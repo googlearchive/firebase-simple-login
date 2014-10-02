@@ -39,7 +39,7 @@ To handle token expiration gracefully, the authentication function in the client
 
 ### Token Restrictions
 
-The token payload can contain any data of your choosing, however it must contain a `"uid}` key, which must be a string of less than 256 characters.  The generated token must be less than 1024 characters in total.
+The token payload can contain any data of your choosing, however it must contain a `"uid"` key, which must be a string of less than 256 characters.  The generated token must be less than 1024 characters in total.
 
 
 ## Authenticating Clients
