@@ -46,16 +46,14 @@ If you use Maven to build your application, you can add the following dependency
 
 Select a authentication provider for specific installation and configuration information.
 
-TODO: links
-
 | Platform | Description |
 | --- | --- |
-| Email & Password | Integrate Email & Password authentication in your app. |
-| Custom | Integrate Custom authentication in your app. |
-| Anonymous | Integrate Anonymous authentication in your app. |
-| Facebook | Integrate Facebook authentication in your app. |
-| Twitter | Integrate Twitter authentication in your app. |
-| Google |Integrate Google authentication in your app. |
+| [Email & Password](./providers/password.md) | Integrate Email & Password authentication in your app. |
+| [Custom](./providers/custom.md) | Integrate Custom authentication in your app. |
+| [Anonymous](./providers/anonymous.md) | Integrate Anonymous authentication in your app. |
+| [Facebook](./providers/facebook.md) | Integrate Facebook authentication in your app. |
+| [Twitter](./providers/twitter.md) | Integrate Twitter authentication in your app. |
+| [Google](./providers/google.md) | Integrate Google authentication in your app. |
 
 
 ## Enable Providers

@@ -1,4 +1,4 @@
-# Firebase Simple Login - Web
+# Firebase Simple Login - iOS
 
 Firebase Simple Login is a library that allows authentication using only client-side code. Easily authenticate users via email and password or through a number of third-party providers such as Facebook, Twitter, GitHub, and Google.
 
@@ -12,7 +12,7 @@ Firebase can manage authentication for us, using the Simple Login service. Fireb
 
 ## Installing
 
-To install Firebase Simple Login we'll need to download the associated framework for iOS. You can [download the latest version right here](TODO). After the download completes, we'll include the framework in our project.
+To install Firebase Simple Login we'll need to download the associated framework for iOS. You can [download the latest version right here](https://cdn.firebase.com/ios/FirebaseSimpleLogin.framework-1.3.4.zip). After the download completes, we'll include the framework in our project.
 
 ### Include dependencies
 
@@ -21,18 +21,16 @@ Firebase Simple Login depends on two other frameworks, __Accounts__ and __Social
 
 ## Authentication Providers
 
-TODO: links
-
 Select a authentication provider for specific installation and configuration information.
 
 | Platform | Description |
 | --- | --- |
-| Email & Password | Integrate Email & Password authentication in your app. |
-| Custom | Integrate Custom authentication in your app. |
-| Anonymous | Integrate Anonymous authentication in your app. |
-| Facebook | Integrate Facebook authentication in your app. |
-| Twitter | Integrate Twitter authentication in your app. |
-| Google | Integrate Google authentication in your app. |
+| [Email & Password](./providers/password.md) | Integrate Email & Password authentication in your app. |
+| [Custom](./providers/custom.md) | Integrate Custom authentication in your app. |
+| [Anonymous](./providers/anonymous.md) | Integrate Anonymous authentication in your app. |
+| [Facebook](./providers/facebook.md) | Integrate Facebook authentication in your app. |
+| [Twitter](./providers/twitter.md) | Integrate Twitter authentication in your app. |
+| [Google](./providers/google.md) | Integrate Google authentication in your app. |
 
 
 ## Configuring Simple Login
@@ -53,7 +51,7 @@ In the __Simple Login__ tab go down to the __Authentication Providers__ section.
 
 To initialize Simple Login we need to instantiate a `FirebaseSimpleLogin` class. This class is initialized with a `Firebase` reference. We can then implement the `checkAuthStatusWithBlock` block to check whether or not we have a user. This block is triggered once asynchronously.
 
-Objective-C:
+__Objective-C:__
 ```objc
 Firebase* myRef = [[Firebase alloc] initWithUrl:@"https://<your-firebase>.firebaseio.com"];
 FirebaseSimpleLogin* authClient = [[FirebaseSimpleLogin alloc] initWithRef:myRef];
@@ -70,7 +68,7 @@ FirebaseSimpleLogin* authClient = [[FirebaseSimpleLogin alloc] initWithRef:myRef
 }];
 ```
 
-Swift:
+__Swift:__
 ```swift
 var myRef = Firebase(url:"https://<your-firebase>.firebaseio.com")
 var authClient = FirebaseSimpleLogin(ref:myRef)
@@ -89,7 +87,7 @@ authClient.checkAuthStatusWithBlock({ error, user in
 
 In addition to using the Firebase Simple Login object, we can also use the Firebase API to monitor a user's authentication status. By attaching an event listener on the location `/.info/authenticated`, we'll be able to observe any changes to a user's authentication status.
 
-Objective-C:
+__Objective-C:__
 ```objc
 Firebase* authRef = [myRef.root childByAppendingPath:@".info/authenticated"];
 [authRef observeEventType:FEventTypeValue withBlock:^(FDataSnapshot* snapshot) {
@@ -97,7 +95,7 @@ Firebase* authRef = [myRef.root childByAppendingPath:@".info/authenticated"];
 }];
 ```
 
-Swift:
+__Swift:__
 ```swift
 var authRef = myRef.root.childByAppendingPath(".info/authenticated")
 authRef.observeEventType(.Value, withBlock: { snapshot in
@@ -114,12 +112,12 @@ The callback that we specified above will be invoked with the result of this log
 
 The tokens issued to the logged in users are valid for 30 days by default. We can change this default value in the dashboard. Calling `logout` invalidates the user's token and logs them out of your application:
 
-Objective-C:
+__Objective-C:__
 ```objc
 [authClient logout]
 ```
 
-Swift:
+__Swift:__
 ```objc
 authClient.logout()
 ```
@@ -131,7 +129,7 @@ Internally, Simple Login generates JWT auth tokens after authenticating against 
 
 In the sample below we are saving a user when they log in through Simple Login:
 
-Objective-C:
+__Objective-C:__
 ```objc
 // we would probably save a profile when we register new users on our site
 // we could also read the profile to see if it's null
@@ -158,7 +156,7 @@ BOOL isNewUser = false;
 }];
 ```
 
-Swift:
+__Swift:__
 ```swift
 // we would probably save a profile when we register new users on our site
 // we could also read the profile to see if it's null
@@ -224,7 +222,7 @@ Rather than handling for every possible error that could happen, it's best to ju
 
 For example, if we're using email / password authentication we would want to check for an invalid email and an invalid password.
 
-Objective-C:
+__Objective-C:__
 ```objc
 [authClient checkAuthStatusWithBlock:^(NSError* error, FAUser* user) {
     if (error != nil) {
@@ -245,7 +243,7 @@ Objective-C:
 }];
 ```
 
-Swift:
+__Swift:__
 ```swift
 authClient.checkAuthStatusWithBlock({ error, user in
     if error {
@@ -275,7 +273,7 @@ authClient.checkAuthStatusWithBlock({ error, user in
 | FAErrorUserDoesNotExist | The specified account does not exist |
 | FAErrorInvalidPassword | Email/password auth: An incorrect password was given |
 | FAErrorAccessNotGranted | The user did not authorize the application. This error can be triggered by the user closing the OAuth popup or canceling the authentication request. |
-| FAErrorAccountNotFound | The 3rd party account was not found
+| FAErrorAccountNotFound | The 3rd party account was not found |
 FAErrorAuthenticationProviderNotEnabled The specified auth provider is not enabled for your Firebase. |
 | FAErrorInvalidEmail | Email/password auth: The specified email is invalid. |
 | FAErrorBadSystemToken | The cached system token for the auth provider is no longer valid. The user has most likely disabled the specified auth provider. |
