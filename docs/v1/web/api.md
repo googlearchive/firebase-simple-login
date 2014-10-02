@@ -19,7 +19,7 @@ A `FirebaseSimpleLogin` object is used to manage user login to a Firebase. Note 
 [removeUser(email, password, [callback])](#removeuseremail-password-callback)
 
 
-## `new FirebaseSimpleLogin(ref, callback, [context])`
+## new FirebaseSimpleLogin(ref, callback, [context])
 
 Creates a new login object for the specified Firebase reference. The specified callback will be called once with the user's initial login state and again anytime the user's login state changes.
 
