@@ -2,6 +2,7 @@
 
 A `FirebaseSimpleLogin` object is used to manage user login to a Firebase. Note that you must include the Simple Login JavaScript library in your application to use these features. Read the Simple Login section of the web guide to get started.
 
+
 ## Methods
 
 [new FirebaseSimpleLogin(ref, callback, [context])](#new-firebasesimpleloginref-callback-context)

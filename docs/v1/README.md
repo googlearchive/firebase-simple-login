@@ -228,3 +228,8 @@ var authClient = new FirebaseSimpleLogin(myRef, function(error, user) {
 | INVALID_USER | Email/password auth: The specified user does not exist. |
 | UNKNOWN_ERROR | An unknown error occurred. Please contact support@firebase.com. |
 | USER_DENIED | User denied authentication request. This error can be triggered by the user closing the OAuth popup or canceling the authentication request. |
+
+
+## API Reference
+
+[You can find a full API reference here.](./api.md)

@@ -3,7 +3,7 @@
 
 ## Configuring Your Application
 
-To get started with Google authentication in Firebase Simple Login, you need to first create a new Google application. Click the __Create Project__ button on that page and fill in a name and ID for your project. Once your application is created, navigate to __APIs & AUTH → Credentials__ in the left-hand navigation menu, and select __Create New Client ID__.
+To get started with Google authentication in Firebase Simple Login, you need to first [create a new Google application](https://cloud.google.com/console). Click the __Create Project__ button on that page and fill in a name and ID for your project. Once your application is created, navigate to __APIs & AUTH → Credentials__ in the left-hand navigation menu, and select __Create New Client ID__.
 
 Simple Login requires web application access, so select __Web application__. Set __Authorized JavaScript origins__ to `https://auth.firebase.com`. Finally, set the __Authorized Redirect URI__ to `https://auth.firebase.com/auth/google/callback`. This allows your application to properly communicate with Firebase.
 
@@ -48,8 +48,8 @@ Now that the client is logged in, your [Security Rules](https://www.firebase.com
 | --- | --- | --- |
 | email | The user's Google email address. | String |
 | id | The user's Google id. | String |
-| provider | The authentication method used, in this case: 'google'. | String |
-| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format 'google:<id>'). | String |
+| provider | The authentication method used, in this case: `google`. | String |
+| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format `google:<id>`). | String |
 
 The `user` object returned to your callback contains some additional data as a convenience. At a minimum, it will contain the fields indicated below:
 
@@ -60,6 +60,6 @@ The `user` object returned to your callback contains some additional data as a c
 | email | The user's Google email. | String |
 | firebaseAuthToken | The Firebase authentication token for this session. | String |
 | id | The user's Google id. | String |
-| provider | The authentication method used, in this case: 'google'. | String |
+| provider | The authentication method used, in this case: `google`. | String |
 | thirdPartyUserData | User account data returned by Google. | Object |
-| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format 'google:<id>'). | String |
+| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format `google:<id>`). | String |
