@@ -4,19 +4,19 @@ A `FirebaseSimpleLogin` object is used to manage user login to a Firebase. Note 
 
 ## Methods
 
-[new FirebaseSimpleLogin(ref, callback, [context])]()
+[new FirebaseSimpleLogin(ref, callback, [context])](#new-firebasesimpleloginref-callback-context)
 
-[login()](provider, [options])
+[login(provider, [options)](#loginprovider-options)
 
-[logout()]()
+[logout()](#logout)
 
-[createUser()](email, password, [callback])
+[createUser(email, password, [callback])](#createuseremail-password-callback)
 
-[changePassword()](email, oldPassword, newPassword, [callback])
+[changePassword(email, oldPassword, newPassword, [callback])](#changepasswordemail-oldpassword-newpassword-callback)
 
-[sendPasswordResetEmail()](email, [callback])
+[sendPasswordResetEmail(email, [callback])](#sendpasswordresetemailemail-callback)
 
-[removeUser()](email, password, [callback])
+[removeUser(email, password, [callback])](#removeuseremail-password-callback)
 
 
 ## `new FirebaseSimpleLogin(ref, callback, [context])`

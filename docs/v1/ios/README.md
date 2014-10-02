@@ -19,6 +19,11 @@ To install Firebase Simple Login we'll need to download the associated framework
 Firebase Simple Login depends on two other frameworks, __Accounts__ and __Social__. Add them to your project.
 
 
+## API Reference
+
+[You can find a full API reference here.](./api.md)
+
+
 ## Authentication Providers
 
 Select a authentication provider for specific installation and configuration information.

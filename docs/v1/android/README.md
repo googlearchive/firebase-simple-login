@@ -42,6 +42,11 @@ If you use Maven to build your application, you can add the following dependency
 ```
 
 
+## API Reference
+
+[You can find a full API reference here.](./api.md)
+
+
 ## Authentication Providers
 
 Select a authentication provider for specific installation and configuration information.

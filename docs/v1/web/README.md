@@ -18,6 +18,10 @@ To install Firebase Simple Login we'll need to include the referencing script:
 <script src="https://cdn.firebase.com/js/simple-login/1.6.4/firebase-simple-login.js"></script>
 ```
 
+## API Reference
+
+[You can find a full API reference here.](./api.md)
+
 
 ## Authentication Providers
 
