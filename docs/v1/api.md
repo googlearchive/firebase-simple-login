@@ -81,7 +81,7 @@ No return value.
 
 ### Notes
 
-Read the [Simple Login guide](./README.md) for a complete list of supported authentication methods. After login an [`auth` variable](TODO) will be accessible from your Firebase [Security Rules](https://www.firebase.com/docs/web/guide/securing-data.html). Security rules allow you to control what actions each user is allowed to make on your Firebase.
+Read the [Simple Login guide](./README.md) for a complete list of supported authentication methods. After login an `auth` variable will be accessible from your Firebase [Security Rules](https://www.firebase.com/docs/web/guide/securing-data.html). Security rules allow you to control what actions each user is allowed to make on your Firebase.
 
 ### Code Samples
 
@@ -131,7 +131,7 @@ The user's email address.
 
 The password to set for this user.
 
-#### `callback` Function *optional
+#### `callback` Function __(optional)__
 
 A callback that is fired after account creation completes. The callback will take two arguments: an `error` and an object containing user data. The `error` will be `null` on success, and the user data will be `null` on failure.
 
@@ -170,7 +170,7 @@ The account's current password.
 
 The new password to set for the account.
 
-#### `callback` Function *optional
+#### `callback` Function __(optional)__
 
 A callback to be triggered after the password change completes. The callback will take a single `error` argument which will be an `Error` object upon failure and `null` upon success.
 

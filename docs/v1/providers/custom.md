@@ -31,7 +31,7 @@ String token = tokenGenerator.createToken(payload);
 System.out.println(token);
 ```
 
-When authenticating with a secure JWT, the data encoded in the token will be accessible in the [Security Rules](https://www.firebase.com/docs/web/guide/securing-data.html) as the [`auth` variable](TODO). This allows rules to be written which grant access based on the data within the token.
+When authenticating with a secure JWT, the data encoded in the token will be accessible in the [Security Rules](https://www.firebase.com/docs/web/guide/securing-data.html) as the `auth` variable. This allows rules to be written which grant access based on the data within the token.
 
 By default, authentication tokens expire 24 hours after they are issued and the client will automatically be unauthenticated at that time. We can override this by changing the Session Length setting on the Login & Auth tab of the Firebase's dashboard, or individually when creating the token by providing a specific expiration date (for details, see the docs for the specific token generator you're using).
 
