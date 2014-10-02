@@ -1,6 +1,6 @@
 # Authenticating Users with Email & Password - Android
 
-Firebase Simple Login provides an easy way to integrate email and password authentication in your app. Firebase automatically stores your users' credentials securely (using bcrypt) and redundantly (hourly off-site backups).
+Firebase Simple Login provides an easy way to integrate email and password authentication in your app. Firebase automatically stores your users' credentials securely (using bcrypt) and redundantly (daily off-site backups).
 
 This separates sensitive user credentials from your application data, and lets you focus on the user interface and experience for your app.
 
