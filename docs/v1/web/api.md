@@ -6,7 +6,7 @@ A `FirebaseSimpleLogin` object is used to manage user login to a Firebase. Note 
 
 [new FirebaseSimpleLogin(ref, callback, [context])](#new-firebasesimpleloginref-callback-context)
 
-[login(provider, [options)](#loginprovider-options)
+[login(provider, [options])](#loginprovider-options)
 
 [logout()](#logout)
 
