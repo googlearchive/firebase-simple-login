@@ -34,7 +34,7 @@ Select a authentication provider for specific installation and configuration inf
 | [Anonymous](./providers/anonymous.md) | Integrate Anonymous authentication in your app. |
 | [Facebook](./providers/facebook.md) | Integrate Facebook authentication in your app. |
 | [Twitter](./providers/twitter.md) | Integrate Twitter authentication in your app. |
-| [GitHub](.providers/github.md) | Integrate GitHub authentication in your app. |
+| [GitHub](./providers/github.md) | Integrate GitHub authentication in your app. |
 | [Google](./providers/google.md) | Integrate Google authentication in your app. |
 
 
