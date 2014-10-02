@@ -133,7 +133,7 @@ var authClient = new FirebaseSimpleLogin(myRef, function(error, user) {
 
 When a user is saved using the above code, our structure will resemble something like this:
 
-```javascript
+```json
 {
   "users": {
     "simplelogin:1": {
