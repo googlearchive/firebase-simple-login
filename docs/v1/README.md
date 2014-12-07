@@ -210,11 +210,6 @@ var authClient = new FirebaseSimpleLogin(myRef, function(error, user) {
 ```
 
 
-## Authentication Sample App
-
-[This interactive demo](http://jsfiddle.net/firebase/wPBj5/embedded/result,js/) demonstrates registration and login. Once the user is logged in, we save that user information to a users location in our Firebase and take them to a screen showing all the registered users in the system.
-
-
 ## Full Error Listing
 
 | Error Code | Description |
