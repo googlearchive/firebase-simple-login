@@ -48,8 +48,7 @@
     "grunt-contrib-jasmine": "^0.6.5"
   },
   "scripts": {
-    "test": "grunt test",
-    "travis": "grunt"
+    "test": "grunt test"
   },
   "//": "We set 'private: true' since this package is not yet published to npm.",
   "private": true

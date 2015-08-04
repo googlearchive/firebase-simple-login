@@ -1,8 +1,6 @@
 # Firebase Simple Login - Web Client
 
 [![GitHub version](https://badge.fury.io/gh/firebase%2Ffirebase-simple-login.svg)](http://badge.fury.io/gh/firebase%2Ffirebase-simple-login)
-[![Build Status](https://api.travis-ci.org/firebase/firebase-simple-login.svg?branch=master)](https://travis-ci.org/firebase/firebase-simple-login)
-[![Dependency Status](https://gemnasium.com/firebase/firebase-simple-login.png)](https://gemnasium.com/firebase/firebase-simple-login)
 
 Firebase Simple Login is a simple, easy-to-use authentication service built on top of
 [Firebase Custom Login](https://www.firebase.com/docs/web/guide/simple-login/custom.html?utm_source=login-js),
