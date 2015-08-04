@@ -44,7 +44,7 @@ Now that the client is logged in, your [Security Rules](https://www.firebase.com
 | --- | --- | --- |
 | id | The user's GitHub id. | String |
 | provider | The authentication method used, in this case: `github`. | String |
-| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format `github:<id>`). | String |
+| uid | A unique id combining the provider and id, intended as the unique key for user data. | String |
 
 The `user` object returned to your callback contains some additional data as a convenience. At a minimum, it will contain the fields indicated below:
 
@@ -57,4 +57,4 @@ The `user` object returned to your callback contains some additional data as a c
 | provider | The authentication method used, in this case: `github`. | String |
 | username | The user's GitHub username. | String |
 | thirdPartyUserData | User account data returned by GitHub. | Object |
-| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format `github:<id>`). | String |
+| uid | A unique id combining the provider and id, intended as the unique key for user data. | String |

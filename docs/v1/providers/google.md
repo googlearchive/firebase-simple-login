@@ -49,7 +49,7 @@ Now that the client is logged in, your [Security Rules](https://www.firebase.com
 | email | The user's Google email address. | String |
 | id | The user's Google id. | String |
 | provider | The authentication method used, in this case: `google`. | String |
-| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format `google:<id>`). | String |
+| uid | A unique id combining the provider and id, intended as the unique key for user data. | String |
 
 The `user` object returned to your callback contains some additional data as a convenience. At a minimum, it will contain the fields indicated below:
 
@@ -62,4 +62,4 @@ The `user` object returned to your callback contains some additional data as a c
 | id | The user's Google id. | String |
 | provider | The authentication method used, in this case: `google`. | String |
 | thirdPartyUserData | User account data returned by Google. | Object |
-| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format `google:<id>`). | String |
+| uid | A unique id combining the provider and id, intended as the unique key for user data. | String |

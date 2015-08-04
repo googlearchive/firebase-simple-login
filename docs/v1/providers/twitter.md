@@ -43,7 +43,7 @@ Now that the client is logged in, your [Security Rules](https://www.firebase.com
 | --- | --- | --- |
 |id | The user's Twitter id. | String |
 | provider | The authentication method used, in this case: `twitter`. | String |
-| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format `twitter:<id>`). | String |
+| uid | A unique id combining the provider and id, intended as the unique key for user data. | String |
 
 The `user` object returned to your callback contains some additional data as a convenience. At a minimum, it will contain the fields indicated below:
 
@@ -56,5 +56,5 @@ The `user` object returned to your callback contains some additional data as a c
 | id | The user's Twitter id. | String |
 | provider | The authentication method used, in this case: `twitter`. | String |
 | thirdPartyUserData | User account data returned by Twitter. | Object |
-| uid | A unique id combining the provider and id, intended as the unique key for user data (will have the format `twitter:<id>`). | String |
+| uid | A unique id combining the provider and id, intended as the unique key for user data. | String |
 | username | The user's Twitter username. | String |

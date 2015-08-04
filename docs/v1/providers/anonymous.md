@@ -50,7 +50,7 @@ The `user` object returned to your callback after a user has logged in anonymous
 | firebaseAuthToken | The Firebase authentication token for this session. | String |
 | id | The new, user-specific alphanumeric ID. | String |
 | provider | The authentication method used, in this case: `anonymous`. | String |
-| uid | A unique ID combining the provider and ID, intended as the user's unique key across all providers; will have the format `anonymous:<id>`. | String |
+| uid | A unique ID combining the provider and ID, intended as the user's unique key across all providers. | String |
 
 
 ### Security Rules
@@ -61,7 +61,7 @@ Once the client is logged in, your [Security Rules](https://www.firebase.com/doc
 | --- | --- | --- |
 | id | The new, user-specific alphanumeric ID. | String |
 | provider | The authentication method used; in this case, `anonymous`. | String |
-| uid | A unique ID combining the provider and ID, intended as the user's unique key across all providers; will have the format `anonymous:<id>`. | String |
+| uid | A unique ID combining the provider and ID, intended as the user's unique key across all providers. | String |
 
 Here is an example of how to use the `auth` variable in your Security Rules:
 

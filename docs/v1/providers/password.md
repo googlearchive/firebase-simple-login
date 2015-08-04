@@ -63,7 +63,7 @@ Now that the client is logged in, your [Security Rules](https://www.firebase.com
 | email | The user's email address. | String |
 | id | The user's auto-incrementing id for your Firebase. | String |
 | provider | The authentication method used, in this case: `password`. | String |
-| uid | A unique id combining the prefix 'simplelogin' and id, intended as the unique key for user data (will have the format `simplelogin:<id>`). | String |
+| uid | A unique id combining the prefix 'simplelogin' and id, intended as the unique key for user data. | String |
 
 The `user` object returned to your callback contains some additional data as a convenience. At a minimum, it will contain the fields indicated below:
 
@@ -74,7 +74,7 @@ The `user` object returned to your callback contains some additional data as a c
 | id | The user's auto-incrementing id for your Firebase. | String |
 | md5_hash | An MD5 hash of the user's email address, suitable for Gravatar image URLs. | String |
 | provider | The authentication method used, in this case: `password`. | String |
-| uid | A unique id combining the prefix 'simplelogin' and id, intended as the unique key for user data (will have the format `simplelogin:<id>`). | String |
+| uid | A unique id combining the prefix 'simplelogin' and id, intended as the unique key for user data. | String |
 
 
 ## Changing Passwords
