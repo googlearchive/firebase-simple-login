@@ -221,7 +221,7 @@ var authClient = new FirebaseSimpleLogin(myRef, function(error, user) {
 | INVALID_ORIGIN | Unauthorized request origin. This most likely means we need to add the domain to our whitelist. |
 | INVALID_PASSWORD | Email/password auth: The specified password is incorrect. |
 | INVALID_USER | Email/password auth: The specified user does not exist. |
-| UNKNOWN_ERROR | An unknown error occurred. Please contact support@firebase.com. |
+| UNKNOWN_ERROR | An unknown error occurred. Please contact support. |
 | USER_DENIED | User denied authentication request. This error can be triggered by the user closing the OAuth popup or canceling the authentication request. |
 
 

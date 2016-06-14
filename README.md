@@ -21,7 +21,7 @@ documentation for it here](./docs/v1).
 
 You can read more about this change [on our blog](https://www.firebase.com/blog/2014-10-03-major-updates-to-firebase-user-auth.html) and see the [updated login documentation](https://www.firebase.com/docs/web/guide/user-auth.html)
 on our website. The updated documentation includes migration plans, but if you have any other
-questions, please reach out to us at support@firebase.com.
+questions, please reach out to us through one of our [support channels](http://firebase.google.com/support).
 
 
 ## Installation

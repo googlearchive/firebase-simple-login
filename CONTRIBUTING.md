@@ -13,7 +13,7 @@ If you're having trouble using one or more of the Simple Login client libraries,
 multitude of official Firebase support channels available to you, including the
 [Firebase Simple Login official documentation](https://www.firebase.com/docs/web/guide/user-auth.html?utm_source=login-js),
 the [Firebase tag on StackOverflow](http://stackoverflow.com/tags/firebase), or
-[support@firebase.com](mailto:support@firebase.com).
+our other official [support channels](https://firebase.google.com/support/).
 
 If you think you've found a bug in the client, as a result of errors thrown,
 inconsistent or unpredictable behavior, or other problems, please file an issue
