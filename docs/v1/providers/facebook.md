@@ -85,7 +85,7 @@ auth.login("facebook", {
 When the user successfully logs in we will get back an `accessToken` in the `user` object.
 
 ```javascript
-var ref = new Firebase("https://<your-firebase>.firebaseio.com");
+var myRef = new Firebase("https://<your-firebase>.firebaseio.com");
 var authClient = new FirebaseSimpleLogin(myRef, function(error, user) {
   if (user) {
     // the access token will allow us to make Open Graph API calls
